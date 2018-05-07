@@ -2,11 +2,6 @@
 #include <stdlib.h>
 #include "estruturas.h"
 
-#define NORTE 0
-#define SUL 1
-#define ESTE 2
-#define OESTE 3
-
 void menuA() {
 	while(1) {
 		printf("1 para voltar a trás\n");

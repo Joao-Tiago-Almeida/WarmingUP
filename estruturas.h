@@ -1,3 +1,11 @@
+#ifndef ESTRUTURAS_H
+#define ESTRUTURAS_H
+
+#define NORTE 0
+#define SUL 1
+#define ESTE 2
+#define OESTE 3
+
 typedef struct {
 	int dia;
 	int mes;
@@ -18,3 +26,5 @@ typedef struct {
 	geo_coord latitude;
 	geo_coord longitude;
 } dados_temp;
+
+#endif
