@@ -1,32 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "estruturas.h"
+#include "functions.h"
 
-void menuA() {
-	while(1) {
-		printf("1 para voltar a trás\n");
-		int c = getchar();
-		if(c == '1') {
-			return;
-		} else if(c != '\r') {
-			printf("opcao invalida\n");
-		}
-	}
-}
+int main ( void )
+{
+  int ano_a_analisar = -1, periodo_a_analisar = -1;
 
-void menuPrincipal() {
-	while(1) {
-		printf("1 para menu A\n");
-		int c = getchar();
-		if(c == '1') {
-			menuA();
-		} else if(c != '\r') {
-			printf("opcao invalida\n");
-		}
-	}
-}
+  menu_principal(&periodo_a_analisar, &ano_a_analisar);
 
-int main(void) {
-    menuPrincipal();
-    return 0;
+  printf("END\n");
+
+  return EXIT_SUCCESS;
 }
