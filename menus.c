@@ -1,4 +1,4 @@
-#include "functions.h"
+#include "menus.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -124,6 +124,8 @@ void menu_analise_da_temperatura_global()
 {
 
 }
+
+// vv Isto estaria noutro ficheiro vv
 void limpa_criteritos()
 {
 
