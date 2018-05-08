@@ -4,10 +4,13 @@
 #include "lista.h"
 #include "menus.h"
 #include <string.h>
+
+
+
 int main ( void )
 {
   int ano_a_analisar = -1, periodo_a_analisar = -1;
-  list_node_t* headListaDados = NULL;  
+  list_node_t* headListaDados = NULL;
 
   headListaDados = create_list();
 
@@ -26,7 +29,7 @@ int main ( void )
       insert_node(headListaDados, &a);
   }
   print_list(headListaDados);
-  
+
   menu_principal(&periodo_a_analisar, &ano_a_analisar);
 
   printf("END\n");

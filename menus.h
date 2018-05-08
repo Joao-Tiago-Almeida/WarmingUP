@@ -11,9 +11,9 @@ void menu_analise_da_temperatura_global();
 void limpa_criteritos();
 void escolhe_intervalos_para_analise();
 void escolhe_mes();
-void global();
-void por_pais();
-void por_cidade();
+void historico_de_temperaturas_global();
+void historico_de_temperaturas_por_pais();
+void historico_de_temperaturas_por_cidade();
 void analise_por_pais();
 void analise_por_cidade();
 

@@ -13,9 +13,9 @@ list_node_t *create_node(dados_temp *_dados)
         printf("Memory allocation error\n");
         exit(EXIT_FAILURE);
     }
-    
+
     new_node->payload = *_dados;
-    
+
     new_node->prev = NULL;
     new_node->next = NULL;
 
