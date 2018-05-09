@@ -53,52 +53,24 @@ void ler_argumentos(int argc, char *argv[], bool *modoGrafico, char **nomeFilePa
 }
 
 void modoTextual(char *nomeFilePaises, char *nomeFileCidades) {
-    int ano_a_analisar = -1, periodo_a_analisar = -1;
-    list_node_t *headListaDados = NULL;
+    int size_countries_file = 0;
+    list_node_t* headListaDados = NULL;
 
-    headListaDados = create_list();
+    //Ele está a lê-los sem ser por ordem, para ler ordenado a melhor forma
+    // é dentro do read_file_countries usar o sortedInsert (deixei comentado) em vez do insertNode 
+    // Nao usar o insertionSort pq ele vai demorar mais tempo acho eu
+    
+    size_countries_file = read_file_countries (&headListaDados);
+    //print_list(headListaDados);
 
-    //Teste de como criar elementos na lista
-    for (int i = 0; i < 2; i++)
-    {
-        dados_temp a;
-        a.dt.ano = 1;
-        a.dt.mes = 1;
-        a.dt.dia = 1;
-        a.temp = 10.0f;
-        a.incerteza = 1.0f;
-        strcpy(a.pais, "Portugal");
-        strcpy(a.cidade, "Santarem");
-        a.latitude.angular = 1.0f;
-        a.latitude.direcao = NORTE;
-        
-        insert_node(headListaDados, &a);
-    }
-    print_list(headListaDados);
 
-    menu_principal(&periodo_a_analisar, &ano_a_analisar);
+    menu_principal(NULL, NULL);
 
     printf("END\n");
 }
 
 int main(int argc, char *argv[])
 {
-    int ano_a_analisar = -1, periodo_a_analisar = -1;
-    int size_countries_file = 0;
-    list_node_t* headListaDados = NULL;
-
-    size_countries_file = read_file_countries (&headListaDados);
-    print_list(headListaDados);
-
-    headListaDados = insertionSort(&headListaDados);
-
-    //print_list(headListaDados);
-
-
-
-
-    menu_principal(&periodo_a_analisar, &ano_a_analisar);
-
     bool modoGrafico = false;
     char *nomeFilePaises = NULL, *nomeFileCidades = NULL;
     ler_argumentos(argc, argv, &modoGrafico, &nomeFilePaises, &nomeFileCidades);
