@@ -124,8 +124,11 @@ void sortedInsert(list_node_t *_head, list_node_t *_new_node)
 
         _new_node->next = tmp;
         _new_node->prev = aux;
-        tmp->prev = _new_node;
         aux->next = _new_node;
+        if( tmp != NULL)
+        {
+            tmp->prev = _new_node;
+        }
     }
 
 }
