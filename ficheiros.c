@@ -55,15 +55,18 @@ int read_file_countries(list_node_t **_head)
 
         dados_temp a;
         sscanf(buffer, "%d-%d-%d,%f,%f,%[^\n]",
-        &a.dt.ano,
-        &a.dt.mes,
-        &a.dt.dia,
-        &a.temp,
-        &a.incerteza,
-        nome_temp
-        );
+            &a.dt.ano,
+            &a.dt.mes,
+            &a.dt.dia,
+            &a.temp,
+            &a.incerteza,
+            nome_temp);
+        
         strcpy(a.pais, nome_temp);
+        /*list_node_t* node = create_node(&a);
+        sortedInsert(_head, node);*/
         insert_node(*_head, &a);
+        printf("%d\n", i);
         i++;
     }
 
