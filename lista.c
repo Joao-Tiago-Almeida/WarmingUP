@@ -101,7 +101,7 @@ int remove_nodes(list_node_t *_head)
 
 void sortedInsert(list_node_t *_head, list_node_t *_new_node)
 {
-    printf("function:: sortedInsert\n");
+    //printf("function:: sortedInsert\n");
     list_node_t* aux = NULL;
     list_node_t* tmp = NULL;
     aux = _head;
@@ -116,7 +116,10 @@ void sortedInsert(list_node_t *_head, list_node_t *_new_node)
     else
     {
         //insert in te middle of the list
-        while (tmp != NULL && tmp->payload.dt.ano < _new_node->payload.dt.ano )
+        while (tmp != NULL &&
+                (tmp->payload.dt.ano < _new_node->payload.dt.ano ||
+                (tmp->payload.dt.ano == _new_node->payload.dt.ano &&
+                 tmp->payload.dt.mes < _new_node->payload.dt.mes )))
         {
             aux = tmp;
             tmp = aux->next;
