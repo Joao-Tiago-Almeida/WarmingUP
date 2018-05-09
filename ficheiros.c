@@ -34,7 +34,7 @@ for(int i = 0; i<3; i++) {
 
 int read_file_countries(list_node_t **_head)
 {
-    int i = 0;
+    int i = 0, check = -1;
 
     char nome_temp[MAX_STRING];
     char buffer[BUFFER];
@@ -54,20 +54,23 @@ int read_file_countries(list_node_t **_head)
     while(fgets(buffer, BUFFER, fileInput) != NULL){
 
         dados_temp a;
-        sscanf(buffer, "%d-%d-%d,%f,%f,%[^\n]",
+        check = sscanf(buffer, "%d-%d-%d,%f,%f,%[^\n]",
             &a.dt.ano,
             &a.dt.mes,
             &a.dt.dia,
             &a.temp,
             &a.incerteza,
             nome_temp);
-        
+
         strcpy(a.pais, nome_temp);
-        /*list_node_t* node = create_node(&a);
-        sortedInsert(_head, node);*/
-        insert_node(*_head, &a);
-        printf("%d\n", i);
-        i++;
+
+        if ( check == 6 )
+        {
+            list_node_t* node = create_node(&a);
+            sortedInsert(*_head, node);
+            printf("%d\n", i);
+            i++;
+        }
     }
 
     fclose(fileInput);

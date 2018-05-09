@@ -29,7 +29,8 @@ list_node_t *create_list()
     return create_node(&d);
 }
 
-//Esta função cria uma nova node que tem como payload uma copia do parametro dados  ??? MIGUEL  ???
+//Esta função cria uma nova node que tem como payload uma copia do parametro dados
+//TODO remover
 void insert_node(list_node_t *_head, dados_temp *_dados)
 {
     list_node_t *new_node = create_node(_dados);
@@ -75,6 +76,7 @@ int remove_nodes(list_node_t *_head)
 
     while (aux != NULL)
     {
+        //TODO
         /*if (strlen(aux->name) == 0) // node with an empty string
         {
             tmp = aux->next;
@@ -97,43 +99,32 @@ int remove_nodes(list_node_t *_head)
     return 0;
 }
 
-list_node_t* insertionSort(list_node_t **_unsorted_list)
-{
-    printf("function:: insertionSort\n");
-    list_node_t* aux = NULL;
-    list_node_t* sorted_list = NULL;
-    list_node_t* tmp = NULL;
-
-    aux = *_unsorted_list;
-    while (aux != NULL)
-    {
-        tmp = aux->next;
-        sortedInsert(&sorted_list, aux);
-        aux = tmp;
-    }
-
-
-    return sorted_list;
-}
-
-void sortedInsert(list_node_t **_head, list_node_t *_new_node)
+void sortedInsert(list_node_t *_head, list_node_t *_new_node)
 {
     printf("function:: sortedInsert\n");
     list_node_t* aux = NULL;
+    list_node_t* tmp = NULL;
+    aux = _head;
+    tmp = aux->next;
+
     //insert in an empty list or in the head of the list
-    if ( *_head ==  NULL || (*_head)->payload.dt.ano >= _new_node->payload.dt.ano )
+    if ( tmp ==  NULL )
     {
-        _new_node->next = *_head;       // *_head != NULL
-        *_head = _new_node;
+        _head->next = _new_node;
+        _new_node->prev = _head;
     }
-    else            //insert in te middle of the list
+    else
     {
-        aux = *_head;
+        //insert in te middle of the list
+        while (tmp != NULL && tmp->payload.dt.ano < _new_node->payload.dt.ano )
+        {
+            aux = tmp;
+            tmp = aux->next;
+        }
 
-        while (aux->next != NULL && aux->next->payload.dt.ano < _new_node->payload.dt.ano )
-            aux = aux->next;
-
-        _new_node->next = aux->next;
+        _new_node->next = tmp;
+        _new_node->prev = aux;
+        tmp->prev = _new_node;
         aux->next = _new_node;
     }
 
