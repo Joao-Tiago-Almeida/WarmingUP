@@ -29,7 +29,7 @@ list_node_t *create_list()
     return create_node(&d);
 }
 
-//Esta função cria uma nova node que tem como payload uma copia do parametro dados
+//Esta função cria uma nova node que tem como payload uma copia do parametro dados  ??? MIGUEL  ???
 void insert_node(list_node_t *_head, dados_temp *_dados)
 {
     list_node_t *new_node = create_node(_dados);
@@ -47,10 +47,17 @@ void insert_node(list_node_t *_head, dados_temp *_dados)
 
 void print_list(list_node_t *_head)
 {
+    printf("function:: print_list\n");
     list_node_t *aux = _head->next;
+    printf("merda\n");
     while (aux != NULL)
     {
-        printf("%s\n", aux->payload.cidade);
+        printf("País:: %s\n", aux->payload.pais);
+        printf("Temperatura média:: %f\n", aux->payload.temp);
+        printf("Incerteza:: %f\n", aux->payload.incerteza);
+        printf("Data da medição (dd-mm-aaaa):: %d-%d-%d\n\n", aux->payload.dt.dia,
+            aux->payload.dt.mes, aux->payload.dt.ano);
+
         aux = aux->next;
     }
 }

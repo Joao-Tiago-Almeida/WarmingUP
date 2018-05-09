@@ -1,11 +1,9 @@
+#include "ficheiros.h"
+#include "lista.h"
+#include "estruturas.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "estruturas.h"
-#include "lista.h"
-#include "menus.h"
-#include "ficheiros.h"
 
 #define CITIES_FILE "tempcities.csv"
 #define COUNTRIES_FILE "tempcountries.csv"
@@ -13,19 +11,38 @@
 #define BUFFER 100
 #define MAX_STRING 500
 
-int main ( void )
+/*list_node_t* headListaDados = NULL;
+
+headListaDados = create_list();
+
+//Teste de como criar elementos na lista
+for(int i = 0; i<3; i++) {
+    dados_temp a;
+    a.dt.ano = 1;
+    a.dt.mes = 1;
+    a.dt.dia = 1;
+    a.temp = 10.0f;
+    a.incerteza = 1.0f;
+    strcpy(a.pais, "Portugal");
+    strcpy(a.cidade, "Santarém");
+    a.latitude.angular = 1.0f;
+    a.latitude.direcao = NORTE;
+    insert_node(headListaDados, &a);
+}*/
+
+//size_countries_file = read_file_countries();
+
+/*int read_file_countries(list_node_t *_head)
 {
-    int ano_a_analisar = -1, periodo_a_analisar = -1;
-    int size_countries_file = 0;
-    list_node_t* headListaDados = NULL;
-
-    printf("ola1\n");
-
-    //-----------------poluição starts----------
     int i = 0;
+
     char nome_temp[MAX_STRING];
     char buffer[BUFFER];
-    headListaDados = create_list();
+
+    _head = create_list();
+
+
+
     FILE * fileInput = NULL;
     fileInput = fopen(COUNTRIES_FILE, "r");
     if (fileInput == NULL) {
@@ -33,7 +50,9 @@ int main ( void )
         perror("Erro a abrir o ficheiro");
         return EXIT_FAILURE;
     }
+
     while(fgets(buffer, BUFFER, fileInput) != NULL){
+
         dados_temp a;
         sscanf(buffer, "%d-%d-%d,%f,%f,%[^\n]",
         &a.dt.ano,
@@ -44,19 +63,10 @@ int main ( void )
         nome_temp
         );
         strcpy(a.pais, nome_temp);
-        insert_node(headListaDados, &a);
+        insert_node(_head, &a);
         i++;
     }
+
     fclose(fileInput);
-    //-----------pouição ends
-
-    //size_countries_file = read_file_countries (headListaDados);
-    printf("ola2\n");
-    print_list(headListaDados);
-    printf("ola3\n");
-    menu_principal(&periodo_a_analisar, &ano_a_analisar);
-
-    printf("END\n");
-
-    return EXIT_SUCCESS;
-}
+    return i;
+}*/
