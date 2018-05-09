@@ -32,14 +32,14 @@ for(int i = 0; i<3; i++) {
 
 //size_countries_file = read_file_countries();
 
-/*int read_file_countries(list_node_t *_head)
+int read_file_countries(list_node_t **_head)
 {
     int i = 0;
 
     char nome_temp[MAX_STRING];
     char buffer[BUFFER];
 
-    _head = create_list();
+    *_head = create_list();
 
 
 
@@ -63,10 +63,12 @@ for(int i = 0; i<3; i++) {
         nome_temp
         );
         strcpy(a.pais, nome_temp);
-        insert_node(_head, &a);
+        insert_node(*_head, &a);
         i++;
     }
 
     fclose(fileInput);
+
+    //print_list(_head);
     return i;
-}*/
+}

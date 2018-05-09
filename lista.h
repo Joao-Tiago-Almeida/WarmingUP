@@ -15,5 +15,8 @@ list_node_t *create_list();
 void insert_node(list_node_t *_head, dados_temp *_dados);
 void print_list(list_node_t *_head);
 int remove_nodes(list_node_t *_head);
+void sortedInsert(list_node_t **_head, list_node_t *_new_node);
+list_node_t* insertionSort(list_node_t **_unsorted_list);
+
 
 #endif

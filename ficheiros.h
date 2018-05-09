@@ -3,6 +3,6 @@
 
 #include "lista.h"
 
-int read_file_countries ( list_node_t *_head );
+int read_file_countries ( list_node_t **_head );
 
 #endif

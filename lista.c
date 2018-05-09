@@ -96,3 +96,45 @@ int remove_nodes(list_node_t *_head)
     }
     return 0;
 }
+
+list_node_t* insertionSort(list_node_t **_unsorted_list)
+{
+    printf("function:: insertionSort\n");
+    list_node_t* aux = NULL;
+    list_node_t* sorted_list = NULL;
+    list_node_t* tmp = NULL;
+
+    aux = *_unsorted_list;
+    while (aux != NULL)
+    {
+        tmp = aux->next;
+        sortedInsert(&sorted_list, aux);
+        aux = tmp;
+    }
+
+
+    return sorted_list;
+}
+
+void sortedInsert(list_node_t **_head, list_node_t *_new_node)
+{
+    printf("function:: sortedInsert\n");
+    list_node_t* aux = NULL;
+    //insert in an empty list or in the head of the list
+    if ( *_head ==  NULL || (*_head)->payload.dt.ano >= _new_node->payload.dt.ano )
+    {
+        _new_node->next = *_head;       // *_head != NULL
+        *_head = _new_node;
+    }
+    else            //insert in te middle of the list
+    {
+        aux = *_head;
+
+        while (aux->next != NULL && aux->next->payload.dt.ano < _new_node->payload.dt.ano )
+            aux = aux->next;
+
+        _new_node->next = aux->next;
+        aux->next = _new_node;
+    }
+
+}
