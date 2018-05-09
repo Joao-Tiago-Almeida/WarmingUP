@@ -1,17 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-<<<<<<< HEAD
-=======
 #include <stdbool.h>
->>>>>>> miguel
 
 #include "estruturas.h"
 #include "lista.h"
 #include "menus.h"
-<<<<<<< HEAD
 #include "ficheiros.h"
-=======
 
 void display_usage()
 {
@@ -80,7 +75,6 @@ void modoTextual(char *nomeFilePaises, char *nomeFileCidades) {
         insert_node(headListaDados, &a);
     }
     print_list(headListaDados);
->>>>>>> miguel
 
     menu_principal(&periodo_a_analisar, &ano_a_analisar);
 
@@ -89,7 +83,6 @@ void modoTextual(char *nomeFilePaises, char *nomeFileCidades) {
 
 int main(int argc, char *argv[])
 {
-<<<<<<< HEAD
     int ano_a_analisar = -1, periodo_a_analisar = -1;
     int size_countries_file = 0;
     list_node_t* headListaDados = NULL;
@@ -106,7 +99,6 @@ int main(int argc, char *argv[])
 
     menu_principal(&periodo_a_analisar, &ano_a_analisar);
 
-=======
     bool modoGrafico = false;
     char *nomeFilePaises = NULL, *nomeFileCidades = NULL;
     ler_argumentos(argc, argv, &modoGrafico, &nomeFilePaises, &nomeFileCidades);
@@ -117,7 +109,6 @@ int main(int argc, char *argv[])
     } else {
         modoTextual(nomeFilePaises, nomeFileCidades);
     }
->>>>>>> miguel
 
     return EXIT_SUCCESS;
 }
