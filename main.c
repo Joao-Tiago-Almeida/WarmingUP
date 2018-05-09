@@ -7,6 +7,7 @@
 #include "lista.h"
 #include "menus.h"
 #include "ficheiros.h"
+#include "criteriosfiltragem.h"
 
 void display_usage()
 {
@@ -60,11 +61,13 @@ void modoTextual(char *nomeFilePaises, char *nomeFileCidades) {
     // é dentro do read_file_countries usar o sortedInsert (deixei comentado) em vez do insertNode 
     // Nao usar o insertionSort pq ele vai demorar mais tempo acho eu
     
-    size_countries_file = read_file_countries (&headListaDados);
+    //size_countries_file = read_file_countries (&headListaDados);
     //print_list(headListaDados);
 
+    criterios_filtragem criterios;
+    limpar_criterios(&criterios);
 
-    menu_principal(NULL, NULL);
+    menu_principal(&criterios);
 
     printf("END\n");
 }

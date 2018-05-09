@@ -9,6 +9,13 @@
 #define MIN_ANO 0 //TODO ver se isto está correto
 #define MAX_ANO 2018
 
+#define JANEIRO_NUM 1
+#define DEZEMBRO_NUM 12
+
+//TODO
+//#define LIMITE_ANOS_STRING 
+//#define DOUBLECAT(a,b,c) a##0-2018##c
+
 //Le o que o utilizador escreveu e devolve o numero da alinea. Caso seja invalido devolve -1
 int perguntar_menu_choice()
 {
@@ -65,7 +72,7 @@ int perguntar_ano_a_analisar()
 
 
 
-void menu_principal(int *_periodo_a_analisar, int *_ano_a_analisar)
+void menu_principal(criterios_filtragem *criterios)
 {
     bool dentroDoMenu = true;
     int alinea = -1;
@@ -82,13 +89,13 @@ void menu_principal(int *_periodo_a_analisar, int *_ano_a_analisar)
         switch (alinea)
         {
         case 1:
-            menu_filtragem_de_dados(_periodo_a_analisar, _ano_a_analisar);
+            menu_filtragem_de_dados(criterios);
             break;
         case 2:
-            menu_historico_de_temperaturas(_periodo_a_analisar, _ano_a_analisar);
+            menu_historico_de_temperaturas(criterios);
             break;
         case 3:
-            menu_analise_da_temperatura_por_ano(_periodo_a_analisar, _ano_a_analisar);
+            menu_analise_da_temperatura_por_ano(criterios);
             break;
         case 4:
             menu_analise_da_temperatura_global();
@@ -103,40 +110,8 @@ void menu_principal(int *_periodo_a_analisar, int *_ano_a_analisar)
         }
     }
 }
-void menu_filtragem_de_dados(int *_periodo_a_analisar, int *_ano_a_analisar)
-{
-    bool dentroDoMenu = true;
-    int alinea = -1;
 
-    while (dentroDoMenu)
-    {
-        printf("\n\tMenu Filtragem de Dados\n\nEscolha uma das opções seguintes:\n");
-        printf("1. Limpa critéritos;\n2. Escolhe intervalos para analise;\n");
-        printf("3. Escolhe um mês.\n\n0. Volta ao Menu Principal.\n");
-
-        alinea = perguntar_menu_choice();
-
-        switch (alinea)
-        {
-        case 1:
-            limpa_criteritos();
-            break;
-        case 2:
-            escolhe_intervalos_para_analise();
-            break;
-        case 3:
-            escolhe_mes();
-            break;
-        case 0:
-            dentroDoMenu = false; //Sai do menu, voltando para o anterior
-            break;
-        default:
-            printf("\nOpção inválida\n");
-            break;
-        }
-    }
-}
-void menu_historico_de_temperaturas(int *_periodo_a_analisar, int *_ano_a_analisar)
+void menu_historico_de_temperaturas(criterios_filtragem *criterios)
 {
     bool dentroDoMenu = false;
     int alinea = -1;
@@ -145,7 +120,7 @@ void menu_historico_de_temperaturas(int *_periodo_a_analisar, int *_ano_a_analis
     printf("\n\tMenu Histórico de Temperaturas\n\n");
 
     periodo = perguntar_anos_a_analisar();
-    printf("período(num de anos) a analisar: %d\n", *_periodo_a_analisar);
+    printf("período(num de anos) a analisar: %d\n", periodo);
 
     do
     {
@@ -171,7 +146,6 @@ void menu_historico_de_temperaturas(int *_periodo_a_analisar, int *_ano_a_analis
             historico_de_temperaturas_por_cidade(periodo);
             break;
         case 0:
-            *_periodo_a_analisar = -1;
             break;
         default:
             printf("\nOpção inválida\n");
@@ -180,7 +154,7 @@ void menu_historico_de_temperaturas(int *_periodo_a_analisar, int *_ano_a_analis
         }
     } while (dentroDoMenu);
 }
-void menu_analise_da_temperatura_por_ano(int *_periodo_a_analisar, int *_ano_a_analisar)
+void menu_analise_da_temperatura_por_ano(criterios_filtragem *criterios)
 {
     bool dentroDoMenu = true;
     int alinea = -1;
@@ -218,18 +192,104 @@ void menu_analise_da_temperatura_global()
 {
     printf("\n\n\t---Análise da temperuta Global---\n\n");
 }
-void limpa_criteritos()
+
+//MENU Filtragem de dados
+void menu_filtragem_de_dados(criterios_filtragem *criterios)
 {
-    printf("\n\n\t---Limpa Critéritos---\n\n");
+    bool dentroDoMenu = true;
+    int alinea = -1;
+
+    while (dentroDoMenu)
+    {
+        printf("\n\tMenu Filtragem de Dados\n\nEscolha uma das opções seguintes:\n");
+        printf("1. Limpa critéritos;\n2. Escolhe intervalos para analise;\n");
+        printf("3. Escolhe um mês.\n\n0. Volta ao Menu Principal.\n");
+
+        alinea = perguntar_menu_choice();
+
+        switch (alinea)
+        {
+        case 1:
+            opcao_limpa_criteritos(criterios);
+            break;
+        case 2:
+            opcao_escolhe_intervalos_para_analise(criterios);
+            break;
+        case 3:
+            opcao_escolhe_mes(criterios);
+            break;
+        case 0:
+            dentroDoMenu = false; //Sai do menu, voltando para o anterior
+            break;
+        default:
+            printf("\nOpção inválida\n");
+            break;
+        }
+    }
 }
-void escolhe_intervalos_para_analise()
+void opcao_limpa_criteritos(criterios_filtragem *criterios)
 {
-    printf("\n\n\t---Escolhe intervalos para análise---\n\n");
+    printf("\n\n\t---Critéritos Limpos---\n\n");
+    limpar_criterios(criterios);
 }
-void escolhe_mes()
+void opcao_escolhe_intervalos_para_analise(criterios_filtragem *criterios)
+{
+    printf("\n\n\t---Escolhe intervalos para análise---\n");
+    printf("Os dados anteriores ao periodo que inserir não serão considerados.\n");
+    
+    char buf[BUFFER_SIZE];
+    int ano = -2;
+    int mes = -2;
+    bool primeiraTentativa = true;
+
+    do
+    {
+        if(!primeiraTentativa) {
+            printf("Tem de estar dentro dos limites!\n");
+        }
+
+        printf("Qual o ano a partir do qual pretende analisar [0-2018]:");
+
+        fgets(buf, BUFFER_SIZE, stdin);
+        if (sscanf(buf, "%d", &ano) == 0)
+        {
+            ano = -1;
+        }
+        primeiraTentativa = false;
+    } while (ano < MIN_ANO || MAX_ANO < ano);
+    
+    printf("\n");
+
+    primeiraTentativa = true;
+    do
+    {
+        if(!primeiraTentativa) {
+            printf("Tem de estar dentro dos limites!\n");
+        }
+        printf("Qual o mes a partir do qual pretende analisar [1-12]:");
+
+        fgets(buf, BUFFER_SIZE, stdin);
+        if (sscanf(buf, "%d", &mes) == 0)
+        {
+            mes = -1;
+        }
+        primeiraTentativa = false;
+    } while (mes < JANEIRO_NUM || mes > DEZEMBRO_NUM);
+
+
+    criterios->filtraPorIntervalo = true;
+    criterios->intervaloAnoMin = ano;
+    criterios->intervaloMesMin = mes;
+    
+    printf("\n\n\t---Critério aplicado---\n\n");
+}
+void opcao_escolhe_mes(criterios_filtragem *criterios)
 {
     printf("\n\n\t---Escolhe mês---\n\n");
 }
+
+
+//
 void historico_de_temperaturas_global(int periodo)
 {
     printf("\n\n\t---Histórico de Temperaturas Global---\n\n");
