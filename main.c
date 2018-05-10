@@ -55,14 +55,15 @@ void ler_argumentos(int argc, char *argv[], bool *modoGrafico, char **nomeFilePa
 
 void modoTextual(char *nomeFilePaises, char *nomeFileCidades) {
     int size_countries_file = 0;
-    list_node_t* headListaDados = NULL;
+    list_node_t* headListaDadosOriginal = NULL;
+    list_node_t* headListaDadosFiltrada = NULL;
 
     //Ele está a lê-los sem ser por ordem, para ler ordenado a melhor forma
     // é dentro do read_file_countries usar o sortedInsert (deixei comentado) em vez do insertNode
     // Nao usar o insertionSort pq ele vai demorar mais tempo acho eu
 
-    size_countries_file = read_file_countries (&headListaDados);
-    print_list(headListaDados);
+    size_countries_file = read_file_countries (&headListaDadosOriginal);
+    print_list(headListaDadosOriginal);
 
     criterios_filtragem criterios;
     limpar_criterios(&criterios);

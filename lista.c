@@ -14,7 +14,7 @@ list_node_t *create_node(dados_temp *_dados)
         exit(EXIT_FAILURE);
     }
 
-    new_node->payload = *_dados;
+    new_node->payload = _dados;
 
     new_node->prev = NULL;
     new_node->next = NULL;
@@ -53,11 +53,11 @@ void print_list(list_node_t *_head)
     printf("merda\n");
     while (aux != NULL)
     {
-        printf("País:: %s\n", aux->payload.pais);
-        printf("Temperatura média:: %f\n", aux->payload.temp);
-        printf("Incerteza:: %f\n", aux->payload.incerteza);
-        printf("Data da medição (dd-mm-aaaa):: %d-%d-%d\n\n", aux->payload.dt.dia,
-            aux->payload.dt.mes, aux->payload.dt.ano);
+        printf("País:: %s\n", aux->payload->pais);
+        printf("Temperatura média:: %f\n", aux->payload->temp);
+        printf("Incerteza:: %f\n", aux->payload->incerteza);
+        printf("Data da medição (dd-mm-aaaa):: %d-%d-%d\n\n", aux->payload->dt.dia,
+            aux->payload->dt.mes, aux->payload->dt.ano);
 
         aux = aux->next;
     }
@@ -116,10 +116,14 @@ void sortedInsert(list_node_t *_head, list_node_t *_new_node)
     else
     {
         //insert in te middle of the list
+<<<<<<< c7e8dcfcc5859d1afd3ec13e4b930130103a19c3
         while (tmp != NULL &&
                 (tmp->payload.dt.ano < _new_node->payload.dt.ano ||
                 (tmp->payload.dt.ano == _new_node->payload.dt.ano &&
                  tmp->payload.dt.mes < _new_node->payload.dt.mes )))
+=======
+        while (tmp != NULL && tmp->payload->dt.ano < _new_node->payload->dt.ano )
+>>>>>>> Rissóis
         {
             aux = tmp;
             tmp = aux->next;

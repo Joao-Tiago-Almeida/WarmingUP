@@ -53,20 +53,20 @@ int read_file_countries(list_node_t **_head)
 
     while(fgets(buffer, BUFFER, fileInput) != NULL){
 
-        dados_temp a;
+        dados_temp* a = malloc(sizeof(dados_temp));
         check = sscanf(buffer, "%d-%d-%d,%f,%f,%[^\n]",
-            &a.dt.ano,
-            &a.dt.mes,
-            &a.dt.dia,
-            &a.temp,
-            &a.incerteza,
+            &a->dt.ano,
+            &a->dt.mes,
+            &a->dt.dia,
+            &a->temp,
+            &a->incerteza,
             nome_temp);
 
-        strcpy(a.pais, nome_temp);
+        strcpy(a->pais, nome_temp);
 
         if ( check == 6 )
         {
-            list_node_t* node = create_node(&a);
+            list_node_t* node = create_node(a);
             sortedInsert(*_head, node);
             printf("%d\t", i);
             i++;

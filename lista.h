@@ -5,7 +5,7 @@
 
 typedef struct list_node
 {
-    dados_temp payload;
+    dados_temp* payload;
     struct list_node *next;
     struct list_node *prev;
 } list_node_t;
