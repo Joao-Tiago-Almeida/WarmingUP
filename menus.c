@@ -72,7 +72,7 @@ int perguntar_ano_a_analisar()
 
 
 
-void menu_principal(criterios_filtragem *criterios)
+void menu_principal(DADOS* dados)
 {
     bool dentroDoMenu = true;
     int alinea = -1;
@@ -89,13 +89,13 @@ void menu_principal(criterios_filtragem *criterios)
         switch (alinea)
         {
         case 1:
-            menu_filtragem_de_dados(criterios);
+            menu_filtragem_de_dados(dados);
             break;
         case 2:
-            menu_historico_de_temperaturas(criterios);
+            menu_historico_de_temperaturas(dados);
             break;
         case 3:
-            menu_analise_da_temperatura_por_ano(criterios);
+            menu_analise_da_temperatura_por_ano(dados);
             break;
         case 4:
             menu_analise_da_temperatura_global();
@@ -111,7 +111,7 @@ void menu_principal(criterios_filtragem *criterios)
     }
 }
 
-void menu_historico_de_temperaturas(criterios_filtragem *criterios)
+void menu_historico_de_temperaturas(DADOS* dados)
 {
     bool dentroDoMenu = false;
     int alinea = -1;
@@ -154,7 +154,7 @@ void menu_historico_de_temperaturas(criterios_filtragem *criterios)
         }
     } while (dentroDoMenu);
 }
-void menu_analise_da_temperatura_por_ano(criterios_filtragem *criterios)
+void menu_analise_da_temperatura_por_ano(DADOS* dados)
 {
     bool dentroDoMenu = true;
     int alinea = -1;
@@ -194,10 +194,14 @@ void menu_analise_da_temperatura_global()
 }
 
 //MENU Filtragem de dados
-void menu_filtragem_de_dados(criterios_filtragem *criterios)
+void menu_filtragem_de_dados(DADOS* dados)
 {
     bool dentroDoMenu = true;
     int alinea = -1;
+    bool alterouCriterios = false;
+
+    //Copia os critérios aplicados aos dados
+    CRITERIOS_FILTRAGEM novosCriterios = dados->criterios;
 
     while (dentroDoMenu)
     {
@@ -210,13 +214,16 @@ void menu_filtragem_de_dados(criterios_filtragem *criterios)
         switch (alinea)
         {
         case 1:
-            opcao_limpa_criteritos(criterios);
+            opcao_limpa_criteritos(&novosCriterios);
+            alterouCriterios = true;
             break;
         case 2:
-            opcao_escolhe_intervalos_para_analise(criterios);
+            opcao_escolhe_intervalos_para_analise(&novosCriterios);
+            alterouCriterios = true;
             break;
         case 3:
-            opcao_escolhe_mes(criterios);
+            opcao_escolhe_mes(&novosCriterios);
+            alterouCriterios = true;
             break;
         case 0:
             dentroDoMenu = false; //Sai do menu, voltando para o anterior
@@ -226,13 +233,20 @@ void menu_filtragem_de_dados(criterios_filtragem *criterios)
             break;
         }
     }
+
+    //Antes de sair do menu aplica criterios
+    if(alterouCriterios) {
+        printf("A aplicar critérios...\n");
+        dados_aplicar_novos_criterios(dados, &novosCriterios);
+        printf("Concluído\n");
+    }
 }
-void opcao_limpa_criteritos(criterios_filtragem *criterios)
+void opcao_limpa_criteritos(CRITERIOS_FILTRAGEM *criterios)
 {
     printf("\n\n\t---Critéritos Limpos---\n\n");
     limpar_criterios(criterios);
 }
-void opcao_escolhe_intervalos_para_analise(criterios_filtragem *criterios)
+void opcao_escolhe_intervalos_para_analise(CRITERIOS_FILTRAGEM *criterios)
 {
     printf("\n\n\t---Escolhe intervalos para análise---\n");
     printf("Os dados anteriores ao periodo que inserir não serão considerados.\n");
@@ -283,7 +297,7 @@ void opcao_escolhe_intervalos_para_analise(criterios_filtragem *criterios)
     
     printf("\n\n\t---Critério aplicado---\n\n");
 }
-void opcao_escolhe_mes(criterios_filtragem *criterios)
+void opcao_escolhe_mes(CRITERIOS_FILTRAGEM *criterios)
 {
     printf("\n\n\t---Escolhe mês---\n\n");
 }

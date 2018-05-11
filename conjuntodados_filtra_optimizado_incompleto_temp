@@ -1,0 +1,50 @@
+if(dados->criterios.filtraPorIntervalo && novos_criterios->filtraPorIntervalo) {
+            //Caso se continue a filtrar por intervalor
+            if(novos_criterios->intervaloAnoMin < dados->criterios.intervaloAnoMin)
+            {
+                //Caso os o ano minimo seja diminuido -> Adicionar nodes antes
+                printf("[DEBUG] Ano minimo diminuido\n");
+                aux = dados->headCountriesOriginal->next;
+        
+                while (aux != NULL)
+                {
+                    //Caso o payload na node tenha um ano inferior ao dos criterios anteriores
+                    // ou ano igual e mes inferior e
+                    // cumpra os criterios copia para a lista filtrada
+                    if ((aux->payload->dt.ano < dados->criterios.intervaloAnoMin ||
+                            (aux->payload->dt.ano == dados->criterios.intervaloAnoMin && 
+                            aux->payload->dt.mes < dados->criterios.intervaloMesMin)) &&
+                        cumpre_criterios(aux->payload, novos_criterios))
+                    {
+                        printf("%d\t", debug_inseridos);
+                        sortedInsert(dados->headCountriesFiltrada, aux->payload);
+                        debug_inseridos++;
+                    }
+                    aux = aux->next;
+                }
+            }
+            else if(novos_criterios->intervaloAnoMin > dados->criterios.intervaloAnoMin)
+            {
+                //Caso os o ano minimo seja aumentado -> Remover nodes a partir do inicio da lista
+                aux = dados->headCountriesOriginal->next;
+        
+                while (aux != NULL)
+                {
+                    //Caso o payload na node tenha um ano inferior ao dos criterios anteriores
+                    // ou ano igual e mes inferior e
+                    // cumpra os criterios copia para a lista filtrada
+                    if ((aux->payload->dt.ano < dados->criterios.intervaloAnoMin ||
+                            (aux->payload->dt.ano == dados->criterios.intervaloAnoMin && 
+                            aux->payload->dt.mes < dados->criterios.intervaloMesMin)) &&
+                        cumpre_criterios(aux->payload, novos_criterios))
+                    {
+                        printf("%d\t", debug_inseridos);
+                        sortedInsert(dados->headCountriesFiltrada, aux->payload);
+                        debug_inseridos++;
+                    }
+                    aux = aux->next;
+                }
+            }
+        } else {
+            printf("!!!NAO IMPLEMENTADO!!!\n");
+        }

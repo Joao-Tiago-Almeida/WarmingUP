@@ -43,7 +43,7 @@ int read_file_countries(list_node_t **_head)
 
 
 
-    /*FILE * fileInput = NULL;
+    FILE * fileInput = NULL;
     fileInput = fopen(COUNTRIES_FILE, "r");
     if (fileInput == NULL) {
         //Caso haja um erro imprime-o e sai do programa
@@ -66,16 +66,17 @@ int read_file_countries(list_node_t **_head)
 
         if ( check == 6 )
         {
-            list_node_t* node = create_node(a);
-            sortedInsert(*_head, node);
+            //list_node_t* node = create_node(a);
+            insert_node(*_head, a);
             printf("%d\t", i);
             i++;
         }
     }
 
-    fclose(fileInput);*/
+    fclose(fileInput);
 
-    for(int i = 0 ; i< 50 ; i++)
+    //Teste ao sort
+    /*for(int i = 0 ; i< 50 ; i++)
     {
         dados_temp a;
         a.dt.ano = rand()%20 +1;
@@ -83,8 +84,7 @@ int read_file_countries(list_node_t **_head)
             list_node_t* node = create_node(&a);
             sortedInsert(*_head, node);
             printf("%d\t", i);
-
-    }
+    }*/
 
     //print_list(_head);
     return i;

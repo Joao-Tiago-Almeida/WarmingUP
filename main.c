@@ -7,7 +7,7 @@
 #include "lista.h"
 #include "menus.h"
 #include "ficheiros.h"
-#include "criteriosfiltragem.h"
+#include "conjuntodados.h"
 
 void display_usage()
 {
@@ -54,21 +54,15 @@ void ler_argumentos(int argc, char *argv[], bool *modoGrafico, char **nomeFilePa
 }
 
 void modoTextual(char *nomeFilePaises, char *nomeFileCidades) {
-    int size_countries_file = 0;
-    list_node_t* headListaDadosOriginal = NULL;
-    list_node_t* headListaDadosFiltrada = NULL;
+    DADOS dados;
+    dados_init(&dados);
 
-    //Ele está a lê-los sem ser por ordem, para ler ordenado a melhor forma
-    // é dentro do read_file_countries usar o sortedInsert (deixei comentado) em vez do insertNode
-    // Nao usar o insertionSort pq ele vai demorar mais tempo acho eu
+    dados.countriesSize = read_file_countries (&dados.headCountriesOriginal);
+    //print_list(headListaDadosOriginal);
 
-    size_countries_file = read_file_countries (&headListaDadosOriginal);
-    print_list(headListaDadosOriginal);
+    menu_principal(&dados);
 
-    criterios_filtragem criterios;
-    limpar_criterios(&criterios);
-
-    menu_principal(&criterios);
+    //TODO fazer free das listas, e dos dados correspondentes(payload*)
 
     printf("END\n");
 }
