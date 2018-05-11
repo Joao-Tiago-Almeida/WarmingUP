@@ -116,14 +116,10 @@ void sortedInsert(list_node_t *_head, list_node_t *_new_node)
     else
     {
         //insert in te middle of the list
-<<<<<<< c7e8dcfcc5859d1afd3ec13e4b930130103a19c3
         while (tmp != NULL &&
-                (tmp->payload.dt.ano < _new_node->payload.dt.ano ||
-                (tmp->payload.dt.ano == _new_node->payload.dt.ano &&
-                 tmp->payload.dt.mes < _new_node->payload.dt.mes )))
-=======
-        while (tmp != NULL && tmp->payload->dt.ano < _new_node->payload->dt.ano )
->>>>>>> Rissóis
+                (tmp->payload->dt.ano < _new_node->payload->dt.ano ||
+                (tmp->payload->dt.ano == _new_node->payload->dt.ano &&
+                 tmp->payload->dt.mes < _new_node->payload->dt.mes )))
         {
             aux = tmp;
             tmp = aux->next;
