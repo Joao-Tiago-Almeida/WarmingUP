@@ -50,7 +50,6 @@ void print_list(list_node_t *_head)
 {
     printf("function:: print_list\n");
     list_node_t *aux = _head->next;
-    printf("merda\n");
     while (aux != NULL)
     {
         printf("País:: %s\n", aux->payload.pais);

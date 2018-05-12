@@ -9,46 +9,77 @@
 #include "ficheiros.h"
 #include "criteriosfiltragem.h"
 
-void display_usage()
+#define comando_mal 0
+
+void display_usage(char *arg)
 {
-    printf("Argumentos invalidos!\n\tExemplo: ./WarmingUp –g -f1 tempcountries.csv -f2 tempcities.csv");
+    if(arg == comando_mal)
+    {
+        printf("Código errado!\n\tExemplo: ./WarmingUp –g -f1 tempcountries.csv -f2 tempcities.csv\n\n");
+    }
+    else
+    {
+        printf("Argumento %s inválido!\n\tExemplo: ./WarmingUp –g -f1 tempcountries.csv -f2 tempcities.csv\n\n", arg);
+    }
 }
 
+//TODO esta função tem muitas linhas
 void ler_argumentos(int argc, char *argv[], bool *modoGrafico, char **nomeFilePaises, char **nomeFileCidades) {
     //Quando é lido -f1 ou -f2 esta variavel indica que
     // o argumento seguinte é o nome do ficheiro
     bool expectingFileName = false;
+    bool expectingProgramType = true;
 
-    for (int i = 1; i < argc; i++)
+    if ( argc == 6)
     {
-        if(expectingFileName) {
-            if (strcmp(argv[i-1], "-f1") == 0) {
-                *nomeFilePaises = argv[i];
+        for (int i = 1; i < argc; i++)
+        {
+            //quando há argumrntos repetidos
+            for(int j = 0; j < i; j++)
+            {
+                if(strcmp(argv[j], argv[i]) == 0){
+                    display_usage(argv[i]);
+                    exit(EXIT_FAILURE);
+                }
+            }
+            if(expectingFileName) {
+                if (strcmp(argv[i-1], "-f1") == 0) {
+                    *nomeFilePaises = argv[i];
+                } else {
+                    *nomeFileCidades = argv[i];
+                }
+                expectingFileName = false;
             } else {
-                *nomeFilePaises = argv[i];
-            }
-            expectingFileName = false;
-        } else {
-            if (strcmp(argv[i], "-g") == 0)
-            {
-                *modoGrafico = true;
-            }
-            else if (strcmp(argv[i], "-f1") == 0 || strcmp(argv[i], "-f2") == 0)
-            {
-                expectingFileName = true;
-            }
-            else
-            {
-                display_usage();
-                exit(EXIT_FAILURE);
+                if (strcmp(argv[i], "-g") == 0)
+                {
+                    *modoGrafico = true;
+                    expectingProgramType = false;
+                }
+                else if (strcmp(argv[i], "-t") == 0)
+                {
+                    expectingProgramType = false;
+                }
+                else if (argv[i] == argv[i])
+                {
+                    expectingFileName = true;
+                }
+                else
+                {
+                    printf("argumento:: %d\n", i+1);
+                    display_usage(argv[i]);
+                    exit(EXIT_FAILURE);
+                }
             }
         }
     }
 
+
     //Caso o acabe em -fx sem nome do ficheiro ou não seja colocado o nome de um dos ficheiros
-    if(expectingFileName || *nomeFilePaises == NULL || *nomeFilePaises == NULL)
+    if(expectingProgramType || *nomeFilePaises == NULL || *nomeFileCidades == NULL)
+    //if( expectingFileName || expectingProgramType || *nomeFilePaises == NULL || *nomeFileCidades == NULL)
     {
-        display_usage();
+        printf("argumento:: %d\n", argc);
+        display_usage(comando_mal);
         exit(EXIT_FAILURE);
     }
 }
@@ -61,8 +92,8 @@ void modoTextual(char *nomeFilePaises, char *nomeFileCidades) {
     // é dentro do read_file_countries usar o sortedInsert (deixei comentado) em vez do insertNode
     // Nao usar o insertionSort pq ele vai demorar mais tempo acho eu
 
-    size_countries_file = read_file_countries (&headListaDados);
-    print_list(headListaDados);
+    size_countries_file = read_file_countries (&headListaDados , nomeFilePaises, nomeFileCidades);
+    //print_list(headListaDados);
 
     criterios_filtragem criterios;
     limpar_criterios(&criterios);

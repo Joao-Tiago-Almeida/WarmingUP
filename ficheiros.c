@@ -5,8 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define CITIES_FILE "tempcities.csv"
-#define COUNTRIES_FILE "tempcountries.csv"
+//#define CITIES_FILE "tempcities.csv"
+//#define COUNTRIES_FILE "tempcountries.csv"
 #define STRING_SIZE 50
 #define BUFFER 100
 #define MAX_STRING 500
@@ -32,8 +32,9 @@ for(int i = 0; i<3; i++) {
 
 //size_countries_file = read_file_countries();
 
-int read_file_countries(list_node_t **_head)
+int read_file_countries(list_node_t **_head, char *_nomeFilePaises, char *_nomeFileCidades)
 {
+    printf("read_file_countries\n");
     int i = 0, check = -1;
 
     char nome_temp[MAX_STRING];
@@ -41,14 +42,16 @@ int read_file_countries(list_node_t **_head)
 
     *_head = create_list();
 
+    //int min = 2000, max = 1, mes_ano_min = 0, mes_ano_max = 0;
 
 
-    /*FILE * fileInput = NULL;
-    fileInput = fopen(COUNTRIES_FILE, "r");
+//TODO se o ficheiro estiver mal, tem de se escrever exit em vez de return
+    FILE * fileInput = NULL;
+    fileInput = fopen(_nomeFilePaises, "r");
     if (fileInput == NULL) {
         //Caso haja um erro imprime-o e sai do programa
         perror("Erro a abrir o ficheiro");
-        return EXIT_FAILURE;
+        exit(EXIT_FAILURE);
     }
 
     while(fgets(buffer, BUFFER, fileInput) != NULL){
@@ -66,16 +69,28 @@ int read_file_countries(list_node_t **_head)
 
         if ( check == 6 )
         {
-            list_node_t* node = create_node(&a);
-            sortedInsert(*_head, node);
+            //list_node_t* node = create_node(&a);
+            //sortedInsert(*_head, node);
+            insert_node(*_head, &a);
             printf("%d\t", i);
             i++;
         }
+        /*if (a.dt.ano > max){
+                max = a.dt.ano;
+                mes_ano_max = a.dt.mes;
+        }
+        if (a.dt.ano < min){
+                min = a.dt.ano;
+                mes_ano_min = a.dt.mes;
+        }*/
+
+
     }
+    //printf("\nmax(mm-aaaa):: 01-%d-%d\nmin(mm-aaaa):: 01-%d-%d\n", max, mes_ano_max, min, mes_ano_min);
 
-    fclose(fileInput);*/
+    fclose(fileInput);
 
-    for(int i = 0 ; i< 50 ; i++)
+    /*for(int i = 0 ; i< 50 ; i++)
     {
         dados_temp a;
         a.dt.ano = rand()%20 +1;
@@ -84,7 +99,7 @@ int read_file_countries(list_node_t **_head)
             sortedInsert(*_head, node);
             printf("%d\t", i);
 
-    }
+    }*/
 
     //print_list(_head);
     return i;

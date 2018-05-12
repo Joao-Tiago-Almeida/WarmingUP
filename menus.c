@@ -6,14 +6,14 @@
 
 #define BUFFER_SIZE 100
 
-#define MIN_ANO 0 //TODO ver se isto está correto
-#define MAX_ANO 2018
+#define MIN_ANO 1743 //TODO ver se isto está correto
+#define MAX_ANO 2013
 
 #define JANEIRO_NUM 1
 #define DEZEMBRO_NUM 12
 
 //TODO
-//#define LIMITE_ANOS_STRING 
+//#define LIMITE_ANOS_STRING
 //#define DOUBLECAT(a,b,c) a##0-2018##c
 
 //Le o que o utilizador escreveu e devolve o numero da alinea. Caso seja invalido devolve -1
@@ -28,7 +28,6 @@ int perguntar_menu_choice()
         //TODO veriricar se o utilizador escrever algo do genero de "2 5" (isto deveria dar invalido)
         alinea = -1;
     }
-
     return alinea;
 }
 
@@ -79,7 +78,7 @@ void menu_principal(criterios_filtragem *criterios)
 
     while (dentroDoMenu)
     {
-        printf("\n\tMenu Principal\n\nEscolha uma das opções seguintes:\n");
+        printf("\n\n\tMenu Principal\n\nEscolha uma das opções seguintes:\n");
         printf("1. Filtragem de dados;\n2. Histórico de Temperaturas;\n");
         printf("3. Análise da temperatura por ano;\n4. Análise da temperatura global.\n");
         printf("\n0. Sair do programa.\n");
@@ -234,9 +233,9 @@ void opcao_limpa_criteritos(criterios_filtragem *criterios)
 }
 void opcao_escolhe_intervalos_para_analise(criterios_filtragem *criterios)
 {
-    printf("\n\n\t---Escolhe intervalos para análise---\n");
+    printf("\n\n\t---Escolhe intervalos para análise---\n\n");
     printf("Os dados anteriores ao periodo que inserir não serão considerados.\n");
-    
+
     char buf[BUFFER_SIZE];
     int ano = -2;
     int mes = -2;
@@ -248,7 +247,7 @@ void opcao_escolhe_intervalos_para_analise(criterios_filtragem *criterios)
             printf("Tem de estar dentro dos limites!\n");
         }
 
-        printf("Qual o ano a partir do qual pretende analisar [0-2018]:");
+        printf("Qual o ano a partir do qual pretende analisar [1743-2013]:");
 
         fgets(buf, BUFFER_SIZE, stdin);
         if (sscanf(buf, "%d", &ano) == 0)
@@ -257,7 +256,7 @@ void opcao_escolhe_intervalos_para_analise(criterios_filtragem *criterios)
         }
         primeiraTentativa = false;
     } while (ano < MIN_ANO || MAX_ANO < ano);
-    
+
     printf("\n");
 
     primeiraTentativa = true;
@@ -280,7 +279,7 @@ void opcao_escolhe_intervalos_para_analise(criterios_filtragem *criterios)
     criterios->filtraPorIntervalo = true;
     criterios->intervaloAnoMin = ano;
     criterios->intervaloMesMin = mes;
-    
+
     printf("\n\n\t---Critério aplicado---\n\n");
 }
 void opcao_escolhe_mes(criterios_filtragem *criterios)
