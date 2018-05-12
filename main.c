@@ -24,6 +24,7 @@ void display_usage(char *arg)
 }
 
 //TODO esta função tem muitas linhas
+//TODO alterado
 void ler_argumentos(int argc, char *argv[], bool *modoGrafico, char **nomeFilePaises, char **nomeFileCidades) {
     //Quando é lido -f1 ou -f2 esta variavel indica que
     // o argumento seguinte é o nome do ficheiro

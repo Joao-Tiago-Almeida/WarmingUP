@@ -6,9 +6,10 @@
 
 #define BUFFER_SIZE 100
 
-#define MIN_ANO 1743 //TODO ver se isto está correto
+#define MIN_ANO 1743
 #define MAX_ANO 2013
-
+#define MES_MIN_ANO 11
+#define MES_MAX_ANO 6
 #define JANEIRO_NUM 1
 #define DEZEMBRO_NUM 12
 
@@ -81,7 +82,7 @@ void menu_principal(criterios_filtragem *criterios)
         printf("\n\n\tMenu Principal\n\nEscolha uma das opções seguintes:\n");
         printf("1. Filtragem de dados;\n2. Histórico de Temperaturas;\n");
         printf("3. Análise da temperatura por ano;\n4. Análise da temperatura global.\n");
-        printf("\n0. Sair do programa.\n");
+        printf("\n0 ou Enter. Sair do programa.\n");
 
         alinea = perguntar_menu_choice();
 
@@ -129,7 +130,7 @@ void menu_historico_de_temperaturas(criterios_filtragem *criterios)
 
         printf("\n\nEscolha uma das opções seguintes:\n");
         printf("1. Global: aplica-se a todos os países;\n2. Por País: aplica-se a um único país;\n");
-        printf("3. Por Cidade: aplica-se a uma única cidade.\n\n0. Volta ao Menu Principal.\n");
+        printf("3. Por Cidade: aplica-se a uma única cidade.\n\n0 ou Enter. Volta ao Menu Principal.\n");
 
         alinea = perguntar_menu_choice();
 
@@ -166,7 +167,7 @@ void menu_analise_da_temperatura_por_ano(criterios_filtragem *criterios)
 
         printf("\n\nEscolha uma das opções seguintes:\n");
         printf("1. Análise por País;\n2. Análise por cidade.\n");
-        printf("\n0. Volta ao Menu Principal.\n");
+        printf("\n0 ou Enter. Volta ao Menu Principal.\n");
 
         alinea = perguntar_menu_choice();
 
@@ -202,7 +203,7 @@ void menu_filtragem_de_dados(criterios_filtragem *criterios)
     {
         printf("\n\tMenu Filtragem de Dados\n\nEscolha uma das opções seguintes:\n");
         printf("1. Limpa critéritos;\n2. Escolhe intervalos para analise;\n");
-        printf("3. Escolhe um mês.\n\n0. Volta ao Menu Principal.\n");
+        printf("3. Escolhe um mês.\n\n0 ou Enter. Volta ao Menu Principal.\n");
 
         alinea = perguntar_menu_choice();
 
@@ -229,17 +230,22 @@ void menu_filtragem_de_dados(criterios_filtragem *criterios)
 void opcao_limpa_criteritos(criterios_filtragem *criterios)
 {
     printf("\n\n\t---Critéritos Limpos---\n\n");
-    limpar_criterios(criterios);
+    criterios->mesMin = 0;
+    criterios->mesMax = 0;
 }
+
+//TODO função demaisada grande
 void opcao_escolhe_intervalos_para_analise(criterios_filtragem *criterios)
 {
     printf("\n\n\t---Escolhe intervalos para análise---\n\n");
     printf("Os dados anteriores ao periodo que inserir não serão considerados.\n");
 
     char buf[BUFFER_SIZE];
-    int ano = -2;
-    int mes = -2;
+    int mes = 0;
+    int ano = 0;
+
     bool primeiraTentativa = true;
+    bool intervalo_valido = true;
 
     do
     {
@@ -247,33 +253,50 @@ void opcao_escolhe_intervalos_para_analise(criterios_filtragem *criterios)
             printf("Tem de estar dentro dos limites!\n");
         }
 
-        printf("Qual o ano a partir do qual pretende analisar [1743-2013]:");
+        printf("Qual o ano a partir do qual pretende analisar [%d-%d]:\t", MIN_ANO, MAX_ANO);
 
         fgets(buf, BUFFER_SIZE, stdin);
-        if (sscanf(buf, "%d", &ano) == 0)
+        if (sscanf(buf, "%d", &criterios->intervaloAnoMin) == 0)
         {
-            ano = -1;
+            criterios->intervaloAnoMin = -1;
         }
         primeiraTentativa = false;
-    } while (ano < MIN_ANO || MAX_ANO < ano);
+    } while (criterios->intervaloAnoMin < MIN_ANO || MAX_ANO < criterios->intervaloAnoMin);
 
     printf("\n");
 
     primeiraTentativa = true;
     do
     {
-        if(!primeiraTentativa) {
-            printf("Tem de estar dentro dos limites!\n");
+        if(!intervalo_valido || criterios->intervaloAnoMin == MIN_ANO) {
+            printf("Para o ano de %d só há valores apartir do mês %d !\n", MIN_ANO, MES_MIN_ANO);
+            printf("Qual o mes a partir do qual pretende analisar [%d-12]:\t", MES_MIN_ANO);
+            intervalo_valido = true;
         }
-        printf("Qual o mes a partir do qual pretende analisar [1-12]:");
+        else if(!primeiraTentativa) {
+            printf("Tem de estar dentro dos limites!\n");
+            printf("Qual o mes a partir do qual pretende analisar [1-12]:\t");
+        }
+        else
+        {
+            printf("Qual o mes a partir do qual pretende analisar [1-12]:\t");
+        }
 
         fgets(buf, BUFFER_SIZE, stdin);
-        if (sscanf(buf, "%d", &mes) == 0)
+        if (sscanf(buf, "%d", &criterios->intervaloMesMin) == 0)
         {
-            mes = -1;
+            criterios->intervaloMesMin = -1;
+        }
+        //quando selecionado o ano minímo, podem não estar todos os meses disponíveis
+        if(criterios->intervaloAnoMin == MIN_ANO &&
+            criterios->intervaloMesMin < MES_MIN_ANO)
+        {
+            intervalo_valido = false;
         }
         primeiraTentativa = false;
-    } while (mes < JANEIRO_NUM || mes > DEZEMBRO_NUM);
+        //printf("%d < %d || %d < %d || %d\n", criterios->intervaloMesMin, JANEIRO_NUM, DEZEMBRO_NUM,  criterios->intervaloMesMin, !intervalo_valido);
+    } while ((criterios->intervaloMesMin < JANEIRO_NUM || DEZEMBRO_NUM < criterios->intervaloMesMin)
+                || !intervalo_valido);
 
 
     criterios->filtraPorIntervalo = true;

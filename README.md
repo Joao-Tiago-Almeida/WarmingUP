@@ -7,6 +7,7 @@ João
 9.maio--leitura do ficheiro de paises
 9.maio--insert_sorted
 12.maio--melhorar leitura dos parametros do terminal
+12.maio--limites de anos
 
 miguel
 8.maio--melhorar os menus
