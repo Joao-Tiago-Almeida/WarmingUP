@@ -51,6 +51,8 @@ void ler_argumentos(int argc, char *argv[], bool *modoGrafico, char **nomeFilePa
                 }
                 expectingFileName = false;
             } else {
+                printf("tamanho:: %lu\n", strlen(argv[i]));
+                printf("parametro:: %s\n", argv[i]);
                 if (strcmp(argv[i], "-g") == 0)
                 {
                     *modoGrafico = true;
@@ -60,16 +62,16 @@ void ler_argumentos(int argc, char *argv[], bool *modoGrafico, char **nomeFilePa
                 {
                     expectingProgramType = false;
                 }
-                else if (argv[i] == argv[i])
+                else if (strcmp(argv[i], "-f1") == 0 || strcmp(argv[i], "-f2") == 0)
                 {
-                    expectingFileName = true;
+                  expectingFileName = true;
                 }
-                else
-                {
-                    printf("argumento:: %d\n", i+1);
-                    display_usage(argv[i]);
-                    exit(EXIT_FAILURE);
-                }
+            else
+            {
+                printf("argumento:: %d\n", i+1);
+                display_usage(argv[i]);
+                exit(EXIT_FAILURE);
+            }
             }
         }
     }

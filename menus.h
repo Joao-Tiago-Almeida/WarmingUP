@@ -21,4 +21,8 @@ void analise_por_pais(int ano);
 void analise_por_cidade(int ano);
 
 
+//TODO não encontro o sítio das outras
+//int calulo_intervalos(int _periodo);
+
+
 #endif
