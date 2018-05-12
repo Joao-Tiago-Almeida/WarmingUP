@@ -64,7 +64,6 @@ int read_file_countries(list_node_t **_head, char *_nomeFilePaises, char *_nomeF
             &a.temp,
             &a.incerteza,
             nome_temp);
-
         strcpy(a.pais, nome_temp);
 
         if ( check == 6 )

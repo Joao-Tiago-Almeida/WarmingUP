@@ -3,12 +3,13 @@
 
 #include "estruturas.h"
 #include "criteriosfiltragem.h"
+#include "lista.h"
 
-void menu_principal(criterios_filtragem *criterios);
+void menu_principal(criterios_filtragem *criterios, int _size_countries_file,  list_node_t * _head);
 void menu_filtragem_de_dados(criterios_filtragem *criterios);
 void menu_historico_de_temperaturas(criterios_filtragem *criterios);
 void menu_analise_da_temperatura_por_ano(criterios_filtragem *criterios);
-void menu_analise_da_temperatura_global();
+void menu_analise_da_temperatura_global(int _size_countries_file, list_node_t * _head);
 
 void opcao_limpa_criteritos(criterios_filtragem *criterios);
 void opcao_escolhe_intervalos_para_analise(criterios_filtragem *criterios);

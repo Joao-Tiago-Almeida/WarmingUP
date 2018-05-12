@@ -1,4 +1,5 @@
 #include "menus.h"
+#include "estruturas.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -12,6 +13,7 @@
 #define MES_MAX_ANO 6
 #define JANEIRO 1
 #define DEZEMBRO 12
+#define MAX_M 100 //não sei , perguntar ao stor
 
 //TODO
 //#define LIMITE_ANOS_STRING
@@ -55,7 +57,7 @@ int perguntar_anos_a_analisar()
 }
 
 //esta função permite selecionar um ano a analisar ou um ano apartir do qual se vai analisar
-int perguntar_ano_a_analisar()
+int perguntar_referencia_a_analisar(int _min, int _max)
 {
     char buf[BUFFER_SIZE];
     int _ano = 0;
@@ -67,7 +69,7 @@ int perguntar_ano_a_analisar()
             printf("Tem de estar dentro dos limites!\n");
         }
 
-        printf("Qual o ano a partir do qual pretende analisar [%d-%d]:\t", MIN_ANO, MAX_ANO);
+        printf("Qual o ano a partir do qual pretende analisar [%d-%d]:\t", _min, _max);
 
         fgets(buf, BUFFER_SIZE, stdin);
         if (sscanf(buf, "%d", &_ano) != 1)
@@ -75,7 +77,7 @@ int perguntar_ano_a_analisar()
             _ano = -1;
         }
         primeiraTentativa = false;
-    } while (_ano < MIN_ANO || MAX_ANO < _ano);
+    } while (_ano < _min || _max < _ano);
 
     printf("\n");
     return _ano;
@@ -89,7 +91,7 @@ int calulo_intervalos(int _periodo)
 }
 
 
-void menu_principal(criterios_filtragem *criterios)
+void menu_principal(criterios_filtragem *criterios, int _size_countries_file,  list_node_t * _head)
 {
     bool dentroDoMenu = true;
     int alinea = -1;
@@ -115,7 +117,7 @@ void menu_principal(criterios_filtragem *criterios)
             menu_analise_da_temperatura_por_ano(criterios);
             break;
         case 4:
-            menu_analise_da_temperatura_global();
+            menu_analise_da_temperatura_global(_size_countries_file, _head);
             break;
         case 0:
             printf("Quit\n");
@@ -145,8 +147,8 @@ void menu_historico_de_temperaturas(criterios_filtragem *criterios)
     //calcula quantos anos temos por intervalo, caso normal
     nr_de_valores_por_intervalo = calulo_intervalos(periodo);
 
-    tmp = MIN_ANO + periodo;
     //---cálculo dos intervalos---
+    tmp = MIN_ANO + periodo;
     printf("[ %d , %d [\n" ,MIN_ANO, tmp);
     while(tmp + periodo < MAX_ANO)
     {
@@ -200,7 +202,7 @@ void menu_analise_da_temperatura_por_ano(criterios_filtragem *criterios)
     while (dentroDoMenu)
     {
         printf("\n\tMenu Análise da Temperatura por Ano\n\n");
-        ano = perguntar_ano_a_analisar();
+        ano = perguntar_referencia_a_analisar(MIN_ANO,MAX_ANO);
 
         printf("\n\nEscolha uma das opções seguintes:\n");
         printf("1. Análise por País;\n2. Análise por cidade.\n");
@@ -294,7 +296,7 @@ void opcao_escolhe_intervalos_para_analise(criterios_filtragem *criterios)
     } while (ano < MIN_ANO || MAX_ANO < ano);
 
     printf("\n");*/
-    ano = perguntar_ano_a_analisar();
+    ano = perguntar_referencia_a_analisar(MIN_ANO,MAX_ANO);
 
     //primeiraTentativa = true;
     do
@@ -397,7 +399,44 @@ void analise_por_cidade(int ano)
     printf("\n\n\t---Análise por cidade---\n\n");
 }
 
-void menu_analise_da_temperatura_global()
+void menu_analise_da_temperatura_global(int size_file,  list_node_t * _head)
 {
+    int M = 0;
+    list_node_t * aux = _head;
+    char f_pais[BUFFER_SIZE];
+    char f_cidade[BUFFER_SIZE];
+    char buffer[BUFFER_SIZE];
+
     printf("\n\n\t---Análise da temperuta Global---\n\n");
+
+    M = perguntar_referencia_a_analisar(1 ,MAX_M);
+
+    printf("Country::\t");
+    fgets(buffer, BUFFER_SIZE, stdin);
+    sscanf(buffer, "%s", f_pais);
+    f_pais[99] = '\0';
+    printf("f_pais:: %s <- %lu\n", f_pais, strlen(f_pais));
+    /*printf("City::\t");
+    fgets(buffer, BUFFER_SIZE, stdin);
+    sscanf(buffer, "%s", f_cidade);*/
+    //printf("f_cidade:: %s <- %lu\n", f_cidade, strlen(f_cidade));
+
+    while(aux != NULL)
+    {
+        //==1 pois temos de considerar o ^A ( start of header
+        //TODO
+        //if(strcmp(aux->payload.pais,f_pais) == 1)
+        if(strcmp(aux->payload.pais,f_pais) == 0)
+        {
+            printf("ola1\n");
+            printf(" %s \n <- %lu\n",(aux->payload.pais), strlen(aux->payload.pais));
+        }
+        //printf(" %s \n <- %lu\n",(aux->payload.pais), strlen(aux->payload.pais));
+        /*if(strcmp(aux->payload.cidade,f_cidade) == 1)
+        {
+            printf("ola2\n");
+            printf(" %s \n <- %lu\n",(aux->payload.cidade), strlen(aux->payload.cidade));
+        }*/
+        aux = aux->next;
+    }
 }

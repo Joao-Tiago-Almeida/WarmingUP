@@ -101,7 +101,7 @@ void modoTextual(char *nomeFilePaises, char *nomeFileCidades) {
     criterios_filtragem criterios;
     limpar_criterios(&criterios);
 
-    menu_principal(&criterios);
+    menu_principal(&criterios, size_countries_file, headListaDados);
 
     printf("END\n");
 }
@@ -111,6 +111,7 @@ int main(int argc, char *argv[])
     bool modoGrafico = false;
     char *nomeFilePaises = NULL, *nomeFileCidades = NULL;
     ler_argumentos(argc, argv, &modoGrafico, &nomeFilePaises, &nomeFileCidades);
+
 
     if(modoGrafico) {
         //Inicializar modo grafico
