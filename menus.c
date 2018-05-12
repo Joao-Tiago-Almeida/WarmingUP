@@ -300,8 +300,8 @@ void opcao_escolhe_intervalos_para_analise(criterios_filtragem *criterios)
 
 
     criterios->filtraPorIntervalo = true;
-    criterios->intervaloAnoMin = ano;
-    criterios->intervaloMesMin = mes;
+    //criterios->intervaloAnoMin = ano;
+    //criterios->intervaloMesMin = mes;
 
     printf("\n\n\t---Critério aplicado---\n\n");
 }
