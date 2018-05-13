@@ -91,7 +91,7 @@ int calulo_intervalos(int _periodo)
 }
 
 
-void menu_principal(criterios_filtragem *criterios, int _size_countries_file,  list_node_t * _head)
+void menu_principal(DADOS* dados)
 {
     bool dentroDoMenu = true;
     int alinea = -1;
@@ -108,16 +108,16 @@ void menu_principal(criterios_filtragem *criterios, int _size_countries_file,  l
         switch (alinea)
         {
         case 1:
-            menu_filtragem_de_dados(criterios);
+            menu_filtragem_de_dados(dados);
             break;
         case 2:
-            menu_historico_de_temperaturas(criterios);
+            menu_historico_de_temperaturas(dados);
             break;
         case 3:
-            menu_analise_da_temperatura_por_ano(criterios);
+            menu_analise_da_temperatura_por_ano(dados);
             break;
         case 4:
-            menu_analise_da_temperatura_global(_size_countries_file, _head);
+            menu_analise_da_temperatura_global(dados);
             break;
         case 0:
             printf("Quit\n");
@@ -130,7 +130,7 @@ void menu_principal(criterios_filtragem *criterios, int _size_countries_file,  l
     }
 }
 
-void menu_historico_de_temperaturas(criterios_filtragem *criterios)
+void menu_historico_de_temperaturas(DADOS* dados)
 {
     bool dentroDoMenu = false;
     int alinea = -1;
@@ -193,7 +193,7 @@ void menu_historico_de_temperaturas(criterios_filtragem *criterios)
         }
     } while (dentroDoMenu);
 }
-void menu_analise_da_temperatura_por_ano(criterios_filtragem *criterios)
+void menu_analise_da_temperatura_por_ano(DADOS* dados)
 {
     bool dentroDoMenu = true;
     int alinea = -1;
@@ -229,10 +229,14 @@ void menu_analise_da_temperatura_por_ano(criterios_filtragem *criterios)
 }
 
 //MENU Filtragem de dados
-void menu_filtragem_de_dados(criterios_filtragem *criterios)
+void menu_filtragem_de_dados(DADOS* dados)
 {
     bool dentroDoMenu = true;
     int alinea = -1;
+    bool alterouCriterios = false;
+
+    //Copia os critérios aplicados aos dados
+    CRITERIOS_FILTRAGEM novosCriterios = dados->criterios;
 
     while (dentroDoMenu)
     {
@@ -245,13 +249,16 @@ void menu_filtragem_de_dados(criterios_filtragem *criterios)
         switch (alinea)
         {
         case 1:
-            opcao_limpa_criteritos(criterios);
+            opcao_limpa_criteritos(&novosCriterios);
+            alterouCriterios = true;
             break;
         case 2:
-            opcao_escolhe_intervalos_para_analise(criterios);
+            opcao_escolhe_intervalos_para_analise(&novosCriterios);
+            alterouCriterios = true;
             break;
         case 3:
-            opcao_escolhe_mes(criterios);
+            opcao_escolhe_mes(&novosCriterios);
+            alterouCriterios = true;
             break;
         case 0:
             dentroDoMenu = false; //Sai do menu, voltando para o anterior
@@ -261,15 +268,19 @@ void menu_filtragem_de_dados(criterios_filtragem *criterios)
             break;
         }
     }
+
+    //Antes de sair do menu aplica criterios
+    if(alterouCriterios) {
+        printf("A aplicar critérios...\n");
+        dados_aplicar_novos_criterios(dados, &novosCriterios);
+        printf("Concluído\n");
+    }
 }
-void opcao_limpa_criteritos(criterios_filtragem *criterios)
+void opcao_limpa_criteritos(CRITERIOS_FILTRAGEM *criterios)
 {
     limpar_criterios(criterios);
-    printf("\n\n\t---Critéritos Limpos---\n\n");
 }
-
-//TODO função demaisada grande, +100 linhas
-void opcao_escolhe_intervalos_para_analise(criterios_filtragem *criterios)
+void opcao_escolhe_intervalos_para_analise(CRITERIOS_FILTRAGEM *criterios)
 {
     printf("\n\n\t---Escolhe intervalos para análise---\n\n");
     printf("Os dados anteriores ao periodo que inserir não serão considerados.\n");
@@ -302,6 +313,7 @@ void opcao_escolhe_intervalos_para_analise(criterios_filtragem *criterios)
     do
     {
         if(!intervalo_valido || ano == MIN_ANO) {
+            //TODO fazer com que um ano sem ser o minimo também apareca isto
             printf("Para o ano de %d só há valores apartir do mês %d !\n", MIN_ANO, MES_MIN_ANO);
             printf("Qual o mes a partir do qual pretende analisar [%d-12]:\t", MES_MIN_ANO);
             intervalo_valido = true;
@@ -330,14 +342,11 @@ void opcao_escolhe_intervalos_para_analise(criterios_filtragem *criterios)
     } while ((mes < JANEIRO || DEZEMBRO < mes)
                 || !intervalo_valido);
 
-
     criterios->filtraPorIntervalo = true;
     criterios->intervaloAnoMin = ano;
     criterios->intervaloMesMin = mes;
-
-    printf("\n\n\t---Critério aplicado---\n\n");
 }
-void opcao_escolhe_mes(criterios_filtragem *criterios)
+void opcao_escolhe_mes(CRITERIOS_FILTRAGEM *criterios)
 {
     printf("\n\n\t---Escolhe um mês---\n\n");
     printf("Apenas serão considerados os dados do periodo delimitado");
@@ -368,12 +377,9 @@ void opcao_escolhe_mes(criterios_filtragem *criterios)
         //TODO pode haver intervalos de 1 mês??
     } while (mes_i < JANEIRO || DEZEMBRO < mes_i || mes_f < JANEIRO || DEZEMBRO < mes_f );
 
-        criterios->filtraPorIntervalo = true;
-        criterios->mesMin = mes_i;
-        criterios->mesMax = mes_f;
-
-    printf("\n\n\t---Critério aplicado---\n\n");
-
+    criterios->filtraPorIntervalo = true;
+    criterios->mesMin = mes_i;
+    criterios->mesMax = mes_f;
 }
 
 
@@ -399,10 +405,10 @@ void analise_por_cidade(int ano)
     printf("\n\n\t---Análise por cidade---\n\n");
 }
 
-void menu_analise_da_temperatura_global(int size_file,  list_node_t * _head)
+void menu_analise_da_temperatura_global(DADOS *dados)
 {
     int M = 0;
-    list_node_t * aux = _head;
+    list_node_t * aux = dados->headCountriesOriginal;
     char f_pais[BUFFER_SIZE];
     char f_cidade[BUFFER_SIZE];
     char buffer[BUFFER_SIZE];
@@ -426,10 +432,10 @@ void menu_analise_da_temperatura_global(int size_file,  list_node_t * _head)
         //==1 pois temos de considerar o ^A ( start of header
         //TODO
         //if(strcmp(aux->payload.pais,f_pais) == 1)
-        if(strcmp(aux->payload.pais,f_pais) == 0)
+        if(strcmp(aux->payload->pais,f_pais) == 0)
         {
             printf("ola1\n");
-            printf(" %s \n <- %lu\n",(aux->payload.pais), strlen(aux->payload.pais));
+            printf(" %s \n <- %lu\n",(aux->payload->pais), strlen(aux->payload->pais));
         }
         //printf(" %s \n <- %lu\n",(aux->payload.pais), strlen(aux->payload.pais));
         /*if(strcmp(aux->payload.cidade,f_cidade) == 1)

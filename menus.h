@@ -2,18 +2,17 @@
 #define _MENUS_H
 
 #include "estruturas.h"
-#include "criteriosfiltragem.h"
-#include "lista.h"
+#include "conjuntodados.h"
 
-void menu_principal(criterios_filtragem *criterios, int _size_countries_file,  list_node_t * _head);
-void menu_filtragem_de_dados(criterios_filtragem *criterios);
-void menu_historico_de_temperaturas(criterios_filtragem *criterios);
-void menu_analise_da_temperatura_por_ano(criterios_filtragem *criterios);
-void menu_analise_da_temperatura_global(int _size_countries_file, list_node_t * _head);
+void menu_principal(DADOS* dados);
+void menu_filtragem_de_dados(DADOS* dados);
+void menu_historico_de_temperaturas(DADOS* dados);
+void menu_analise_da_temperatura_por_ano(DADOS* dados);
+void menu_analise_da_temperatura_global(DADOS* dados);
 
-void opcao_limpa_criteritos(criterios_filtragem *criterios);
-void opcao_escolhe_intervalos_para_analise(criterios_filtragem *criterios);
-void opcao_escolhe_mes(criterios_filtragem *criterios);
+void opcao_limpa_criteritos(CRITERIOS_FILTRAGEM *criterios);
+void opcao_escolhe_intervalos_para_analise(CRITERIOS_FILTRAGEM *criterios);
+void opcao_escolhe_mes(CRITERIOS_FILTRAGEM *criterios);
 
 void historico_de_temperaturas_global(int periodo);
 void historico_de_temperaturas_por_pais(int periodo);

@@ -14,7 +14,7 @@ list_node_t *create_node(dados_temp *_dados)
         exit(EXIT_FAILURE);
     }
 
-    new_node->payload = *_dados;
+    new_node->payload = _dados;
 
     new_node->prev = NULL;
     new_node->next = NULL;
@@ -52,19 +52,19 @@ void print_list(list_node_t *_head)
     list_node_t *aux = _head->next;
     while (aux != NULL)
     {
-        printf("País:: %s\n", aux->payload.pais);
-        printf("Temperatura média:: %f\n", aux->payload.temp);
-        printf("Incerteza:: %f\n", aux->payload.incerteza);
-        printf("Data da medição (dd-mm-aaaa):: %d-%d-%d\n\n", aux->payload.dt.dia,
-            aux->payload.dt.mes, aux->payload.dt.ano);
+        printf("País:: %s\n", aux->payload->pais);
+        printf("Temperatura média:: %f\n", aux->payload->temp);
+        printf("Incerteza:: %f\n", aux->payload->incerteza);
+        printf("Data da medição (dd-mm-aaaa):: %d-%d-%d\n\n", aux->payload->dt.dia,
+            aux->payload->dt.mes, aux->payload->dt.ano);
 
         aux = aux->next;
     }
 }
 
-int remove_nodes(list_node_t *_head)
+int remove_nodes(list_node_t *_head, bool freePayload)
 {
-    list_node_t *aux = NULL;//, *tmp = NULL;
+    list_node_t *aux = NULL, *tmp = NULL;//, *tmp = NULL;
 
     aux = _head->next; // start with node after dummy node
 
@@ -75,61 +75,56 @@ int remove_nodes(list_node_t *_head)
 
     while (aux != NULL)
     {
-        //TODO
-        /*if (strlen(aux->name) == 0) // node with an empty string
+        tmp = aux->next;
+
+        if (aux->next != NULL)
         {
-            tmp = aux->next;
-
-            if (aux->next != NULL)
-            {
-                aux->next->prev = aux->prev;
-            }
-            aux->prev->next = aux->next;
-
-            free(aux->name);
-            free(aux);
-            aux = tmp;
+            aux->next->prev = aux->prev;
         }
-        else
-        {*/
-        aux = aux->next;
-        //}
+        aux->prev->next = aux->next;
+
+        if(freePayload) {
+            free(aux->payload);
+        }
+        free(aux);
+        aux = tmp;
     }
     return 0;
 }
 
-void sortedInsert(list_node_t *_head, list_node_t *_new_node)
+void sortedInsert(list_node_t *_head, dados_temp *dados)
 {
     //printf("function:: sortedInsert\n");
-    list_node_t* aux = NULL;
-    list_node_t* tmp = NULL;
+    list_node_t* aux = NULL, *tmp = NULL, *new_node = NULL;
     aux = _head;
     tmp = aux->next;
+
+    new_node = create_node(dados);
 
     //insert in an empty list or in the head of the list
     if ( tmp ==  NULL )
     {
-        _head->next = _new_node;
-        _new_node->prev = _head;
+        _head->next = new_node;
+        new_node->prev = _head;
     }
     else
     {
         //insert in te middle of the list
         while (tmp != NULL &&
-                (tmp->payload.dt.ano < _new_node->payload.dt.ano ||
-                (tmp->payload.dt.ano == _new_node->payload.dt.ano &&
-                 tmp->payload.dt.mes < _new_node->payload.dt.mes )))
+                (tmp->payload->dt.ano < new_node->payload->dt.ano ||
+                (tmp->payload->dt.ano == new_node->payload->dt.ano &&
+                 tmp->payload->dt.mes < new_node->payload->dt.mes )))
         {
             aux = tmp;
             tmp = aux->next;
         }
 
-        _new_node->next = tmp;
-        _new_node->prev = aux;
-        aux->next = _new_node;
+        new_node->next = tmp;
+        new_node->prev = aux;
+        aux->next = new_node;
         if( tmp != NULL)
         {
-            tmp->prev = _new_node;
+            tmp->prev = new_node;
         }
     }
 

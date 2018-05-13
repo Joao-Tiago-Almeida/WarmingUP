@@ -2,7 +2,8 @@
 #define FICHEIROS_H
 
 #include "lista.h"
+#include "conjuntodados.h"
 
-int read_file_countries ( list_node_t **_head, char[] , char[] );
+void read_file_countries (DADOS* dados, char[] , char[] );
 
 #endif
