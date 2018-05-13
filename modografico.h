@@ -9,7 +9,7 @@ void InitSDL();
 void InitFont();
 SDL_Window* CreateWindow(int , int);
 SDL_Renderer* CreateRenderer(int , int , SDL_Window *);
-void RenderTable(int, int, int [], TTF_Font *, SDL_Surface **, SDL_Renderer *);
+void RenderTable( SDL_Surface **, SDL_Renderer *);
 
 void modoGrafico();
 

@@ -93,7 +93,7 @@ void modoTextual(char *nomeFilePaises, char *nomeFileCidades) {
     dados_init(&dados);
 
     read_file_countries (&dados, nomeFilePaises, nomeFileCidades);
-    //read_file_cities (&dados, nomeFilePaises, nomeFileCidades);
+    read_file_cities (&dados, nomeFilePaises, nomeFileCidades);
     //print_list(headListaDados);
 
     menu_principal(&dados);

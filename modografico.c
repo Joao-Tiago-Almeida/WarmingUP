@@ -5,32 +5,14 @@
 #include <stdlib.h>
 #include <time.h>
 #include <stdbool.h>
+#include "modografico.h"
 
-#define MAX(a,b)    (((a)>(b))?(a):(b))
 #define M_PI 3.14159265358979323846264338327950288
 #define STRING_SIZE 100       // max size for some strings
 #define HEIGHT_WINDOW_SIZE 850  // main game space size
 #define WIDTH_WINDOW_SIZE 1395     // left white bar size
 #define WINDOW_POSX 0       // initial position of the window: x
 #define WINDOW_POSY 1000       // initial position of the window: y         n sei oq e
-#define SQUARE_SEPARATOR 8    // square separator in px
-#define BOARD_SIZE_PER 0.7f   // board size in % wrt to table size
-#define MAX_BOARD_POS 15      // maximum size of the board
-
-// declaration of the functions related to graphical issues
-void InitEverything(int , int , TTF_Font **, SDL_Surface **, SDL_Window ** , SDL_Renderer ** );
-void InitSDL();
-void InitFont();
-SDL_Window* CreateWindow(int , int );
-SDL_Renderer* CreateRenderer(int , int , SDL_Window *);
-int RenderText(int, int, const char *, TTF_Font *, SDL_Color *, SDL_Renderer *);
-int RenderLogo(int, int, SDL_Surface *, SDL_Renderer *);
-void RenderTable(int, int, int [], TTF_Font *, SDL_Surface **, SDL_Renderer *);
-void ProcessMouseEvent(int , int , int [], int , int *, int * );
-void RenderPoints(int [][MAX_BOARD_POS], int, int, int [], int, SDL_Renderer *);
-void RenderStats( SDL_Renderer *, TTF_Font *, int [], int , int );
-void filledCircleRGBA(SDL_Renderer * , int , int , int , int , int , int );
-
 
 /**
  * main function: entry point of the program
@@ -46,8 +28,6 @@ void modoGrafico( void )
     bool stay = true;
     int width = WIDTH_WINDOW_SIZE;
     int height = HEIGHT_WINDOW_SIZE;
-    int board_size_px[2] = {0};
-    int board_pos_x = 0, board_pos_y = 0;
     int delay = 0;
 
 
@@ -75,7 +55,7 @@ void modoGrafico( void )
             }
         }
         // render game table
-        RenderTable( board_pos_x, board_pos_y, board_size_px, AppleGaramond, imgs, renderer);
+        RenderTable( imgs, renderer);
         // render in the screen all changes above
         SDL_RenderPresent(renderer);
         // add a delay
@@ -96,15 +76,12 @@ void modoGrafico( void )
  * -  some texture for the background
  * -  the right part with the IST logo and the student name and number
  * -  the grid for game board with squares and seperator lines
- * \param _board_pos_x number of positions in the board (x axis)
- * \param _board_pos_y number of positions in the board (y axis)
  * \param _board_size_px size of the board
  * \param _font font used to render the text
  * \param _img surfaces with the table background and IST logo (already loaded)
  * \param _renderer renderer to handle all rendering in a window
  */
-void RenderTable( int _board_pos_x, int _board_pos_y, int _board_size_px[],
-        TTF_Font *_font, SDL_Surface *_img[], SDL_Renderer* _renderer )
+void RenderTable( SDL_Surface *_img[], SDL_Renderer* _renderer )
 {
 
     SDL_Texture *table_texture;
