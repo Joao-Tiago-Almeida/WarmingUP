@@ -87,13 +87,14 @@ void read_file_countries(DADOS* dados, char *_nomeFilePaises, char *_nomeFileCid
     dados->headCountriesFiltrada = dados->headCountriesOriginal;
 }
 
+
 void read_file_cities(DADOS* dados, char *_nomeFilePaises, char *_nomeFileCidades)
 {
     int i = 0, check = -1;
     char buffer[BUFFER_SIZE];
     FILE * fileInput = NULL;
-    char longitude_c[2];
-    char latitude_c[2];
+    char longitude_c;
+    char latitude_c;
 
     dados->headCitiesOriginal = create_list();
     dados->citiesAnoMin = __INT32_MAX__;
@@ -114,7 +115,7 @@ void read_file_cities(DADOS* dados, char *_nomeFilePaises, char *_nomeFileCidade
     while(fgets(buffer, BUFFER_SIZE, fileInput) != NULL){
 
         dados_temp* a = malloc(sizeof(dados_temp));
-        check = sscanf(buffer, "%d-%d-%d,%f,%f,%[^,],%[^,],%f%[^,],%f%[^\n]",
+        check = sscanf(buffer, "%d-%d-%d,%f,%f,%[^,],%[^,],%f%c,%f%c",
             &a->dt.ano,
             &a->dt.mes,
             &a->dt.dia,
@@ -123,9 +124,10 @@ void read_file_cities(DADOS* dados, char *_nomeFilePaises, char *_nomeFileCidade
             a->pais,
             a->cidade,
             &a->latitude.angular,
-            latitude_c,
+            &latitude_c,
             &a->longitude.angular,
-            longitude_c);
+            &longitude_c);
+
 
         //TODO meter nome dos paises e cidades com malloc
         //strcpy(a->pais, nome_temp);
@@ -150,7 +152,7 @@ void read_file_cities(DADOS* dados, char *_nomeFilePaises, char *_nomeFileCidade
                 dados->citiesAnoMax = a->dt.ano;
             }
 
-            if(strcmp(latitude_c,"N"))
+            if(strcmp(&latitude_c,"N"))
             {
                 a->latitude.direcao = 0;
             }
@@ -158,7 +160,7 @@ void read_file_cities(DADOS* dados, char *_nomeFilePaises, char *_nomeFileCidade
             {
                 a->latitude.direcao = 1;
             }
-            if(strcmp(longitude_c,"E"))
+            if(strcmp(&longitude_c,"E"))
             {
                 a->longitude.direcao = 2;
             }
@@ -169,10 +171,10 @@ void read_file_cities(DADOS* dados, char *_nomeFilePaises, char *_nomeFileCidade
             //TODO remover vv
             i++;
             printf("%d\t", i);
-            printf("%s\n", buffer);
+            /*printf("%s\n", buffer);
             printf("%s\n", a->cidade);
             printf("latitude:: %d\n", a->latitude.direcao);
-            printf("longitude:: %d\n", a->longitude.direcao);
+            printf("longitude:: %d\n", a->longitude.direcao);*/
         }
     }
     printf("\nMax: %d, min: %d\n", dados->citiesAnoMax, dados->citiesAnoMin);
@@ -188,9 +190,7 @@ void read_file_cities(DADOS* dados, char *_nomeFilePaises, char *_nomeFileCidade
             printf("%d\t", i);
     }*/
 
-    printf("ola2\n");
     //free(anoPointers);
     fclose(fileInput);
-    printf("ola1\n");
     dados->headCitiesFiltrada = dados->headCitiesOriginal;
 }
