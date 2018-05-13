@@ -45,13 +45,20 @@ void read_file_countries(DADOS* dados, char *_nomeFilePaises, char *_nomeFileCid
         {
             insert_node(dados->headCountriesOriginal, a);
             
+            //caso seja o ano min, determinar o menor mes
+            if(a->dt.ano == dados->countriesAnoMin) {
+                dados->countriesMesMin = a->dt.mes;
+            }
+
             //Determinar ano máx e mín
             if(a->dt.ano < dados->countriesAnoMin) {
                 dados->countriesAnoMin = a->dt.ano;
+                dados->countriesMesMin = a->dt.mes;
             }
             if(a->dt.ano > dados->countriesAnoMax) {
                 dados->countriesAnoMax = a->dt.ano;
             }
+            
             
             //TODO remover vv
             printf("%d\t", i);

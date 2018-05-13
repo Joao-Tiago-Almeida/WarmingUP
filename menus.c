@@ -7,10 +7,6 @@
 
 #define BUFFER_SIZE 100
 
-#define MIN_ANO 1743
-#define MAX_ANO 2013
-#define MES_MIN_ANO 11
-#define MES_MAX_ANO 6
 #define JANEIRO 1
 #define DEZEMBRO 12
 #define MAX_M 100 //não sei , perguntar ao stor
@@ -35,12 +31,12 @@ int perguntar_menu_choice()
     return alinea;
 }
 
-int perguntar_anos_a_analisar()
+int perguntar_anos_a_analisar(DADOS* dados)
 {
     char buf[BUFFER_SIZE];
     int numAnos = -1, intervalo = 0;
 
-    intervalo = MAX_ANO-MIN_ANO;
+    intervalo = dados->countriesAnoMax - dados->countriesAnoMin;
 
     printf("Qual o periodo que pretende analisar [1-%d]: ", intervalo);
 
@@ -83,10 +79,10 @@ int perguntar_referencia_a_analisar(int _min, int _max)
     return _ano;
 }
 
-int calulo_intervalos(int _periodo)
+int calulo_intervalos(int _periodo, DADOS *dados)
 {
     int intervalo = 0;
-    intervalo = (MAX_ANO-MIN_ANO)/_periodo;
+    intervalo = (dados->countriesAnoMax - dados->countriesAnoMin)/_periodo;
     return intervalo;
 }
 
@@ -135,29 +131,29 @@ void menu_historico_de_temperaturas(DADOS* dados)
     bool dentroDoMenu = false;
     int alinea = -1;
     int periodo = -1;
-    int nr_de_valores_por_intervalo = -1;
+    int nr_de_anos_por_intervalo = -1;
     int tmp = -1;
 
     printf("\n\tMenu Histórico de Temperaturas\n\n");
 
-    periodo = perguntar_anos_a_analisar();
+    periodo = perguntar_anos_a_analisar(dados);
     //printf("período(num de anos) a analisar: %d\n", periodo);
 
     //VAI SER ÙLTIL PARA DPS    ???
     //calcula quantos anos temos por intervalo, caso normal
-    nr_de_valores_por_intervalo = calulo_intervalos(periodo);
+    nr_de_anos_por_intervalo = calulo_intervalos(periodo, dados); //miguel: Acho que isto nao faz sentido
 
     //---cálculo dos intervalos---
-    tmp = MIN_ANO + periodo;
-    printf("[ %d , %d [\n" ,MIN_ANO, tmp);
-    while(tmp + periodo < MAX_ANO)
+    tmp = dados->countriesAnoMin + periodo;
+    printf("[ %d , %d [\n" ,dados->countriesAnoMin, tmp);
+    while(tmp + periodo < dados->countriesAnoMax)
     {
         printf("[ %d , %d [\n", tmp, tmp + periodo);
         tmp = tmp + periodo;
     }
-    if(tmp != MAX_ANO)
+    if(tmp != dados->countriesAnoMax)
     {
-        printf("[ %d , %d ]\n" ,tmp, MAX_ANO);
+        printf("[ %d , %d ]\n" ,tmp, dados->countriesAnoMax);
     }
     //---fim---
 
@@ -202,7 +198,7 @@ void menu_analise_da_temperatura_por_ano(DADOS* dados)
     while (dentroDoMenu)
     {
         printf("\n\tMenu Análise da Temperatura por Ano\n\n");
-        ano = perguntar_referencia_a_analisar(MIN_ANO,MAX_ANO);
+        ano = perguntar_referencia_a_analisar(dados->countriesAnoMax, dados->countriesAnoMin);
 
         printf("\n\nEscolha uma das opções seguintes:\n");
         printf("1. Análise por País;\n2. Análise por cidade.\n");
@@ -253,7 +249,7 @@ void menu_filtragem_de_dados(DADOS* dados)
             alterouCriterios = true;
             break;
         case 2:
-            opcao_escolhe_intervalos_para_analise(&novosCriterios);
+            opcao_escolhe_intervalos_para_analise(&novosCriterios, dados);
             alterouCriterios = true;
             break;
         case 3:
@@ -280,7 +276,7 @@ void opcao_limpa_criteritos(CRITERIOS_FILTRAGEM *criterios)
 {
     limpar_criterios(criterios);
 }
-void opcao_escolhe_intervalos_para_analise(CRITERIOS_FILTRAGEM *criterios)
+void opcao_escolhe_intervalos_para_analise(CRITERIOS_FILTRAGEM *criterios, DADOS *dados)
 {
     printf("\n\n\t---Escolhe intervalos para análise---\n\n");
     printf("Os dados anteriores ao periodo que inserir não serão considerados.\n");
@@ -288,7 +284,7 @@ void opcao_escolhe_intervalos_para_analise(CRITERIOS_FILTRAGEM *criterios)
     char buf[BUFFER_SIZE];
     int mes = 0, ano = 0;
     bool primeiraTentativa = true;
-    bool intervalo_valido = true;
+    //bool intervalo_valido = true;
 
     /*do
     {
@@ -307,40 +303,40 @@ void opcao_escolhe_intervalos_para_analise(CRITERIOS_FILTRAGEM *criterios)
     } while (ano < MIN_ANO || MAX_ANO < ano);
 
     printf("\n");*/
-    ano = perguntar_referencia_a_analisar(MIN_ANO,MAX_ANO);
+    ano = perguntar_referencia_a_analisar(dados->countriesAnoMin,
+        dados->countriesAnoMax);
 
-    //primeiraTentativa = true;
     do
     {
-        if(!intervalo_valido || ano == MIN_ANO) {
-            //TODO fazer com que um ano sem ser o minimo também apareca isto
-            printf("Para o ano de %d só há valores apartir do mês %d !\n", MIN_ANO, MES_MIN_ANO);
-            printf("Qual o mes a partir do qual pretende analisar [%d-12]:\t", MES_MIN_ANO);
-            intervalo_valido = true;
-        }
-        else if(!primeiraTentativa) {
+        //Caso o utilizador já tenha inserido um mes invalido
+        if(!primeiraTentativa) {
             printf("Tem de estar dentro dos limites!\n");
-            printf("Qual o mes a partir do qual pretende analisar [1-12]:\t");
         }
-        else
-        {
-            printf("Qual o mes a partir do qual pretende analisar [1-12]:\t");
-        }
+
+        //Caso o 
+        if(ano == dados->countriesAnoMin) {
+            //TODO fazer com que um ano sem ser o minimo também apareca isto
+            printf("Para o ano de %d só há valores apartir do mês %d !\n", ano, dados->countriesMesMin);
+            //intervalo_valido = true;
+        } 
+        printf("Qual o mes a partir do qual pretende analisar [%d-12]:\t",
+            ano == dados->countriesAnoMin ? dados->countriesMesMin : 1);
+        
 
         fgets(buf, BUFFER_SIZE, stdin);
         if (sscanf(buf, "%d", &mes) != 1)
         {
             mes = -1;
         }
-        //quando selecionado o ano minímo, podem não estar todos os meses disponíveis
-        if(ano == MIN_ANO && mes < MES_MIN_ANO)
-        {
-            intervalo_valido = false;
-        }
+        
         primeiraTentativa = false;
         //printf("%d < %d || %d < %d || %d\n", criterios->intervaloMesMin, JANEIRO_NUM, DEZEMBRO_NUM,  criterios->intervaloMesMin, !intervalo_valido);
+
+        //Volta a pedir valores ao utilizador caso sejam inseridos valores de
+        // meses invalidos, ou, caso seja o menor ano, o mes escolhido
+        // pode não estar disponivel
     } while ((mes < JANEIRO || DEZEMBRO < mes)
-                || !intervalo_valido);
+                || (ano == dados->countriesAnoMin && mes < dados->countriesMesMin));
 
     criterios->filtraPorIntervalo = true;
     criterios->intervaloAnoMin = ano;
