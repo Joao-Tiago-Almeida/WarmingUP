@@ -51,8 +51,8 @@ void ler_argumentos(int argc, char *argv[], bool *modoGrafico, char **nomeFilePa
                 }
                 expectingFileName = false;
             } else {
-                printf("tamanho:: %lu\n", strlen(argv[i]));
-                printf("parametro:: %s\n", argv[i]);
+                //printf("tamanho:: %lu\n", strlen(argv[i]));
+                //printf("parametro:: %s\n", argv[i]);
                 if (strcmp(argv[i], "-g") == 0)
                 {
                     *modoGrafico = true;
@@ -91,7 +91,8 @@ void modoTextual(char *nomeFilePaises, char *nomeFileCidades) {
     DADOS dados;
     dados_init(&dados);
 
-    read_file_countries (&dados, nomeFilePaises, nomeFileCidades);
+    //read_file_countries (&dados, nomeFilePaises, nomeFileCidades);
+    read_file_cities (&dados, nomeFilePaises, nomeFileCidades);
     //print_list(headListaDados);
 
     menu_principal(&dados);

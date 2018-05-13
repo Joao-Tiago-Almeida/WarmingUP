@@ -52,8 +52,10 @@ int perguntar_anos_a_analisar(DADOS* dados)
     return numAnos;
 }
 
-//esta função permite selecionar um ano a analisar ou um ano apartir do qual se vai analisar
-int perguntar_referencia_a_analisar(int _min, int _max)
+//esta função permite selecionar um ano a analisar
+//um ano apartir do qual se vai analisar
+//ou um numero de meses a analisar
+int perguntar_referencia_a_analisar(int _min, int _max, char *_comentario)
 {
     char buf[BUFFER_SIZE];
     int _ano = 0;
@@ -64,9 +66,7 @@ int perguntar_referencia_a_analisar(int _min, int _max)
         if(!primeiraTentativa) {
             printf("Tem de estar dentro dos limites!\n");
         }
-
-        printf("Qual o ano a partir do qual pretende analisar [%d-%d]:\t", _min, _max);
-
+        printf("%s [%d-%d]:\t", _comentario, _min, _max);
         fgets(buf, BUFFER_SIZE, stdin);
         if (sscanf(buf, "%d", &_ano) != 1)
         {
@@ -194,12 +194,12 @@ void menu_analise_da_temperatura_por_ano(DADOS* dados)
     bool dentroDoMenu = true;
     int alinea = -1;
     int ano;
+    char comentario[] = "Qual o ano a que pretende analisar?";
 
     printf("\n\tMenu Análise da Temperatura por Ano\n\n");
-    
-    //TODO mudar esta função. Ela está a pedir um ano para analisar a partir dele,
-    // mas é suposto só dizer "qual o ano que quer analisar"
-    ano = perguntar_referencia_a_analisar(dados->countriesAnoMin, dados->countriesAnoMax);
+
+
+    ano = perguntar_referencia_a_analisar(dados->countriesAnoMin, dados->countriesAnoMax, comentario);
 
     while (dentroDoMenu)
     {
@@ -287,6 +287,7 @@ void opcao_escolhe_intervalos_para_analise(CRITERIOS_FILTRAGEM *criterios, DADOS
     char buf[BUFFER_SIZE];
     int mes = 0, ano = 0;
     bool primeiraTentativa = true;
+    char comentario[] = "Qual o ano a partir do qual pretende analisar?";
     //bool intervalo_valido = true;
 
     /*do
@@ -307,7 +308,7 @@ void opcao_escolhe_intervalos_para_analise(CRITERIOS_FILTRAGEM *criterios, DADOS
 
     printf("\n");*/
     ano = perguntar_referencia_a_analisar(dados->countriesAnoMin,
-        dados->countriesAnoMax);
+        dados->countriesAnoMax, comentario);
 
     do
     {
@@ -316,22 +317,22 @@ void opcao_escolhe_intervalos_para_analise(CRITERIOS_FILTRAGEM *criterios, DADOS
             printf("Tem de estar dentro dos limites!\n");
         }
 
-        //Caso o 
+        //Caso o
         if(ano == dados->countriesAnoMin) {
             //TODO fazer com que um ano sem ser o minimo também apareca isto
             printf("Para o ano de %d só há valores apartir do mês %d !\n", ano, dados->countriesMesMin);
             //intervalo_valido = true;
-        } 
+        }
         printf("Qual o mes a partir do qual pretende analisar [%d-12]:\t",
             ano == dados->countriesAnoMin ? dados->countriesMesMin : 1);
-        
+
 
         fgets(buf, BUFFER_SIZE, stdin);
         if (sscanf(buf, "%d", &mes) != 1)
         {
             mes = -1;
         }
-        
+
         primeiraTentativa = false;
         //printf("%d < %d || %d < %d || %d\n", criterios->intervaloMesMin, JANEIRO_NUM, DEZEMBRO_NUM,  criterios->intervaloMesMin, !intervalo_valido);
 
@@ -409,17 +410,17 @@ void menu_analise_da_temperatura_global(DADOS *dados)
     int M = 0;
     list_node_t * aux = dados->headCountriesOriginal;
     char f_pais[BUFFER_SIZE];
-    char f_cidade[BUFFER_SIZE];
+    //char f_cidade[BUFFER_SIZE];
     char buffer[BUFFER_SIZE];
+    char comentario[] = "Quantos meses pretende utilizar no cálculo da MA (moving average)?";
 
     printf("\n\n\t---Análise da temperuta Global---\n\n");
 
-    M = perguntar_referencia_a_analisar(1 ,MAX_M);
+    M = perguntar_referencia_a_analisar(1 ,MAX_M, comentario);
 
     printf("Country::\t");
     fgets(buffer, BUFFER_SIZE, stdin);
     sscanf(buffer, "%s", f_pais);
-    f_pais[99] = '\0';
     printf("f_pais:: %s <- %lu\n", f_pais, strlen(f_pais));
     /*printf("City::\t");
     fgets(buffer, BUFFER_SIZE, stdin);
