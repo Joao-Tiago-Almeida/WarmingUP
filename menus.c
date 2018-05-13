@@ -195,11 +195,14 @@ void menu_analise_da_temperatura_por_ano(DADOS* dados)
     int alinea = -1;
     int ano;
 
+    printf("\n\tMenu Análise da Temperatura por Ano\n\n");
+    
+    //TODO mudar esta função. Ela está a pedir um ano para analisar a partir dele,
+    // mas é suposto só dizer "qual o ano que quer analisar"
+    ano = perguntar_referencia_a_analisar(dados->countriesAnoMin, dados->countriesAnoMax);
+
     while (dentroDoMenu)
     {
-        printf("\n\tMenu Análise da Temperatura por Ano\n\n");
-        ano = perguntar_referencia_a_analisar(dados->countriesAnoMax, dados->countriesAnoMin);
-
         printf("\n\nEscolha uma das opções seguintes:\n");
         printf("1. Análise por País;\n2. Análise por cidade.\n");
         printf("\n0 ou Enter. Volta ao Menu Principal.\n");

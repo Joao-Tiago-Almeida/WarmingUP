@@ -12,20 +12,24 @@
 void read_file_countries(DADOS* dados, char *_nomeFilePaises, char *_nomeFileCidades)
 {
     int i = 0, check = -1;
-    
     char buffer[BUFFER_SIZE];
+    FILE * fileInput = NULL;
 
     dados->headCountriesOriginal = create_list();
     dados->countriesAnoMin = __INT32_MAX__;
     dados->countriesAnoMax = 0;
-
-    FILE * fileInput = NULL;
+    
     fileInput = fopen(_nomeFilePaises, "r");
     if (fileInput == NULL) {
         //Caso haja um erro imprime-o e sai do programa
         perror("Erro a abrir o ficheiro");
         exit(EXIT_FAILURE);
     }
+
+    //Vetor de que contem o apontador para o inicio de cada ano na lista
+    //TODO
+    //int sizeAnoPointers = 2100;
+    //list_node_t** anoPointers = malloc(sizeAnoPointers*sizeof(list_node_t*));
 
     while(fgets(buffer, BUFFER_SIZE, fileInput) != NULL){
 
@@ -78,6 +82,7 @@ void read_file_countries(DADOS* dados, char *_nomeFilePaises, char *_nomeFileCid
             printf("%d\t", i);
     }*/
     
+    //free(anoPointers);
     fclose(fileInput);
     dados->headCountriesFiltrada = dados->headCountriesOriginal;
 }
