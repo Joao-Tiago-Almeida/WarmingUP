@@ -8,6 +8,7 @@
 #include "menus.h"
 #include "ficheiros.h"
 #include "conjuntodados.h"
+#include "modografico.h"
 
 #define comando_mal 0
 
@@ -91,8 +92,8 @@ void modoTextual(char *nomeFilePaises, char *nomeFileCidades) {
     DADOS dados;
     dados_init(&dados);
 
-    //read_file_countries (&dados, nomeFilePaises, nomeFileCidades);
-    read_file_cities (&dados, nomeFilePaises, nomeFileCidades);
+    read_file_countries (&dados, nomeFilePaises, nomeFileCidades);
+    //read_file_cities (&dados, nomeFilePaises, nomeFileCidades);
     //print_list(headListaDados);
 
     menu_principal(&dados);
@@ -104,17 +105,19 @@ void modoTextual(char *nomeFilePaises, char *nomeFileCidades) {
 
 int main(int argc, char *argv[])
 {
-    bool modoGrafico = false;
+    bool modo_grafico = false;
     char *nomeFilePaises = NULL, *nomeFileCidades = NULL;
-    ler_argumentos(argc, argv, &modoGrafico, &nomeFilePaises, &nomeFileCidades);
+    ler_argumentos(argc, argv, &modo_grafico, &nomeFilePaises, &nomeFileCidades);
 
 
-    if(modoGrafico) {
+    if(modo_grafico) {
         //Inicializar modo grafico
         printf("Modo grafico!\n");
+        modoGrafico();
     } else {
         modoTextual(nomeFilePaises, nomeFileCidades);
     }
 
+    printf("END OF THE PROGRAM!!\n");
     return EXIT_SUCCESS;
 }
