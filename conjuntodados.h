@@ -26,7 +26,7 @@ typedef struct {
     int citiesListSize;
     list_node_t* headCitiesOriginal;
     //Aponta para a dummy node de uma nova lista caso hajam critérios de filtragem
-    // ou é igual a headCountriesOriginal caso não hajam criterios de filtragem
+    // ou é igual a headCitiesOriginal caso não hajam criterios de filtragem
     list_node_t* headCitiesFiltrada;
     int citiesAnoMin, citiesAnoMax;
     int citiesMesMin;
