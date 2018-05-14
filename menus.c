@@ -34,27 +34,6 @@ int perguntar_menu_choice()
     return alinea;
 }
 
-int perguntar_anos_a_analisar(DADOS* dados)
-{
-    char buf[BUFFER_SIZE];
-    int numAnos = -1, intervalo = 0;
-
-    intervalo = dados->countriesAnoMax - dados->countriesAnoMin;
-
-    printf("Qual o periodo que pretende analisar [1-%d]: ", intervalo);
-
-    do
-    {
-        fgets(buf, BUFFER_SIZE, stdin);
-        if (sscanf(buf, "%d", &numAnos) == 0)
-        {
-            numAnos = -1;
-        }
-    } while (numAnos < 1 || intervalo < numAnos);
-
-    return numAnos;
-}
-
 //esta função permite selecionar um ano a analisar
 //um ano apartir do qual se vai analisar
 //ou um numero de meses a analisar
@@ -148,33 +127,15 @@ void menu_historico_de_temperaturas(DADOS* dados)
     bool dentroDoMenu = false;
     int alinea = -1;
     int periodo = -1;
-    int nr_de_anos_por_intervalo = -1;
     int tmp = -1;
+    int intervalo = 0;
+    char comentario[] = "Qual o periodo que pretende analisar?";
 
     printf("\n\tMenu Histórico de Temperaturas\n\n");
+    intervalo = dados->countriesAnoMax - dados->countriesAnoMin;
 
-    periodo = perguntar_anos_a_analisar(dados);
+    periodo = perguntar_referencia_a_analisar(1, intervalo, comentario);
     //printf("período(num de anos) a analisar: %d\n", periodo);
-
-    //VAI SER ÙLTIL PARA DPS    ???
-    //calcula quantos anos temos por intervalo, caso normal
-    nr_de_anos_por_intervalo = calculo_num_intervalos(periodo, dados); //miguel: Acho que isto nao faz sentido
-
-    //---cálculo dos intervalos---
-    tmp = dados->countriesAnoMin + periodo;
-    printf("[ %d , %d [\n" ,dados->countriesAnoMin, tmp);
-    while(tmp + periodo < dados->countriesAnoMax)
-    {
-        printf("[ %d , %d [\n", tmp, tmp + periodo);
-        tmp = tmp + periodo;
-    }
-    if(tmp != dados->countriesAnoMax)
-    {
-        printf("[ %d , %d ]\n" ,tmp, dados->countriesAnoMax);
-    }
-
-    printf("aaa %d\n", nr_de_anos_por_intervalo);
-    //---fim---
 
     do
     {
@@ -438,7 +399,7 @@ void imprime_intervalos(DADOS* dados, int numIntervalos, float *tempMin,
         } else {
             printf(intervalorFechado ?
                 "[ %d , %d ]\tSEM DADOS\n" : "[ %d , %d [\tSEM DADOS\n",
-                anoMenor, anoMaior); 
+                anoMenor, anoMaior);
         }
     }
 }
@@ -469,11 +430,11 @@ void historico_de_temperaturas_global(DADOS *dados, int periodo)
         tempMed[i] = 0;
         numDados[i] = 0;
     }
-    
+
     aux = dados->headCountriesFiltrada->next; //->next para a node a seguir à dummy node
     while(aux != NULL) {
         int intervalo = (aux->payload->dt.ano - dados->countriesAnoMin) / periodo;
-        
+
         tempMax[intervalo] = MAX(tempMax[intervalo], aux->payload->temp);
         tempMin[intervalo] = MIN(tempMin[intervalo], aux->payload->temp);
         // O tempMed vai temporariamente guardar a soma das temperaturas
@@ -513,14 +474,14 @@ void historico_de_temperaturas_por_pais(DADOS *dados, int periodo)
         tempMed[i] = 0;
         numDados[i] = 0;
     }
-    
+
     aux = dados->headCountriesFiltrada->next; //->next para a node a seguir à dummy node
     while(aux != NULL) {
         if(strcmp(aux->payload->pais, pais) != 0) {
             //Se o pais desta node coincidir com o que o utilizador escolheu
             //Obtem o intervalo a que o ano pertence
             int intervalo = (aux->payload->dt.ano - dados->countriesAnoMin) / periodo;
-            
+
             tempMax[intervalo] = MAX(tempMax[intervalo], aux->payload->temp);
             tempMin[intervalo] = MIN(tempMin[intervalo], aux->payload->temp);
             // O tempMed vai temporariamente guardar a soma das temperaturas
@@ -569,22 +530,19 @@ void menu_analise_da_temperatura_global(DADOS *dados)
     sscanf(buffer, "%s", f_cidade);*/
     //printf("f_cidade:: %s <- %lu\n", f_cidade, strlen(f_cidade));
 
-    while(aux != NULL)
+    /*while(aux != NULL)
     {
-        //==1 pois temos de considerar o ^A ( start of header
-        //TODO
-        //if(strcmp(aux->payload.pais,f_pais) == 1)
         if(strcmp(aux->payload->pais,f_pais) == 0)
         {
             printf("ola1\n");
             printf(" %s \n <- %lu\n",(aux->payload->pais), strlen(aux->payload->pais));
         }
-        //printf(" %s \n <- %lu\n",(aux->payload.pais), strlen(aux->payload.pais));
-        /*if(strcmp(aux->payload.cidade,f_cidade) == 1)
+        if(strcmp(aux->payload.cidade,f_cidade) == 1)
         {
             printf("ola2\n");
             printf(" %s \n <- %lu\n",(aux->payload.cidade), strlen(aux->payload.cidade));
-        }*/
+        }
         aux = aux->next;
-    }
+    }*/
+
 }
