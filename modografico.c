@@ -176,7 +176,8 @@ SDL_Window* CreateWindow(int width, int height)
 {
     SDL_Window *window;
     // init window
-    window = SDL_CreateWindow( "1024", WINDOW_POSX, WINDOW_POSY, width, height, 0 );
+    window = SDL_CreateWindow( "< Projeto Final :: WarmingUp > \tJoão Almeida 90119 \tMiguel Fazenda 90146"
+                                , WINDOW_POSX, WINDOW_POSY, width, height, 0 );
     // check for error !
     if ( window == NULL )
     {
