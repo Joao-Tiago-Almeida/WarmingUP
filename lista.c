@@ -48,18 +48,23 @@ void insert_node(list_node_t *_head, dados_temp *_dados)
 
 void print_list(list_node_t *_head)
 {
+    int size = 0;
     printf("function:: print_list\n");
     list_node_t *aux = _head->next;
     while (aux != NULL)
     {
-        printf("País:: %s\n", aux->payload->pais);
-        printf("Temperatura média:: %f\n", aux->payload->temp);
-        printf("Incerteza:: %f\n", aux->payload->incerteza);
-        printf("Data da medição (dd-mm-aaaa):: %d-%d-%d\n\n", aux->payload->dt.dia,
-            aux->payload->dt.mes, aux->payload->dt.ano);
-
+        //printf("País:: %s\n", aux->payload->pais);
+        //printf("Temperatura média:: %f\n", aux->payload->temp);
+        //printf("Incerteza:: %f\n", aux->payload->incerteza);
+        //printf("Data da medição (dd-mm-aaaa):: %d-%d-%d\n\n", aux->payload->dt.dia,
+        printf("%d-%d-%d,%s,%f\n", aux->payload->dt.dia,
+            aux->payload->dt.mes, aux->payload->dt.ano,
+            aux->payload->pais, aux->payload->temp);
+        size++;
         aux = aux->next;
     }
+
+    printf("Size: %d", size);
 }
 
 int remove_nodes(list_node_t *_head, bool freePayload)
