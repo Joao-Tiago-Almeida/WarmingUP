@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include "lista.h"
 #include "estruturas.h"
@@ -30,10 +31,12 @@ void read_file_countries(DADOS *dados, char *_nomeFilePaises, char *_nomeFileCid
     int i = 0, check = -1;
     char buffer[BUFFER_SIZE];
     FILE *fileInput = NULL;
+    clock_t timeCounter = clock();
 
     //Vetor de que contem o uma lista para cada ano
     int sizeAnoPointers = 2100; //TODO realloc
-    list_node_t **insertionSortStartForYear = (list_node_t **) checkedMalloc(sizeAnoPointers * sizeof(list_node_t*));
+    list_node_t **yearsListHead = (list_node_t **) checkedMalloc(sizeAnoPointers * sizeof(list_node_t*));
+    list_node_t **yearsListTail = (list_node_t **) checkedMalloc(sizeAnoPointers * sizeof(list_node_t*));
 
     printf("A ler dados dos países...\n");
 
@@ -43,7 +46,8 @@ void read_file_countries(DADOS *dados, char *_nomeFilePaises, char *_nomeFileCid
 
     //Inicializa o vetor para todos os anos terem a sua lista
     for(int i = 0; i<sizeAnoPointers; i++) {
-        insertionSortStartForYear[i] = create_list();
+        yearsListHead[i] = create_list();
+        yearsListTail[i] = yearsListHead[i];
     }
 
     fileInput = fopen(_nomeFilePaises, "r");
@@ -76,7 +80,7 @@ void read_file_countries(DADOS *dados, char *_nomeFilePaises, char *_nomeFileCid
         if (check == 6)
         {
             list_node_t *new_node = create_node(a);
-            sortedInsert(insertionSortStartForYear[a->dt.ano], new_node);
+            sortedInsert(yearsListHead[a->dt.ano], &yearsListTail[a->dt.ano], new_node);
 
             //caso seja o ano min, determinar o menor mes
             if (a->dt.ano == dados->countriesAnoMin)
@@ -106,37 +110,23 @@ void read_file_countries(DADOS *dados, char *_nomeFilePaises, char *_nomeFileCid
     }
 
 
-    dados->headCountriesOriginal->next = insertionSortStartForYear[0]->next;
-    free(insertionSortStartForYear[0]); //Free da dummy node da lista para o ano 0
-    //TODO tail
-    for(int i = 1; i<sizeAnoPointers; i++) {
-        //Vai achar a tail da lista original
-        list_node_t *tailOrig = dados->headCountriesOriginal;
-        while(tailOrig->next != NULL)
-        {
-            tailOrig = tailOrig->next;
-        }
+    dados->headCountriesOriginal->next = yearsListHead[0]->next;
+    free(yearsListHead[0]); //Free da dummy node da lista para o ano 0
 
-        tailOrig->next = insertionSortStartForYear[i]->next;
-        free(insertionSortStartForYear[i]); //Free da dummy node da lista para este ano
+    for(int i = 1; i<sizeAnoPointers; i++) {
+        //Liga a tail com a head da anterior
+        yearsListTail[i-1]->next = yearsListHead[i];
+        yearsListHead[i]->prev = yearsListTail[i-1];
+
+        free(yearsListHead[i]); //Free da dummy node da lista para este ano
     }
 
-    printf("\rProgresso: 100%%\n");
+    timeCounter = clock() - timeCounter;
+    printf("\rProgresso: 100%% (%ld s)\n", timeCounter/CLOCKS_PER_SEC);
+ 
+    free(yearsListHead);
+    free(yearsListTail);
 
-
-
-    //Teste ao sort
-    /*for(int i = 0 ; i< 50 ; i++)
-    {
-        dados_temp a;
-        a.dt.ano = rand()%20 +1;
-        a.dt.mes = rand()%6 +7;
-            list_node_t* node = create_node(&a);
-            sortedInsert(*_head, node);
-            printf("%d\t", i);
-    }*/
-    //TODO free a cada lista 
-    free(insertionSortStartForYear);
     fclose(fileInput);
     dados->headCountriesFiltrada = dados->headCountriesOriginal;
     dados->countriesListSize = i;

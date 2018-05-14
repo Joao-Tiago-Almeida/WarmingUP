@@ -94,7 +94,7 @@ int remove_nodes(list_node_t *_head, bool freePayload)
 
 
 //Devolve a node criada e inserida
-void sortedInsert(list_node_t *_head, list_node_t *new_node)
+void sortedInsert(list_node_t *_head, list_node_t **_tail, list_node_t *new_node)
 {
     //printf("function:: sortedInsert\n");
     list_node_t* aux = NULL, *tmp = NULL;
@@ -106,6 +106,8 @@ void sortedInsert(list_node_t *_head, list_node_t *new_node)
     {
         _head->next = new_node;
         new_node->prev = _head;
+        //Muda a tail
+        *_tail = new_node;
     }
     else
     {
@@ -125,6 +127,11 @@ void sortedInsert(list_node_t *_head, list_node_t *new_node)
         if( tmp != NULL)
         {
             tmp->prev = new_node;
+        }
+        else
+        {
+            //Muda a tail
+            *_tail = new_node;
         }
     }
 }
