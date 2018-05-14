@@ -14,9 +14,13 @@ void opcao_limpa_criteritos(CRITERIOS_FILTRAGEM *criterios);
 void opcao_escolhe_intervalos_para_analise(CRITERIOS_FILTRAGEM *criterios, DADOS *dados);
 void opcao_escolhe_mes(CRITERIOS_FILTRAGEM *criterios);
 
-void historico_de_temperaturas_global(int periodo);
+void calc_medias_de_intervalos(int numIntervalos, float *tempMed, int *numDados);
+void imprime_intervalos(DADOS* dados, int numIntervalos, float *tempMin,
+    float *tempMax, float *tempMed, int *numDados, int periodo);
+void historico_de_temperaturas_global(DADOS *dados, int periodo);
 void historico_de_temperaturas_por_pais(DADOS *dados, int periodo);
 void historico_de_temperaturas_por_cidade(int periodo);
+
 void analise_por_pais(int ano);
 void analise_por_cidade(int ano);
 
