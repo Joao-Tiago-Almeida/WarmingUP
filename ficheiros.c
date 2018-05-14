@@ -88,7 +88,7 @@ void read_file_countries(DADOS *dados, char *_nomeFilePaises, char *_nomeFileCid
             int a = 9;
             a +=2;
         }
-        if (true || check == 6)
+        if (check == 6)
         {
             list_node_t *new_node = create_node(a);
             sortedInsert(yearsListHead[a->dt.ano], &yearsListTail[a->dt.ano], new_node);
