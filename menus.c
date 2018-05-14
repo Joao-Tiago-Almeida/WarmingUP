@@ -1,16 +1,19 @@
-#include "menus.h"
-#include "estruturas.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+
+#include "menus.h"
+#include "estruturas.h"
+#include "util.h"
 
 #define BUFFER_SIZE 100
 
 #define JANEIRO 1
 #define DEZEMBRO 12
 #define MAX_M 100 //não sei , perguntar ao stor
-
+#define MAX(a, b) (a > b) ? a : b
+#define MIN(a, b) (a > b) ? b : a
 //TODO
 //#define LIMITE_ANOS_STRING
 //#define DOUBLECAT(a,b,c) a##0-2018##c
@@ -79,11 +82,25 @@ int perguntar_referencia_a_analisar(int _min, int _max, char *_comentario)
     return _ano;
 }
 
-int calulo_intervalos(int _periodo, DADOS *dados)
+void perguntaPais(char* pais) {
+    char buffer[BUFFER_SIZE];
+
+    printf("País a analisar: ");
+
+    fgets(buffer, BUFFER_SIZE, stdin);
+    strcpy(pais, buffer);
+}
+
+// Devolve o numero de intervalos quando se separa os dados em intervalos(com um certo periodo)
+int calculo_num_intervalos(int _periodo, DADOS *dados)
 {
-    int intervalo = 0;
-    intervalo = (dados->countriesAnoMax - dados->countriesAnoMin)/_periodo;
-    return intervalo;
+    //TODO isto apenas considera os min e max dos countries
+    int intervalos = (dados->countriesAnoMax - dados->countriesAnoMin)/_periodo;
+    if((dados->countriesAnoMax - dados->countriesAnoMin) % _periodo > 0) {
+        //Caso os intervalor não dividam exatamente os anos, vai haver mais um intervalo com menos anos que o periodo
+        intervalos++;
+    }
+    return intervalos;
 }
 
 
@@ -141,7 +158,7 @@ void menu_historico_de_temperaturas(DADOS* dados)
 
     //VAI SER ÙLTIL PARA DPS    ???
     //calcula quantos anos temos por intervalo, caso normal
-    nr_de_anos_por_intervalo = calulo_intervalos(periodo, dados); //miguel: Acho que isto nao faz sentido
+    nr_de_anos_por_intervalo = calculo_num_intervalos(periodo, dados); //miguel: Acho que isto nao faz sentido
 
     //---cálculo dos intervalos---
     tmp = dados->countriesAnoMin + periodo;
@@ -155,6 +172,8 @@ void menu_historico_de_temperaturas(DADOS* dados)
     {
         printf("[ %d , %d ]\n" ,tmp, dados->countriesAnoMax);
     }
+
+    printf("aaa %d\n", nr_de_anos_por_intervalo);
     //---fim---
 
     do
@@ -175,7 +194,7 @@ void menu_historico_de_temperaturas(DADOS* dados)
             historico_de_temperaturas_global(periodo);
             break;
         case 2:
-            historico_de_temperaturas_por_pais(periodo);
+            historico_de_temperaturas_por_pais(dados, periodo);
             break;
         case 3:
             historico_de_temperaturas_por_cidade(periodo);
@@ -388,9 +407,84 @@ void historico_de_temperaturas_global(int periodo)
 {
     printf("\n\n\t---Histórico de Temperaturas Global---\n\n");
 }
-void historico_de_temperaturas_por_pais(int periodo)
+void historico_de_temperaturas_por_pais(DADOS *dados, int periodo)
 {
+    char pais[100];
+    float *tempMax = NULL, *tempMin = NULL, *tempMed = NULL;
+    int* numDados = NULL;  //Numero de dados em cada intervalo para fazer a média
+    int numIntervalos = 0;
+    list_node_t *aux = NULL;
+
     printf("\n\n\t---Histórico de Temperaturas por País---\n\n");
+
+    perguntaPais(pais);
+
+    numIntervalos = calculo_num_intervalos(periodo, dados);
+
+    //Cria vetores com o numero de intervalos
+    tempMax = (float*) checkedMalloc(sizeof(float) * numIntervalos);
+    tempMin = (float*) checkedMalloc(sizeof(float) * numIntervalos);
+    tempMed = (float*) checkedMalloc(sizeof(float) * numIntervalos);
+    numDados = (int*) checkedMalloc(sizeof(int) * numIntervalos);
+
+    for(int i = 0; i<numIntervalos; i++) {
+        //Inicializa cada intervalo
+        tempMax[i] = -__FLT_MAX__;
+        tempMin[i] = __FLT_MAX__;
+        tempMed[i] = 0;
+        numDados[i] = 0;
+    }
+    
+    aux = dados->headCountriesFiltrada->next; //->next para a node a seguir à dummy node
+    while(aux != NULL) {
+        if(strcmp(aux->payload->pais, pais) != 0) {
+            //Se o pais desta node coincidir com o que o utilizador escolheu
+            //Obtem o intervalo a que o ano pertence
+            int intervalo = (aux->payload->dt.ano - dados->countriesAnoMin) / periodo;
+            
+            tempMax[intervalo] = MAX(tempMax[intervalo], aux->payload->temp);
+            tempMin[intervalo] = MIN(tempMin[intervalo], aux->payload->temp);
+            // O tempMed vai temporariamente guardar a soma das temperaturas
+            tempMed[intervalo] += aux->payload->temp;
+            numDados[intervalo]++;
+        }
+        aux = aux->next;
+    }
+
+    //Calcula as médias e imprime os resultados
+    for(int i = 0; i<numIntervalos; i++) {
+        int anoMenor = 0;
+        int anoMaior = 0;
+        bool intervalorFechado = false;
+
+        if(numDados[i] > 0) {
+            tempMed[i] = tempMed[i]/numDados[i];
+        }
+
+        //Determina quais os anos que o intervalo compreende
+        anoMenor = dados->countriesAnoMin + i*periodo;
+        anoMaior = dados->countriesAnoMin + (i+1)*periodo;
+
+        if(anoMaior >= dados->countriesAnoMax) {
+            //Caso seja o ultimo intervalo, mostra o intervalo como um intervalo fechado
+            anoMaior = dados->countriesAnoMax;
+            intervalorFechado = true;
+        }
+
+        if(numDados[i] > 0) {
+            if(intervalorFechado) {
+                printf("[ %d , %d ]\tMin:%f Max:%f Med:%f\n", anoMenor, anoMaior,
+                    tempMin[i], tempMax[i], tempMed[i]);
+            } else {
+                printf("[ %d , %d [\tMin:%f Max:%f Med:%f\n", anoMenor, anoMaior,
+                    tempMin[i], tempMax[i], tempMed[i]);
+            }
+        } else {
+            printf(intervalorFechado ?
+                "[ %d , %d ]\tSEM DADOS\n" : "[ %d , %d [\tSEM DADOS\n",
+                anoMenor, anoMaior); 
+        }
+    }
 }
 void historico_de_temperaturas_por_cidade(int periodo)
 {

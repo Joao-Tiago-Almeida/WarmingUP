@@ -15,7 +15,7 @@ void opcao_escolhe_intervalos_para_analise(CRITERIOS_FILTRAGEM *criterios, DADOS
 void opcao_escolhe_mes(CRITERIOS_FILTRAGEM *criterios);
 
 void historico_de_temperaturas_global(int periodo);
-void historico_de_temperaturas_por_pais(int periodo);
+void historico_de_temperaturas_por_pais(DADOS *dados, int periodo);
 void historico_de_temperaturas_por_cidade(int periodo);
 void analise_por_pais(int ano);
 void analise_por_cidade(int ano);
