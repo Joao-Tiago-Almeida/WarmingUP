@@ -527,7 +527,7 @@ void historico_de_temperaturas_por_cidade(DADOS *dados, int periodo)
 
     aux = dados->headCitiesFiltrada->next; //->next para a node a seguir à dummy node
     while(aux != NULL) {
-        if(strstr(aux->payload->cidade, cidade) == 0) {
+        if(strstr(aux->payload->cidade, cidade) != NULL) {
             //Se o pais desta node coincidir com o que o utilizador escolheu
             //Obtem o intervalo a que o ano pertence
             int intervalo = (aux->payload->dt.ano - dados->countriesAnoMin) / periodo;
