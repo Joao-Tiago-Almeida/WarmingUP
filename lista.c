@@ -92,14 +92,14 @@ int remove_nodes(list_node_t *_head, bool freePayload)
     return 0;
 }
 
-void sortedInsert(list_node_t *_head, dados_temp *dados)
+
+//Devolve a node criada e inserida
+void sortedInsert(list_node_t *_head, list_node_t *new_node)
 {
     //printf("function:: sortedInsert\n");
-    list_node_t* aux = NULL, *tmp = NULL, *new_node = NULL;
+    list_node_t* aux = NULL, *tmp = NULL;
     aux = _head;
     tmp = aux->next;
-
-    new_node = create_node(dados);
 
     //insert in an empty list or in the head of the list
     if ( tmp ==  NULL )
@@ -127,5 +127,41 @@ void sortedInsert(list_node_t *_head, dados_temp *dados)
             tmp->prev = new_node;
         }
     }
-
 }
+
+
+//Devolve a node criada e inserida
+/*void sortedInsert(list_node_t *_head, list_node_t *new_node)
+{
+    //printf("function:: sortedInsert\n");
+    list_node_t* aux = NULL, *tmp = NULL, *new_node = NULL;
+    aux = _head;
+    tmp = aux->next;
+
+    //insert in an empty list or in the head of the list
+    if ( tmp ==  NULL )
+    {
+        _head->next = new_node;
+        new_node->prev = _head;
+    }
+    else
+    {
+        //insert in te middle of the list
+        while (tmp != NULL &&
+                (tmp->payload->dt.ano < new_node->payload->dt.ano ||
+                (tmp->payload->dt.ano == new_node->payload->dt.ano &&
+                 tmp->payload->dt.mes < new_node->payload->dt.mes )))
+        {
+            aux = tmp;
+            tmp = aux->next;
+        }
+
+        new_node->next = tmp;
+        new_node->prev = aux;
+        aux->next = new_node;
+        if( tmp != NULL)
+        {
+            tmp->prev = new_node;
+        }
+    }
+}*/
