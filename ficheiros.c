@@ -27,6 +27,7 @@ long getFileSize(FILE *file)
 
 void read_file_countries(DADOS *dados, char *_nomeFilePaises, char *_nomeFileCidades)
 {
+    //TODO ele não lê o ""Bonaire, Saint Eustatius And Saba""
     long totalFileSize = 0;
     int i = 0, check = -1;
     char buffer[BUFFER_SIZE];
@@ -47,7 +48,7 @@ void read_file_countries(DADOS *dados, char *_nomeFilePaises, char *_nomeFileCid
     //Inicializa o vetor para todos os anos terem a sua lista
     for(int i = 0; i<sizeAnoPointers; i++) {
         yearsListHead[i] = create_list();
-        yearsListTail[i] = yearsListHead[i];
+        yearsListTail[i] = NULL;
     }
 
     fileInput = fopen(_nomeFilePaises, "r");
@@ -64,7 +65,14 @@ void read_file_countries(DADOS *dados, char *_nomeFilePaises, char *_nomeFileCid
 
     while (fgets(buffer, BUFFER_SIZE, fileInput) != NULL)
     {
-
+        if (buffer[strlen(buffer)-1] == '\r')
+        {
+            buffer[strlen(buffer)-1] = '\0';
+        }
+        if (buffer[strlen(buffer)-2] == '\r')
+        {
+            buffer[strlen(buffer)-2] = '\0';
+        }
         dados_temp *a = malloc(sizeof(dados_temp));
         check = sscanf(buffer, "%d-%d-%d,%f,%f,%[^\n]",
                        &a->dt.ano,
@@ -76,8 +84,11 @@ void read_file_countries(DADOS *dados, char *_nomeFilePaises, char *_nomeFileCid
 
         //TODO meter nome dos paises e cidades com malloc
         //strcpy(a->pais, nome_temp);
-
-        if (check == 6)
+        if(a->dt.ano == 1781) {
+            int a = 9;
+            a +=2;
+        }
+        if (true || check == 6)
         {
             list_node_t *new_node = create_node(a);
             sortedInsert(yearsListHead[a->dt.ano], &yearsListTail[a->dt.ano], new_node);
@@ -111,12 +122,29 @@ void read_file_countries(DADOS *dados, char *_nomeFilePaises, char *_nomeFileCid
 
 
     dados->headCountriesOriginal->next = yearsListHead[0]->next;
+    list_node_t *headOriginalTail = dados->headCountriesOriginal->next;
     free(yearsListHead[0]); //Free da dummy node da lista para o ano 0
-
+    
     for(int i = 1; i<sizeAnoPointers; i++) {
-        //Liga a tail com a head da anterior
-        yearsListTail[i-1]->next = yearsListHead[i];
-        yearsListHead[i]->prev = yearsListTail[i-1];
+        list_node_t *a = yearsListTail[i-1];
+        list_node_t *b = yearsListHead[i];
+
+        if(dados->headCountriesOriginal->next == NULL &&
+            yearsListHead[i]->next != NULL)
+        {
+            //Caso a lista original ainda esteja vazia, meter o head->next e o tail
+            dados->headCountriesOriginal->next = yearsListHead[i]->next;
+            headOriginalTail = yearsListTail[i];
+        }
+
+        if(headOriginalTail != NULL) {
+            //Meter a tail atual da original a apontar para a head->next da lista deste ano
+            headOriginalTail->next = yearsListHead[i]->next;
+            if(yearsListHead[i]->next != NULL) {
+                yearsListHead[i]->next->prev = headOriginalTail;
+                headOriginalTail = yearsListTail[i]; //Se yearsListHead[i]->next != NULL também é yearsListTail[i]
+            }
+        }
 
         free(yearsListHead[i]); //Free da dummy node da lista para este ano
     }
@@ -126,6 +154,8 @@ void read_file_countries(DADOS *dados, char *_nomeFilePaises, char *_nomeFileCid
 
     free(yearsListHead);
     free(yearsListTail);
+
+    print_list(dados->headCountriesOriginal);
 
     fclose(fileInput);
     dados->headCountriesFiltrada = dados->headCountriesOriginal;
