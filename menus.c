@@ -61,10 +61,10 @@ int perguntar_referencia_a_analisar(int _min, int _max, char *_comentario)
     return _ano;
 }
 
-void perguntaPais(char* pais) {
+void getstring(char* pais, char _comentario[]) {
     char buffer[BUFFER_SIZE];
 
-    printf("País a analisar: ");
+    printf("%s ", _comentario);
 
     fgets(buffer, BUFFER_SIZE, stdin);
     strcpy(pais, buffer);
@@ -127,7 +127,6 @@ void menu_historico_de_temperaturas(DADOS* dados)
     bool dentroDoMenu = false;
     int alinea = -1;
     int periodo = -1;
-    int tmp = -1;
     int intervalo = 0;
     char comentario[] = "Qual o periodo que pretende analisar?";
 
@@ -158,7 +157,7 @@ void menu_historico_de_temperaturas(DADOS* dados)
             historico_de_temperaturas_por_pais(dados, periodo);
             break;
         case 3:
-            historico_de_temperaturas_por_cidade(periodo);
+            historico_de_temperaturas_por_cidade(dados, periodo);
             break;
         case 0:
             break;
@@ -453,11 +452,12 @@ void historico_de_temperaturas_por_pais(DADOS *dados, int periodo)
     float *tempMax = NULL, *tempMin = NULL, *tempMed = NULL;
     int* numDados = NULL;  //Numero de dados em cada intervalo para fazer a média
     int numIntervalos = 0;
+    char comentario[] = "País a analisar: ";
     list_node_t *aux = NULL;
 
     printf("\n\n\t---Histórico de Temperaturas por País---\n\n");
 
-    perguntaPais(pais);
+    getstring(pais, comentario);
 
     numIntervalos = calculo_num_intervalos(periodo, dados);
 
@@ -477,7 +477,7 @@ void historico_de_temperaturas_por_pais(DADOS *dados, int periodo)
 
     aux = dados->headCountriesFiltrada->next; //->next para a node a seguir à dummy node
     while(aux != NULL) {
-        if(strcmp(aux->payload->pais, pais) != 0) {
+        if(strcmp(aux->payload->pais, pais) == 0) {
             //Se o pais desta node coincidir com o que o utilizador escolheu
             //Obtem o intervalo a que o ano pertence
             int intervalo = (aux->payload->dt.ano - dados->countriesAnoMin) / periodo;
@@ -495,10 +495,55 @@ void historico_de_temperaturas_por_pais(DADOS *dados, int periodo)
     imprime_intervalos(dados, numIntervalos, tempMin, tempMax, tempMed, numDados, periodo);
 }
 
-void historico_de_temperaturas_por_cidade(int periodo)
+void historico_de_temperaturas_por_cidade(DADOS *dados, int periodo)
 {
+    char cidade[100];
+    float *tempMax = NULL, *tempMin = NULL, *tempMed = NULL;
+    int* numDados = NULL;  //Numero de dados em cada intervalo para fazer a média
+    int numIntervalos = 0;
+    char comentario[] = "Cidade a analisar: ";
+    list_node_t *aux = NULL;
+
     printf("\n\n\t---Histórico de Temperaturas por Cidade---\n\n");
+
+    getstring(cidade, comentario);
+
+    numIntervalos = calculo_num_intervalos(periodo, dados);
+
+    //Cria vetores com o numero de intervalos
+    tempMax = (float*) checkedMalloc(sizeof(float) * numIntervalos);
+    tempMin = (float*) checkedMalloc(sizeof(float) * numIntervalos);
+    tempMed = (float*) checkedMalloc(sizeof(float) * numIntervalos);
+    numDados = (int*) checkedMalloc(sizeof(int) * numIntervalos);
+
+    for(int i = 0; i<numIntervalos; i++) {
+        //Inicializa cada intervalo
+        tempMax[i] = -__FLT_MAX__;
+        tempMin[i] = __FLT_MAX__;
+        tempMed[i] = 0;
+        numDados[i] = 0;
+    }
+
+    aux = dados->headCitiesFiltrada->next; //->next para a node a seguir à dummy node
+    while(aux != NULL) {
+        if(strcmp(aux->payload->cidade, cidade) == 0) {
+            //Se o pais desta node coincidir com o que o utilizador escolheu
+            //Obtem o intervalo a que o ano pertence
+            int intervalo = (aux->payload->dt.ano - dados->countriesAnoMin) / periodo;
+
+            tempMax[intervalo] = MAX(tempMax[intervalo], aux->payload->temp);
+            tempMin[intervalo] = MIN(tempMin[intervalo], aux->payload->temp);
+            // O tempMed vai temporariamente guardar a soma das temperaturas
+            tempMed[intervalo] += aux->payload->temp;
+            numDados[intervalo]++;
+        }
+        aux = aux->next;
+    }
+
+    calc_medias_de_intervalos(numIntervalos, tempMed, numDados);
+    imprime_intervalos(dados, numIntervalos, tempMin, tempMax, tempMed, numDados, periodo);
 }
+
 void analise_por_pais(int ano)
 {
     printf("\n\n\t---Análise por País---\n\n");
@@ -508,12 +553,29 @@ void analise_por_cidade(int ano)
     printf("\n\n\t---Análise por cidade---\n\n");
 }
 
+void fgetstring(list_node_t * aux, bool string_pais, char string [BUFFER_SIZE])
+{
+    while(aux != NULL)
+    {
+        if(string_pais && (strcmp(aux->payload->pais,string) == 0))
+        {
+            printf("found country :: %s\n", aux->payload->pais);
+        }
+        else if(strcmp(aux->payload->cidade,string) == 0)
+        {
+            printf("found country :: %s\n", aux->payload->cidade);
+        }
+        aux = aux->next;
+    }
+}
+
 void menu_analise_da_temperatura_global(DADOS *dados)
 {
     int M = 0;
-    list_node_t * aux = dados->headCountriesOriginal;
+    list_node_t * tmp_countries = dados->headCountriesOriginal;
+    list_node_t * tmp_cities = dados->headCitiesOriginal;
     char f_pais[BUFFER_SIZE];
-    //char f_cidade[BUFFER_SIZE];
+    char f_cidade[BUFFER_SIZE];
     char buffer[BUFFER_SIZE];
     char comentario[] = "Quantos meses pretende utilizar no cálculo da MA (moving average)?";
 
@@ -525,24 +587,27 @@ void menu_analise_da_temperatura_global(DADOS *dados)
     fgets(buffer, BUFFER_SIZE, stdin);
     sscanf(buffer, "%s", f_pais);
     printf("f_pais:: %s <- %lu\n", f_pais, strlen(f_pais));
-    /*printf("City::\t");
+    printf("City::\t");
     fgets(buffer, BUFFER_SIZE, stdin);
-    sscanf(buffer, "%s", f_cidade);*/
+    sscanf(buffer, "%s", f_cidade);
     //printf("f_cidade:: %s <- %lu\n", f_cidade, strlen(f_cidade));
 
     /*while(aux != NULL)
     {
-        if(strcmp(aux->payload->pais,f_pais) == 0)
+        if(strcmp(tmp_countries->payload.pais,f_pais) == 0)
         {
-            printf("ola1\n");
-            printf(" %s \n <- %lu\n",(aux->payload->pais), strlen(aux->payload->pais));
+            printf("found country\n");
+            printf(" %s \n <- %lu\n",(tmp_countries->payload.pais), strlen(tmp_countries->payload.pais));
         }
-        if(strcmp(aux->payload.cidade,f_cidade) == 1)
+        if(strcmp(tmp_cities->payload.cidade,f_cidade) == 1)
         {
-            printf("ola2\n");
-            printf(" %s \n <- %lu\n",(aux->payload.cidade), strlen(aux->payload.cidade));
+            printf("found city\n");
+            printf(" %s \n <- %lu\n",(tmp_cities->payload.cidade), strlen(tmp_cities->payload.cidade));
         }
         aux = aux->next;
     }*/
+
+    fgetstring(tmp_countries, true, f_pais);
+    fgetstring(tmp_cities, false, f_cidade);
 
 }

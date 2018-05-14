@@ -123,7 +123,7 @@ void read_file_countries(DADOS *dados, char *_nomeFilePaises, char *_nomeFileCid
 
     timeCounter = clock() - timeCounter;
     printf("\rProgresso: 100%% (%ld s)\n", timeCounter/CLOCKS_PER_SEC);
- 
+
     free(yearsListHead);
     free(yearsListTail);
 
@@ -141,6 +141,7 @@ void read_file_cities(DADOS *dados, char *_nomeFilePaises, char *_nomeFileCidade
     FILE * fileInput = NULL;
     char longitude_c;
     char latitude_c;
+    clock_t timeCounter = clock();
 
     printf("A ler dados das cidades...\n");
 
@@ -214,6 +215,7 @@ void read_file_cities(DADOS *dados, char *_nomeFilePaises, char *_nomeFileCidade
 
             i++;
         }
+        //TODO
         else
         {
             //printf("%d\t%s\n", i, buffer);
@@ -225,7 +227,8 @@ void read_file_cities(DADOS *dados, char *_nomeFilePaises, char *_nomeFileCidade
             printf("\rProgresso: %ld%%", ftell(fileInput) * 100 / totalFileSize);
         }
     }
-    printf("\rProgresso: 100%%\n");
+    timeCounter = clock() - timeCounter;
+    printf("\rProgresso: 100%% (%ld s)\n", timeCounter/CLOCKS_PER_SEC);
 
     //free(anoPointers);
     fclose(fileInput);

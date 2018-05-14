@@ -19,14 +19,12 @@ void imprime_intervalos(DADOS* dados, int numIntervalos, float *tempMin,
     float *tempMax, float *tempMed, int *numDados, int periodo);
 void historico_de_temperaturas_global(DADOS *dados, int periodo);
 void historico_de_temperaturas_por_pais(DADOS *dados, int periodo);
-void historico_de_temperaturas_por_cidade(int periodo);
+void historico_de_temperaturas_por_cidade(DADOS *dados, int periodo);
 
 void analise_por_pais(int ano);
 void analise_por_cidade(int ano);
 
 
-//TODO não encontro o sítio das outras
-//int calulo_intervalos(int _periodo);
 
 
 #endif
