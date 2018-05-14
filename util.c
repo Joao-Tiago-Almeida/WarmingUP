@@ -1,6 +1,7 @@
 #include "util.h"
 
 #include <stdio.h>
+#include <string.h>
 
 //Aloca memoria, e faz a verificação se o return do malloc não foi NULL
 void *checkedMalloc(size_t size) {
@@ -13,4 +14,11 @@ void *checkedMalloc(size_t size) {
     }
 
     return mem;
+}
+
+
+void removeNewLine(char* str) {
+    if(str[strlen(str)-1] == '\n') {
+        str[strlen(str)-1] = '\0';
+    }
 }

@@ -67,6 +67,7 @@ void getstring(char* pais, char _comentario[]) {
     printf("%s ", _comentario);
 
     fgets(buffer, BUFFER_SIZE, stdin);
+    removeNewLine(buffer);
     strcpy(pais, buffer);
 }
 
@@ -477,7 +478,7 @@ void historico_de_temperaturas_por_pais(DADOS *dados, int periodo)
 
     aux = dados->headCountriesFiltrada->next; //->next para a node a seguir à dummy node
     while(aux != NULL) {
-        if(strcmp(aux->payload->pais, pais) == 0) {
+        if(strstr(aux->payload->pais, pais) != NULL) {
             //Se o pais desta node coincidir com o que o utilizador escolheu
             //Obtem o intervalo a que o ano pertence
             int intervalo = (aux->payload->dt.ano - dados->countriesAnoMin) / periodo;
@@ -526,7 +527,7 @@ void historico_de_temperaturas_por_cidade(DADOS *dados, int periodo)
 
     aux = dados->headCitiesFiltrada->next; //->next para a node a seguir à dummy node
     while(aux != NULL) {
-        if(strcmp(aux->payload->cidade, cidade) == 0) {
+        if(strstr(aux->payload->cidade, cidade) == 0) {
             //Se o pais desta node coincidir com o que o utilizador escolheu
             //Obtem o intervalo a que o ano pertence
             int intervalo = (aux->payload->dt.ano - dados->countriesAnoMin) / periodo;
@@ -557,7 +558,7 @@ void fgetstring(list_node_t * aux, bool string_pais, char string [BUFFER_SIZE])
 {
     while(aux != NULL)
     {
-        if(string_pais && (strstr(aux->payload->pais,string) != NULL))
+        if(string_pais && (strstr(aux->payload->pais, string) != NULL))
         {
             printf("found country :: %s\n", aux->payload->pais);
         }
@@ -572,8 +573,8 @@ void fgetstring(list_node_t * aux, bool string_pais, char string [BUFFER_SIZE])
 void menu_analise_da_temperatura_global(DADOS *dados)
 {
     int M = 0;
-    list_node_t * tmp_countries = dados->headCountriesOriginal;
-    list_node_t * tmp_cities = dados->headCitiesOriginal;
+    list_node_t * tmp_countries = dados->headCountriesFiltrada;
+    list_node_t * tmp_cities = dados->headCitiesFiltrada;
     char f_pais[BUFFER_SIZE];
     char f_cidade[BUFFER_SIZE];
     char buffer[BUFFER_SIZE];
@@ -584,11 +585,12 @@ void menu_analise_da_temperatura_global(DADOS *dados)
     M = perguntar_referencia_a_analisar(1 ,MAX_M, comentario);
 
     printf("Country::\t");
-    fgets(buffer, BUFFER_SIZE, stdin);
-    sscanf(buffer, "%s", f_pais);
+    fgets(f_pais, BUFFER_SIZE, stdin);
     printf("City::\t");
-    fgets(buffer, BUFFER_SIZE, stdin);
-    sscanf(buffer, "%s", f_cidade);
+    fgets(f_cidade, BUFFER_SIZE, stdin);
+    removeNewLine(f_pais);
+    removeNewLine(f_cidade);
+    
     //printf("f_cidade:: %s <- %lu\n", f_cidade, strlen(f_cidade));
 
     /*while(aux != NULL)

@@ -152,8 +152,6 @@ void read_file_countries(DADOS *dados, char *_nomeFilePaises, char *_nomeFileCid
     free(yearsListHead);
     free(yearsListTail);
 
-    print_list(dados->headCountriesOriginal);
-
     fclose(fileInput);
     dados->headCountriesFiltrada = dados->headCountriesOriginal;
     dados->countriesListSize = i;
@@ -204,8 +202,8 @@ void read_file_cities(DADOS *dados, char *_nomeFilePaises, char *_nomeFileCidade
             &a->dt.dia,
             &a->temp,
             &a->incerteza,
-            a->pais,
             a->cidade,
+            a->pais,
             &a->latitude.angular,
             &latitude_c,
             &a->longitude.angular,
