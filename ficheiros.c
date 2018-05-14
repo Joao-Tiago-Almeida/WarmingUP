@@ -126,9 +126,6 @@ void read_file_countries(DADOS *dados, char *_nomeFilePaises, char *_nomeFileCid
     free(yearsListHead[0]); //Free da dummy node da lista para o ano 0
     
     for(int i = 1; i<sizeAnoPointers; i++) {
-        list_node_t *a = yearsListTail[i-1];
-        list_node_t *b = yearsListHead[i];
-
         if(dados->headCountriesOriginal->next == NULL &&
             yearsListHead[i]->next != NULL)
         {
