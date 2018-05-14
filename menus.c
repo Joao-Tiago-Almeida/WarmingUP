@@ -557,11 +557,11 @@ void fgetstring(list_node_t * aux, bool string_pais, char string [BUFFER_SIZE])
 {
     while(aux != NULL)
     {
-        if(string_pais && (strcmp(aux->payload->pais,string) == 0))
+        if(string_pais && (strstr(aux->payload->pais,string) != NULL))
         {
             printf("found country :: %s\n", aux->payload->pais);
         }
-        else if(strcmp(aux->payload->cidade,string) == 0)
+        else if(strstr(aux->payload->cidade,string) != NULL)
         {
             printf("found country :: %s\n", aux->payload->cidade);
         }
@@ -586,7 +586,6 @@ void menu_analise_da_temperatura_global(DADOS *dados)
     printf("Country::\t");
     fgets(buffer, BUFFER_SIZE, stdin);
     sscanf(buffer, "%s", f_pais);
-    printf("f_pais:: %s <- %lu\n", f_pais, strlen(f_pais));
     printf("City::\t");
     fgets(buffer, BUFFER_SIZE, stdin);
     sscanf(buffer, "%s", f_cidade);
