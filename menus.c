@@ -417,7 +417,7 @@ void imprime_intervalos(DADOS* dados, int numIntervalos, float *tempMin,
             i++;
         }
 
-        
+
         do {
             printf("a para avançar, q para sair\n");
             fgets(buffer, BUFFER_SIZE, stdin);
@@ -462,7 +462,7 @@ void historico_de_temperaturas(DADOS *dados, int periodo, bool porPais, bool por
         tempMed[i] = 0;
         numDados[i] = 0;
     }
-
+    //TODO por isto numa função, muito parecido com o menu 4
     //A lista a analisar deve ser a das cidades se for porCidade. Caso contrário deve ser a dos paises
     aux = porCidade ? dados->headCitiesFiltrada->next : dados->headCountriesFiltrada->next; //->next para a node a seguir à dummy node
     while(aux != NULL) {
@@ -487,6 +487,7 @@ void historico_de_temperaturas(DADOS *dados, int periodo, bool porPais, bool por
     imprime_intervalos(dados, numIntervalos, tempMin, tempMax, tempMed, numDados, periodo);
 }
 
+//TODO porquê?????
 typedef struct {
     char paisOuCidade[100];
     float tempMed;
@@ -507,10 +508,10 @@ void analise_por_pais(DADOS* dados, int ano)
 {
     list_node_t *aux = NULL;
     int vecSize = 50;
-    
+
     printf("\n\n\t---Análise por País---\n\n");
 
-    
+
     DADOS_ANALISE_POR_ANO *dadosPorPais = (DADOS_ANALISE_POR_ANO*) checkedMalloc(vecSize * sizeof(DADOS_ANALISE_POR_ANO));
 
     //Inicializa o vetor colocando numDados a 0, para saber que essa
@@ -520,7 +521,7 @@ void analise_por_pais(DADOS* dados, int ano)
     }
 
     aux = dados->headCountriesFiltrada->next; //->next para a node a seguir à dummy node
-    
+
     //Mete o aux a apontar para a primeira node do ano que se quer analisar (a lista está ordenada por data)
     while(aux != NULL && aux->payload->dt.ano != ano) {
         aux = aux->next;
@@ -563,7 +564,7 @@ void analise_por_pais(DADOS* dados, int ano)
             for(int i = sizeAnterior; i<vecSize; i++) {
                 dados_analise_por_pais_init(&dadosPorPais[i]);
             }
-            
+
             strcpy(dadosPorPais[sizeAnterior].paisOuCidade, aux->payload->pais);
             dadosDoPaisOuCidade = &dadosPorPais[sizeAnterior];
         }
@@ -576,10 +577,10 @@ void analise_por_pais(DADOS* dados, int ano)
 
         aux = aux->next;
     }
-    
+
     for(int i = 0; i<vecSize; i++) {
         printf("%s, %d, %f, %f, %f\n", dadosPorPais[i].paisOuCidade,
-            dadosPorPais[i].numDados, dadosPorPais[i].tempMin, 
+            dadosPorPais[i].numDados, dadosPorPais[i].tempMin,
             dadosPorPais[i].tempMax,
             dadosPorPais[i].tempMed / dadosPorPais[i].numDados);
     }
@@ -591,6 +592,9 @@ void analise_por_cidade(int ano)
     printf("\n\n\t---Análise por cidade---\n\n");
 }
 
+
+//TODO não ussada
+//usar para procurar os strings nos ficheiros
 void fgetstring(list_node_t * aux, bool string_pais, char string [BUFFER_SIZE])
 {
     while(aux != NULL)
@@ -606,45 +610,73 @@ void fgetstring(list_node_t * aux, bool string_pais, char string [BUFFER_SIZE])
         aux = aux->next;
     }
 }
+//TODO acabar!!
+int calculo_aumento_temp(int ano_a_analisar, int M, DADOS *dados, bool porPais, bool porCidade)
+{
+    char paisOuCidade[100];
+    list_node_t *aux = NULL;
+    float *tempMax = NULL, *tempMin = NULL, *tempMed = NULL;
+    int* numDados = NULL;
+
+    //quero um intervalo apenas de M
+    int ano_minimo = ano_a_analisar - M + 1;
+
+    if(porPais || porCidade) {
+        //Caso seja para filtrar por país ou cidade, perguntar o país ou cidade
+        getstring(paisOuCidade, porPais ? "País a analisar: " : "Cidade a analisar: ");
+    }
+    removeNewLine(paisOuCidade);
+
+
+    tempMax = (float*) checkedMalloc(sizeof(float) * M);
+    tempMin = (float*) checkedMalloc(sizeof(float) * M);
+    tempMed = (float*) checkedMalloc(sizeof(float) * M);
+    numDados = (int*) checkedMalloc(sizeof(int) * M);
+
+    for(int t = 0; t<M; t++) {
+        //Inicializa cada intervalo
+        tempMax[t] = -__FLT_MAX__;
+        tempMin[t] = __FLT_MAX__;
+        tempMed[t] = 0;
+    }
+
+    for (int i = 0; i < M; i++)
+    {
+        aux = porCidade ? dados->headCitiesFiltrada->next : dados->headCountriesFiltrada->next; //->next para a node a seguir à dummy node
+        while(aux != NULL) {
+            if((!porPais && !porCidade) ||
+                (porPais && strstr(aux->payload->pais, paisOuCidade) != NULL) ||
+                (porCidade && strstr(aux->payload->cidade, paisOuCidade) != NULL))
+            {
+                //Conta este nó se não tiver a filtrar por cidade ou pais, ou se
+                //  corresponder ao que se está a filtrar
+
+                tempMax[i] = MAX(tempMax[i], aux->payload->temp);
+                tempMin[i] = MIN(tempMin[i], aux->payload->temp);
+                // O tempMed vai temporariamente guardar a soma das temperaturas
+                tempMed[i] += aux->payload->temp;
+                numDados[i]++;
+            }
+            calc_medias_de_intervalos(M, tempMed, numDados);
+            if(i>1)
+            {
+                //TODO calcular vetor (de)crescente de temperatura média
+                //dps subtrair o primeiro pelo último e temos o aumento da temperatura
+            }
+            aux = aux->next;
+        }
+    }
+}
 
 void menu_analise_da_temperatura_global(DADOS *dados)
 {
     int M = 0;
-    list_node_t * tmp_countries = dados->headCountriesFiltrada;
-    list_node_t * tmp_cities = dados->headCitiesFiltrada;
-    char f_pais[BUFFER_SIZE];
-    char f_cidade[BUFFER_SIZE];
     char comentario[] = "Quantos meses pretende utilizar no cálculo da MA (moving average)?";
 
     printf("\n\n\t---Análise da temperuta Global---\n\n");
 
     M = perguntar_referencia_a_analisar(1 ,MAX_M, comentario);
 
-    printf("Country::\t");
-    fgets(f_pais, BUFFER_SIZE, stdin);
-    printf("City::\t");
-    fgets(f_cidade, BUFFER_SIZE, stdin);
-    removeNewLine(f_pais);
-    removeNewLine(f_cidade);
-    
-    //printf("f_cidade:: %s <- %lu\n", f_cidade, strlen(f_cidade));
 
-    /*while(aux != NULL)
-    {
-        if(strcmp(tmp_countries->payload.pais,f_pais) == 0)
-        {
-            printf("found country\n");
-            printf(" %s \n <- %lu\n",(tmp_countries->payload.pais), strlen(tmp_countries->payload.pais));
-        }
-        if(strcmp(tmp_cities->payload.cidade,f_cidade) == 1)
-        {
-            printf("found city\n");
-            printf(" %s \n <- %lu\n",(tmp_cities->payload.cidade), strlen(tmp_cities->payload.cidade));
-        }
-        aux = aux->next;
-    }*/
-
-    fgetstring(tmp_countries, true, f_pais);
-    fgetstring(tmp_cities, false, f_cidade);
 
 }
