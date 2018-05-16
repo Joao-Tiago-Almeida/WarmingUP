@@ -27,7 +27,6 @@ long getFileSize(FILE *file)
 
 void read_file_countries(DADOS *dados, char *_nomeFilePaises, char *_nomeFileCidades)
 {
-    //TODO ele não lê o ""Bonaire, Saint Eustatius And Saba""
     long totalFileSize = 0;
     int i = 0, check = -1;
     char buffer[BUFFER_SIZE];
@@ -43,7 +42,7 @@ void read_file_countries(DADOS *dados, char *_nomeFilePaises, char *_nomeFileCid
 
     dados->headCountriesOriginal = create_list();
     dados->countriesAnoMin = __INT32_MAX__;
-    dados->countriesAnoMax = 0;
+    dados->countriesAnoMax = -__INT32_MAX__;
 
     //Inicializa o vetor para todos os anos terem a sua lista
     for(int i = 0; i<sizeAnoPointers; i++) {
@@ -62,12 +61,11 @@ void read_file_countries(DADOS *dados, char *_nomeFilePaises, char *_nomeFileCid
     totalFileSize = getFileSize(fileInput);
 
     printf("Progresso: 0%%");
-
     while (fgets(buffer, BUFFER_SIZE, fileInput) != NULL)
     {
         removeLastCharIfMatch(buffer, '\n');
         removeLastCharIfMatch(buffer, '\r');
-        
+
         dados_temp *a = malloc(sizeof(dados_temp));
         check = sscanf(buffer, "%d-%d-%d,%f,%f,%[^\n]",
                        &a->dt.ano,
@@ -76,8 +74,8 @@ void read_file_countries(DADOS *dados, char *_nomeFilePaises, char *_nomeFileCid
                        &a->temp,
                        &a->incerteza,
                        a->pais);
-        
-        if (check == 6)
+        //TODO apenas quando não lê a incerteza devia funcionar
+        if (check == 6 )
         {
             list_node_t *new_node = create_node(a);
             sortedInsert(yearsListHead[a->dt.ano], &yearsListTail[a->dt.ano], new_node);
@@ -109,11 +107,11 @@ void read_file_countries(DADOS *dados, char *_nomeFilePaises, char *_nomeFileCid
         }
     }
 
-
+//TODO ver melhor, joao almeida
     dados->headCountriesOriginal->next = yearsListHead[0]->next;
     list_node_t *headOriginalTail = dados->headCountriesOriginal->next;
     free(yearsListHead[0]); //Free da dummy node da lista para o ano 0
-    
+
     for(int i = 1; i<sizeAnoPointers; i++) {
         if(dados->headCountriesOriginal->next == NULL &&
             yearsListHead[i]->next != NULL)
@@ -149,7 +147,6 @@ void read_file_countries(DADOS *dados, char *_nomeFilePaises, char *_nomeFileCid
 void read_file_cities(DADOS *dados, char *_nomeFilePaises, char *_nomeFileCidades)
 {
     long totalFileSize = 0;
-
     int i = 0, check = -1;
     char buffer[BUFFER_SIZE];
     FILE * fileInput = NULL;
@@ -157,11 +154,22 @@ void read_file_cities(DADOS *dados, char *_nomeFilePaises, char *_nomeFileCidade
     char latitude_c;
     clock_t timeCounter = clock();
 
+    //Vetor de que contem o uma lista para cada ano
+    int sizeAnoPointers = 2100; //TODO realloc
+    list_node_t **yearsListHead = (list_node_t **) checkedMalloc(sizeAnoPointers * sizeof(list_node_t*));
+    list_node_t **yearsListTail = (list_node_t **) checkedMalloc(sizeAnoPointers * sizeof(list_node_t*));
+
     printf("A ler dados das cidades...\n");
 
     dados->headCitiesOriginal = create_list();
     dados->citiesAnoMin = __INT32_MAX__;
-    dados->citiesAnoMax = 0;
+    dados->citiesAnoMax = -__INT32_MAX__;
+
+    //Inicializa o vetor para todos os anos terem a sua lista
+    for(int i = 0; i<sizeAnoPointers; i++) {
+        yearsListHead[i] = create_list();
+        yearsListTail[i] = NULL;
+    }
 
     fileInput = fopen(_nomeFileCidades, "r");
     if (fileInput == NULL)
@@ -179,11 +187,11 @@ void read_file_cities(DADOS *dados, char *_nomeFilePaises, char *_nomeFileCidade
     //list_node_t** anoPointers = malloc(sizeAnoPointers*sizeof(list_node_t*));
 
     printf("Progresso: 0%%");
-    while(fgets(buffer, BUFFER_SIZE, fileInput) != NULL){
-        if (buffer[strlen(buffer)-1] == '\r')
-        {
-            buffer[strlen(buffer)-1] = '\0';
-        }
+    while(fgets(buffer, BUFFER_SIZE, fileInput) != NULL)
+    {
+        removeLastCharIfMatch(buffer, '\r');
+        removeLastCharIfMatch(buffer, '\n');
+
         dados_temp* a = malloc(sizeof(dados_temp));
         check = sscanf(buffer, "%d-%d-%d,%f,%f,%[^,],%[^,],%f%c,%f%c",
             &a->dt.ano,
@@ -199,13 +207,11 @@ void read_file_cities(DADOS *dados, char *_nomeFilePaises, char *_nomeFileCidade
             &longitude_c);
 
         //TODO meter nome dos paises e cidades com malloc
-        //strcpy(a->pais, nome_temp);
-
-        //printf("check :: %d\n", check);
 
         if (check == 11)
         {
-            insert_node(dados->headCitiesOriginal, a);
+            list_node_t *new_node = create_node(a);
+            sortedInsert(yearsListHead[a->dt.ano], &yearsListTail[a->dt.ano], new_node);
 
             //caso seja o ano min, determinar o menor mes
             if (a->dt.ano == dados->citiesAnoMin)
@@ -241,10 +247,39 @@ void read_file_cities(DADOS *dados, char *_nomeFilePaises, char *_nomeFileCidade
             printf("\rProgresso: %ld%%", ftell(fileInput) * 100 / totalFileSize);
         }
     }
+
+    dados->headCitiesOriginal->next = yearsListHead[0]->next;
+    list_node_t *headOriginalTail = dados->headCitiesOriginal->next;
+    free(yearsListHead[0]); //Free da dummy node da lista para o ano 0
+
+    for(int i = 1; i<sizeAnoPointers; i++) {
+        if(dados->headCitiesOriginal->next == NULL &&
+            yearsListHead[i]->next != NULL)
+        {
+            //Caso a lista original ainda esteja vazia, meter o head->next e o tail
+            dados->headCitiesOriginal->next = yearsListHead[i]->next;
+            headOriginalTail = yearsListTail[i];
+        }
+
+        if(headOriginalTail != NULL) {
+            //Meter a tail atual da original a apontar para a head->next da lista deste ano
+            headOriginalTail->next = yearsListHead[i]->next;
+            if(yearsListHead[i]->next != NULL) {
+                yearsListHead[i]->next->prev = headOriginalTail;
+                headOriginalTail = yearsListTail[i]; //Se yearsListHead[i]->next != NULL também é yearsListTail[i]
+            }
+        }
+
+        free(yearsListHead[i]); //Free da dummy node da lista para este ano
+    }
+
+
     timeCounter = clock() - timeCounter;
     printf("\rProgresso: 100%% (%ld s)\n", timeCounter/CLOCKS_PER_SEC);
 
-    //free(anoPointers);
+    free(yearsListHead);
+    free(yearsListTail);
+
     fclose(fileInput);
     dados->headCitiesFiltrada = dados->headCitiesOriginal;
     dados->citiesListSize = i;
