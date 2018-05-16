@@ -11,8 +11,17 @@
 #define STRING_SIZE 100       // max size for some strings
 #define HEIGHT_WINDOW_SIZE 850
 #define WIDTH_WINDOW_SIZE 1390
+#define LATITUDE_0 425      //latitude de coordenada 0,  latitude de referencia
+#define LONGITUDE_0 695     //longitude de coordenada 0, longitude de referncia
 #define WINDOW_POSX 0       // initial position of the window: x
 #define WINDOW_POSY 0       // initial position of the window: y         n sei oq e
+#define NORTE 0
+#define SUL 1
+#define ESTE 2
+#define OESTE 3
+#define LATITUDE_MAX 90
+#define LONGITUDE_MAX 180
+
 
 /**
  * main function: entry point of the program
@@ -55,7 +64,9 @@ void modoGrafico( void )
             }
         }
         // render game table
-        RenderTable( imgs, renderer);
+        RenderMap( imgs, renderer, width, height);
+        // render a circle around the country
+        RenderCircle( renderer ,width, height);
         // render in the screen all changes above
         SDL_RenderPresent(renderer);
         // add a delay
@@ -70,7 +81,78 @@ void modoGrafico( void )
     SDL_Quit();
 }
 
+//recebe dois argumentos e faz o calculo entre eles
+//true, se for latitude, false se longitude
+//a coord_local é inicialmente a coordenada antes da transformacao , ficheiro
+//e dps vai ter a coordenada exata do pais
+int calculo_coordenada(float coord_local, int _direcao, int _widht, int _height)
+{
+    float latitude_por_pixel = (float)_height/LATITUDE_MAX;
+    float longitude_por_pixel = (float)_widht/LONGITUDE_MAX;
 
+        if(_direcao == NORTE)
+        {
+            coord_local = LATITUDE_0 - 0.5*(latitude_por_pixel * coord_local);
+        }
+        else if (_direcao == SUL)
+        {
+            coord_local = LATITUDE_0 + 0.5*(latitude_por_pixel * coord_local);
+        }
+        else if (_direcao == ESTE)
+        {
+            coord_local = LONGITUDE_0 +  0.5*(longitude_por_pixel * coord_local);
+        }
+        else
+        {
+            coord_local = LONGITUDE_0 - 0.5*(longitude_por_pixel * coord_local);
+        }
+        return coord_local;
+}
+
+void RenderCircle(SDL_Renderer * _renderer, int width, int height )
+{
+
+    float latitude = calculo_coordenada(38.43 , 0 , width, height);
+    float longitude = calculo_coordenada(9.10, 3, width, height);
+
+    printf("latitude :: %f\nlongitude :: %f\n", latitude, longitude);
+
+
+    filledCircleRGBA(_renderer, LATITUDE_0, LONGITUDE_0, 5, 255, 0, 0);
+    filledCircleRGBA(_renderer, latitude, longitude, 5, 0, 0, 255);
+}
+/**
+ * filledCircleRGBA: renders a filled circle
+ * \param _circleX x pos
+ * \param _circleY y pos
+ * \param _circleR radius
+ * \param _r red
+ * \param _g gree
+ * \param _b blue
+ */
+void filledCircleRGBA(SDL_Renderer * _renderer, float _circleY, float _circleX, int _circleR, int _r, int _g, int _b)
+{
+    int off_x = 0;
+    int off_y = 0;
+    float degree = 0.0;
+    float step = M_PI / (_circleR*8);
+
+    SDL_SetRenderDrawColor(_renderer, _r, _g, _b, 255);
+
+    while (_circleR > 0)
+    {
+        for (degree = 0.0; degree < M_PI/2; degree+=step)
+        {
+            off_x = (int)(_circleR * cos(degree));
+            off_y = (int)(_circleR * sin(degree));
+            SDL_RenderDrawPoint(_renderer, _circleX+off_x, _circleY+off_y);
+            SDL_RenderDrawPoint(_renderer, _circleX-off_y, _circleY+off_x);
+            SDL_RenderDrawPoint(_renderer, _circleX-off_x, _circleY-off_y);
+            SDL_RenderDrawPoint(_renderer, _circleX+off_y, _circleY-off_x);
+        }
+        _circleR--;
+    }
+}
 /*
  * RenderTable: Draws the table where the game will be played, namely:
  * -  some texture for the background
@@ -81,7 +163,7 @@ void modoGrafico( void )
  * \param _img surfaces with the table background and IST logo (already loaded)
  * \param _renderer renderer to handle all rendering in a window
  */
-void RenderTable( SDL_Surface *_img[], SDL_Renderer* _renderer )
+void RenderMap( SDL_Surface *_img[], SDL_Renderer* _renderer , int width, int height)
 {
 
     SDL_Texture *table_texture;
@@ -95,8 +177,8 @@ void RenderTable( SDL_Surface *_img[], SDL_Renderer* _renderer )
     tableDest.y = tableSrc.y = 0;
     tableSrc.w = _img[0]->w;
     tableSrc.h = _img[0]->h;
-    tableDest.w = WIDTH_WINDOW_SIZE;
-    tableDest.h = HEIGHT_WINDOW_SIZE;
+    tableDest.w = width;
+    tableDest.h = height;
 
     // draws the table texture
     table_texture = SDL_CreateTextureFromSurface(_renderer, _img[0]);
@@ -107,7 +189,6 @@ void RenderTable( SDL_Surface *_img[], SDL_Renderer* _renderer )
     SDL_DestroyTexture(table_texture);
 
 }
-
 /**
  * InitEverything: Initializes the SDL2 library and all graphical components: font, window, renderer
  * \param width width in px of the window
@@ -176,7 +257,7 @@ SDL_Window* CreateWindow(int width, int height)
 {
     SDL_Window *window;
     // init window
-    window = SDL_CreateWindow( "< Projeto Final :: WarmingUp > \tJoão Almeida 90119 \tMiguel Fazenda 90146"
+    window = SDL_CreateWindow( "< Projeto Final :: WarmingUp > \t|| João Almeida 90119 \tMiguel Fazenda 90146 ||"
                                 , WINDOW_POSX, WINDOW_POSY, width, height, 0 );
     // check for error !
     if ( window == NULL )
