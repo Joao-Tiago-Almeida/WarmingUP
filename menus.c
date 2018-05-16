@@ -593,7 +593,7 @@ void analise_por_cidade(int ano)
 }
 
 
-//TODO não ussada
+//TODO não usada
 //usar para procurar os strings nos ficheiros
 void fgetstring(list_node_t * aux, bool string_pais, char string [BUFFER_SIZE])
 {
