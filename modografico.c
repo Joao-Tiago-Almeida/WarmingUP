@@ -9,10 +9,10 @@
 
 #define M_PI 3.14159265358979323846264338327950288
 #define STRING_SIZE 100       // max size for some strings
-#define HEIGHT_WINDOW_SIZE 850  // main game space size
-#define WIDTH_WINDOW_SIZE 1395     // left white bar size
+#define HEIGHT_WINDOW_SIZE 850
+#define WIDTH_WINDOW_SIZE 1390
 #define WINDOW_POSX 0       // initial position of the window: x
-#define WINDOW_POSY 1000       // initial position of the window: y         n sei oq e
+#define WINDOW_POSY 0       // initial position of the window: y         n sei oq e
 
 /**
  * main function: entry point of the program
@@ -23,7 +23,7 @@ void modoGrafico( void )
     SDL_Window *window = NULL;
     SDL_Renderer *renderer = NULL;
     TTF_Font *AppleGaramond = NULL;
-    SDL_Surface *imgs[2];
+    SDL_Surface *imgs[1];
     SDL_Event event;
     bool stay = true;
     int width = WIDTH_WINDOW_SIZE;
