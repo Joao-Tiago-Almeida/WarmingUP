@@ -75,11 +75,18 @@ void getstring(char* pais, char _comentario[]) {
 }
 
 // Devolve o numero de intervalos quando se separa os dados em intervalos(com um certo periodo)
-int calculo_num_intervalos(int _periodo, DADOS *dados)
+int calculo_num_intervalos(int _periodo, DADOS *dados, bool porCidade)
 {
     //TODO isto apenas considera os min e max dos countries
-    int intervalos = (dados->countriesAnoMax - dados->countriesAnoMin)/_periodo;
-    if((dados->countriesAnoMax - dados->countriesAnoMin) % _periodo > 0) {
+    int intervalos = 0;
+    if(porCidade) {
+        intervalos = (dados->citiesAnoMax - dados->citiesAnoMin)/_periodo;
+    } else {
+        intervalos = (dados->countriesAnoMax - dados->countriesAnoMin)/_periodo;
+    }
+    
+    if((porCidade && (dados->citiesAnoMax - dados->citiesAnoMin) % _periodo > 0) ||
+        (!porCidade && (dados->countriesAnoMax - dados->countriesAnoMin) % _periodo > 0)) {
         //Caso os intervalor não dividam exatamente os anos, vai haver mais um intervalo com menos anos que o periodo
         intervalos++;
     }
@@ -132,13 +139,8 @@ void menu_historico_de_temperaturas(DADOS* dados)
     int alinea = -1;
     int periodo = -1;
     int intervalo = 0;
-    char comentario[] = "Qual o periodo que pretende analisar?";
 
     printf("\n\tMenu Histórico de Temperaturas\n\n");
-    intervalo = dados->countriesAnoMax - dados->countriesAnoMin;
-
-    periodo = perguntar_referencia_a_analisar(1, intervalo, comentario);
-
     do
     {
         //Quando se escolhe qualquer opção ele sai logo do menu. No entanto se for opção
@@ -155,15 +157,15 @@ void menu_historico_de_temperaturas(DADOS* dados)
         {
         case 1:
             printf("\n\n\t---Histórico de Temperaturas global---\n\n");
-            historico_de_temperaturas(dados, periodo, false, false);
+            historico_de_temperaturas(dados, false, false);
             break;
         case 2:
             printf("\n\n\t---Histórico de Temperaturas por País---\n\n");
-            historico_de_temperaturas(dados, periodo, true, false);
+            historico_de_temperaturas(dados, true, false);
             break;
         case 3:
             printf("\n\n\t---Histórico de Temperaturas por Cidade---\n\n");
-            historico_de_temperaturas(dados, periodo, false, true);
+            historico_de_temperaturas(dados, false, true);
             break;
         case 0:
             break;
@@ -178,13 +180,7 @@ void menu_analise_da_temperatura_por_ano(DADOS* dados)
 {
     bool dentroDoMenu = true;
     int alinea = -1;
-    int ano;
-    char comentario[] = "Qual o ano a que pretende analisar?";
-
     printf("\n\tMenu Análise da Temperatura por Ano\n\n");
-
-
-    ano = perguntar_referencia_a_analisar(dados->countriesAnoMin, dados->countriesAnoMax, comentario);
 
     while (dentroDoMenu)
     {
@@ -197,10 +193,10 @@ void menu_analise_da_temperatura_por_ano(DADOS* dados)
         switch (alinea)
         {
         case 1:
-            analise_por_pais_ou_cidade(dados, ano, false);
+            analise_por_pais_ou_cidade(dados, false);
             break;
         case 2:
-            analise_por_pais_ou_cidade(dados, ano, true);
+            analise_por_pais_ou_cidade(dados, true);
             break;
         case 0:
             dentroDoMenu = false;
@@ -378,12 +374,14 @@ void calc_medias_de_intervalos(int numIntervalos, float *tempMed, int *numDados)
 
 //TODO esta funcao tem demasiados parametros
 void imprime_intervalos(DADOS* dados, int numIntervalos, float *tempMin,
-    float *tempMax, float *tempMed, int *numDados, int periodo)
+    float *tempMax, float *tempMed, int *numDados, int periodo, bool porCidade)
 {
     int numPaginas = ((numIntervalos-1) / NUM_INTERVALOS_POR_PAGINA) + 1;
     int pagina = 0;
 
     bool dentroDoLoop = true;
+    int anoMax = porCidade ? dados->citiesAnoMax : dados->countriesAnoMax;
+    int anoMin = porCidade ? dados->citiesAnoMin : dados->countriesAnoMin;
 
     char buffer[BUFFER_SIZE];
     while(dentroDoLoop) {
@@ -395,12 +393,12 @@ void imprime_intervalos(DADOS* dados, int numIntervalos, float *tempMin,
             bool intervalorFechado = false;
 
             //Determina quais os anos que o intervalo compreende
-            int anoMenor = dados->countriesAnoMin + i*periodo;
-            int anoMaior = dados->countriesAnoMin + (i+1)*periodo;
+            int anoMenor = anoMin + i*periodo;
+            int anoMaior = anoMenor + periodo;
 
-            if(anoMaior >= dados->countriesAnoMax) {
+            if(anoMaior >= anoMax) {
                 //Caso seja o ultimo intervalo, mostra o intervalo como um intervalo fechado
-                anoMaior = dados->countriesAnoMax;
+                anoMaior = anoMax;
                 intervalorFechado = true;
             }
 
@@ -438,19 +436,26 @@ void imprime_intervalos(DADOS* dados, int numIntervalos, float *tempMin,
     }
 }
 
-void historico_de_temperaturas(DADOS *dados, int periodo, bool porPais, bool porCidade) {
+void historico_de_temperaturas(DADOS *dados, bool porPais, bool porCidade) {
     float *tempMax = NULL, *tempMin = NULL, *tempMed = NULL;
     int* numDados = NULL;  //Numero de dados em cada intervalo para fazer a média
     int numIntervalos = 0;
     list_node_t *aux = NULL;
     char paisOuCidade[100];
+    int periodo = 0;
+    char comentario[] = "Qual o periodo que pretende analisar?";
+
+    int anoMax = porCidade ? dados->citiesAnoMax : dados->countriesAnoMax;
+    int anoMin = porCidade ? dados->citiesAnoMin : dados->countriesAnoMin;
+
+    periodo = perguntar_referencia_a_analisar(1, anoMax - anoMin, comentario);
 
     if(porPais || porCidade) {
         //Caso seja para filtrar por país ou cidade, perguntar o país ou cidade
         getstring(paisOuCidade, porPais ? "País a analisar: " : "Cidade a analisar: ");
     }
 
-    numIntervalos = calculo_num_intervalos(periodo, dados);//TODO isto tá mal para cidades
+    numIntervalos = calculo_num_intervalos(periodo, dados, porCidade);
 
     //Cria vetores com o numero de intervalos
     tempMax = (float*) checkedMalloc(sizeof(float) * numIntervalos);
@@ -475,7 +480,10 @@ void historico_de_temperaturas(DADOS *dados, int periodo, bool porPais, bool por
         {
             //Conta este nó se não tiver a filtrar por cidade ou pais, ou se
             //  corresponder ao que se está a filtrar
-            int intervalo = (aux->payload->dt.ano - dados->countriesAnoMin) / periodo; //TODO isto tem o countriesAnoMin também nas cidades
+            int intervalo = 0;
+            intervalo = porCidade ? (aux->payload->dt.ano - dados->citiesAnoMin) / periodo :
+                (aux->payload->dt.ano - anoMin) / periodo;
+                
 
             tempMax[intervalo] = MAX(tempMax[intervalo], aux->payload->temp);
             tempMin[intervalo] = MIN(tempMin[intervalo], aux->payload->temp);
@@ -487,23 +495,13 @@ void historico_de_temperaturas(DADOS *dados, int periodo, bool porPais, bool por
     }
 
     calc_medias_de_intervalos(numIntervalos, tempMed, numDados);
-    imprime_intervalos(dados, numIntervalos, tempMin, tempMax, tempMed, numDados, periodo);
+    imprime_intervalos(dados, numIntervalos, tempMin, tempMax, tempMed, numDados, periodo, porCidade);
 
     free(tempMax);
     free(tempMin);
     free(tempMed);
     free(numDados);
 }
-
-//TODO porquê?????
-typedef struct {
-    char paisOuCidade[100];
-    float tempMed;
-    int numDados; //Numero de meses analisados
-    float tempMin;
-    float tempMax;
-    float tempAmplitude;
-} DADOS_ANALISE_POR_ANO;
 
 void dados_analise_por_pais_init(DADOS_ANALISE_POR_ANO* dados) {
     dados->paisOuCidade[0] = '\0';
@@ -629,15 +627,24 @@ DADOS_ANALISE_POR_ANO **calcula_topN(int n, DADOS_ANALISE_POR_ANO *dadosPorPais,
     return topN;
 }
 
-void analise_por_pais_ou_cidade(DADOS* dados, int ano, bool porCidade)
+void analise_por_pais_ou_cidade(DADOS* dados, bool porCidade)
 {
     int n = 5;
     int numEntries = 0;
+    int ano = 0;
+    char comentario[] = "Qual o ano a que pretende analisar?";
+
     DADOS_ANALISE_POR_ANO *dadosPorPais = NULL;
     if(porCidade) {
         printf("\n\n\t---Análise por Cidade---\n\n");
     } else {
         printf("\n\n\t---Análise por País---\n\n");
+    }
+    
+    if(porCidade) {
+        ano = perguntar_referencia_a_analisar(dados->citiesAnoMin, dados->citiesAnoMax, comentario);
+    } else {
+        ano = perguntar_referencia_a_analisar(dados->countriesAnoMin, dados->countriesAnoMax, comentario);
     }
     
 
