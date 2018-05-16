@@ -503,20 +503,18 @@ void dados_analise_por_pais_init(DADOS_ANALISE_POR_ANO* dados) {
     dados->tempMax = 0;
 }
 
-void analise_por_pais(DADOS* dados, int ano)
-{
+//Devolve um o numero de entradas do vetor dadosPorPais
+// aloca memória para o vetor, que deve ser libertada de seguida
+int calculo_dados_por_pais_ou_cidade_num_ano(DADOS* dados, int ano, DADOS_ANALISE_POR_ANO **dadosPorPais) {
+    int numEntries = 0;
     list_node_t *aux = NULL;
     int vecSize = 50;
-    
-    printf("\n\n\t---Análise por País---\n\n");
-
-    
-    DADOS_ANALISE_POR_ANO *dadosPorPais = (DADOS_ANALISE_POR_ANO*) checkedMalloc(vecSize * sizeof(DADOS_ANALISE_POR_ANO));
+    *dadosPorPais = (DADOS_ANALISE_POR_ANO*) checkedMalloc(vecSize * sizeof(DADOS_ANALISE_POR_ANO));
 
     //Inicializa o vetor colocando numDados a 0, para saber que essa
     // entrada do vetor não tem dados
     for(int i = 0; i<vecSize; i++) {
-        dados_analise_por_pais_init(&dadosPorPais[i]);
+        dados_analise_por_pais_init(&(*dadosPorPais)[i]);
     }
 
     aux = dados->headCountriesFiltrada->next; //->next para a node a seguir à dummy node
@@ -531,18 +529,19 @@ void analise_por_pais(DADOS* dados, int ano)
     while(aux != NULL && aux->payload->dt.ano == ano) {
         DADOS_ANALISE_POR_ANO* dadosDoPaisOuCidade = NULL;
         for(int i = 0; i<vecSize; i++) {
-            if(dadosPorPais[i].numDados == 0)
+            if((*dadosPorPais)[i].numDados == 0)
             {
                 //Caso a entrada i do vetor não corresponda estaja vazia, significa que
                 // não foram encontrados dados relativos a este pais/cidade
-                strcpy(dadosPorPais[i].paisOuCidade, aux->payload->pais);
-                dadosDoPaisOuCidade = &dadosPorPais[i];
+                strcpy((*dadosPorPais)[i].paisOuCidade, aux->payload->pais);
+                dadosDoPaisOuCidade = &(*dadosPorPais)[i];
+                numEntries++;
                 break;
             }
-            else if(strcmp(dadosPorPais[i].paisOuCidade, aux->payload->pais) == 0)
+            else if(strcmp((*dadosPorPais)[i].paisOuCidade, aux->payload->pais) == 0)
             {
                 //Caso encontre uma entrada relativa ao aux->payload->pais
-                dadosDoPaisOuCidade = &dadosPorPais[i];
+                dadosDoPaisOuCidade = &(*dadosPorPais)[i];
                 break;
             }
         }
@@ -554,18 +553,19 @@ void analise_por_pais(DADOS* dados, int ano)
             int sizeAnterior = vecSize;
 
             vecSize += 50;
-            dadosPorPais = (DADOS_ANALISE_POR_ANO*) realloc(dadosPorPais, vecSize * sizeof(DADOS_ANALISE_POR_ANO));
-            if(dadosPorPais == NULL) {
+            *dadosPorPais = (DADOS_ANALISE_POR_ANO*) realloc((*dadosPorPais), vecSize * sizeof(DADOS_ANALISE_POR_ANO));
+            if(*dadosPorPais == NULL) {
                 printf("Memory allocation failure\n");
                 exit(EXIT_FAILURE);
             }
 
             for(int i = sizeAnterior; i<vecSize; i++) {
-                dados_analise_por_pais_init(&dadosPorPais[i]);
+                dados_analise_por_pais_init(&(*dadosPorPais)[i]);
             }
             
-            strcpy(dadosPorPais[sizeAnterior].paisOuCidade, aux->payload->pais);
-            dadosDoPaisOuCidade = &dadosPorPais[sizeAnterior];
+            strcpy((*dadosPorPais)[sizeAnterior].paisOuCidade, aux->payload->pais);
+            dadosDoPaisOuCidade = &(*dadosPorPais)[sizeAnterior];
+            numEntries++;
         }
 
         dadosDoPaisOuCidade->numDados++;
@@ -576,14 +576,51 @@ void analise_por_pais(DADOS* dados, int ano)
 
         aux = aux->next;
     }
-    
-    for(int i = 0; i<vecSize; i++) {
-        printf("%s, %d, %f, %f, %f\n", dadosPorPais[i].paisOuCidade,
-            dadosPorPais[i].numDados, dadosPorPais[i].tempMin, 
-            dadosPorPais[i].tempMax,
-            dadosPorPais[i].tempMed / dadosPorPais[i].numDados);
+
+    return numEntries;
+}
+
+void analise_por_pais(DADOS* dados, int ano)
+{
+    int n = 5;
+    int numEntries = 0;
+    DADOS_ANALISE_POR_ANO *dadosPorPais = NULL;
+    printf("\n\n\t---Análise por País---\n\n");
+
+    //Vectores de apontadores para os dados que estão no dadosPorPais
+    // para não estar a fazer cópias das estruturas
+    DADOS_ANALISE_POR_ANO **topNMaisQuentes = (DADOS_ANALISE_POR_ANO **) checkedMalloc(n*sizeof(DADOS_ANALISE_POR_ANO*));
+
+    for(int i = 0; i<n; i++) {
+        topNMaisQuentes[i] = NULL;
     }
 
+    numEntries = calculo_dados_por_pais_ou_cidade_num_ano(dados, ano, &dadosPorPais);
+
+    for(int i = 0; i<numEntries; i++) {
+        for(int j = 0; j<n; j++) {
+            if(topNMaisQuentes[j] == NULL || dadosPorPais[i].tempMed > topNMaisQuentes[j]->tempMed) {
+                //Caso encontre um sítio para meter esta entrada no vetor topN
+                
+                //Passar todas as entradas seguintes para baixo
+                for(int k = j+1; k<n; k++) {
+                    topNMaisQuentes[k] = topNMaisQuentes[k-1];
+                }
+
+                topNMaisQuentes[j] = &dadosPorPais[i];
+                break;
+            }
+        }
+    }
+    
+    for(int i = 0; i<n; i++) {
+        printf("%s, %d, %f, %f, %f\n", topNMaisQuentes[i]->paisOuCidade,
+            topNMaisQuentes[i]->numDados, topNMaisQuentes[i]->tempMin, 
+            topNMaisQuentes[i]->tempMax,
+            topNMaisQuentes[i]->tempMed / topNMaisQuentes[i]->numDados);
+    }
+
+    free(topNMaisQuentes);
     free(dadosPorPais);
 }
 void analise_por_cidade(int ano)
