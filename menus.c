@@ -14,6 +14,9 @@
 #define MAX_M 100 //não sei , perguntar ao stor
 #define MAX(a, b) (a > b) ? a : b
 #define MIN(a, b) (a > b) ? b : a
+#define MODO_ANALISE_MAIS_QUENTE 0
+#define MODO_ANALISE_MAIS_FRIO 1
+#define MODO_ANALISE_EXTREMOS 2
 //TODO
 //#define LIMITE_ANOS_STRING
 //#define DOUBLECAT(a,b,c) a##0-2018##c
@@ -485,6 +488,11 @@ void historico_de_temperaturas(DADOS *dados, int periodo, bool porPais, bool por
 
     calc_medias_de_intervalos(numIntervalos, tempMed, numDados);
     imprime_intervalos(dados, numIntervalos, tempMin, tempMax, tempMed, numDados, periodo);
+
+    free(tempMax);
+    free(tempMin);
+    free(tempMed);
+    free(numDados);
 }
 
 typedef struct {
@@ -493,6 +501,7 @@ typedef struct {
     int numDados; //Numero de meses analisados
     float tempMin;
     float tempMax;
+    float tempAmplitude;
 } DADOS_ANALISE_POR_ANO;
 
 void dados_analise_por_pais_init(DADOS_ANALISE_POR_ANO* dados) {
@@ -577,21 +586,29 @@ int calculo_dados_por_pais_ou_cidade_num_ano(DADOS* dados, int ano, DADOS_ANALIS
         aux = aux->next;
     }
 
+    //Calcula as médias e as amplitudes
+    for(int i = 0; i<vecSize; i++) {
+        (*dadosPorPais)[i].tempMed = (*dadosPorPais)[i].tempMed / (*dadosPorPais)[i].numDados;
+        (*dadosPorPais)[i].tempAmplitude = (*dadosPorPais)[i].tempMax - (*dadosPorPais)[i].tempMin;
+    }
+
     return numEntries;
 }
 
-DADOS_ANALISE_POR_ANO **calcula_topN_mais_quentes() {
+// 
+DADOS_ANALISE_POR_ANO **calcula_topN(int n, DADOS_ANALISE_POR_ANO *dadosPorPais, int numEntries, int mode) {
     DADOS_ANALISE_POR_ANO **topN = (DADOS_ANALISE_POR_ANO **) checkedMalloc(n*sizeof(DADOS_ANALISE_POR_ANO*));
 
     for(int i = 0; i<n; i++) {
         topN[i] = NULL;
     }
 
-    numEntries = calculo_dados_por_pais_ou_cidade_num_ano(dados, ano, &dadosPorPais);
-
-    for(int i = 0; i<numEntries; i++) {
-        for(int j = 0; j<n; j++) {
-            if(topN[j] == NULL || dadosPorPais[i].tempMed > topN[j]->tempMed) {
+    for(int i = 0; i<numEntries; i++) { //Vai a cada pais
+        for(int j = 0; j<n; j++) {  //Vai a cada entrada do topN
+            if(topN[j] == NULL ||
+                (mode == MODO_ANALISE_MAIS_QUENTE && dadosPorPais[i].tempMed > topN[j]->tempMed) ||
+                (mode == MODO_ANALISE_MAIS_FRIO && dadosPorPais[i].tempMed < topN[j]->tempMed) ||
+                (mode == MODO_ANALISE_EXTREMOS && dadosPorPais[i].tempAmplitude > topN[j]->tempAmplitude)) {
                 //Caso encontre um sítio para meter esta entrada no vetor topN
                 
                 //Passar todas as entradas seguintes para baixo
@@ -605,12 +622,7 @@ DADOS_ANALISE_POR_ANO **calcula_topN_mais_quentes() {
         }
     }
     
-    for(int i = 0; i<n; i++) {
-        printf("%s, %d, %f, %f, %f\n", topN[i]->paisOuCidade,
-            topN[i]->numDados, topN[i]->tempMin, 
-            topN[i]->tempMax,
-            topN[i]->tempMed / topN[i]->numDados);
-    }
+    return topN;
 }
 
 void analise_por_pais(DADOS* dados, int ano)
@@ -620,41 +632,34 @@ void analise_por_pais(DADOS* dados, int ano)
     DADOS_ANALISE_POR_ANO *dadosPorPais = NULL;
     printf("\n\n\t---Análise por País---\n\n");
 
-    //Vectores de apontadores para os dados que estão no dadosPorPais
-    // para não estar a fazer cópias das estruturas
-    DADOS_ANALISE_POR_ANO **topNMaisQuentes = (DADOS_ANALISE_POR_ANO **) checkedMalloc(n*sizeof(DADOS_ANALISE_POR_ANO*));
-    DADOS_ANALISE_POR_ANO **topNMaisFrios = (DADOS_ANALISE_POR_ANO **) checkedMalloc(n*sizeof(DADOS_ANALISE_POR_ANO*));
-    DADOS_ANALISE_POR_ANO **topNExtremos = (DADOS_ANALISE_POR_ANO **) checkedMalloc(n*sizeof(DADOS_ANALISE_POR_ANO*));
-
-    for(int i = 0; i<n; i++) {
-        topNMaisQuentes[i] = NULL;
-        topNMaisFrios[i] = NULL;
-        topNExtremos[i] = NULL;
-    }
-
     numEntries = calculo_dados_por_pais_ou_cidade_num_ano(dados, ano, &dadosPorPais);
 
-    for(int i = 0; i<numEntries; i++) {
-        for(int j = 0; j<n; j++) {
-            if(topNMaisQuentes[j] == NULL || dadosPorPais[i].tempMed > topNMaisQuentes[j]->tempMed) {
-                //Caso encontre um sítio para meter esta entrada no vetor topN
-                
-                //Passar todas as entradas seguintes para baixo
-                for(int k = j+1; k<n; k++) {
-                    topNMaisQuentes[k] = topNMaisQuentes[k-1];
-                }
+    //Vectores de apontadores para os dados que estão no dadosPorPais
+    // para não estar a fazer cópias das estruturas
+    DADOS_ANALISE_POR_ANO **topNMaisQuentes = calcula_topN(n,
+        dadosPorPais, numEntries, MODO_ANALISE_MAIS_QUENTE);
+    DADOS_ANALISE_POR_ANO **topNMaisFrios = calcula_topN(n,
+        dadosPorPais, numEntries, MODO_ANALISE_MAIS_FRIO);
+    DADOS_ANALISE_POR_ANO **topNExtremos = calcula_topN(n,
+        dadosPorPais, numEntries, MODO_ANALISE_EXTREMOS);
 
-                topNMaisQuentes[j] = &dadosPorPais[i];
-                break;
-            }
-        }
-    }
-    
+
+    printf("\n\tTop %d países mais quentes:\n", n);
     for(int i = 0; i<n; i++) {
-        printf("%s, %d, %f, %f, %f\n", topNMaisQuentes[i]->paisOuCidade,
-            topNMaisQuentes[i]->numDados, topNMaisQuentes[i]->tempMin, 
-            topNMaisQuentes[i]->tempMax,
-            topNMaisQuentes[i]->tempMed / topNMaisQuentes[i]->numDados);
+        printf("%s: Temp média %f\n", topNMaisQuentes[i]->paisOuCidade,
+            topNMaisQuentes[i]->tempMed);
+    }
+
+    printf("\n\tTop %d países mais frios:\n", n);
+    for(int i = 0; i<n; i++) {
+        printf("%s: Temp média %f\n", topNMaisFrios[i]->paisOuCidade,
+            topNMaisFrios[i]->tempMed);
+    }
+
+    printf("\n\tTop %d países com temperaturas mais extremas:\n", n);
+    for(int i = 0; i<n; i++) {
+        printf("%s: Temp média ou extremos???z %f\n", topNExtremos[i]->paisOuCidade,
+            topNExtremos[i]->tempMed);
     }
 
     free(topNMaisQuentes);
