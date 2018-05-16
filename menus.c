@@ -70,7 +70,7 @@ void getstring(char* pais, char _comentario[]) {
     printf("%s ", _comentario);
 
     fgets(buffer, BUFFER_SIZE, stdin);
-    removeNewLine(buffer);
+    removeLastCharIfMatch(buffer, '\n');
     strcpy(pais, buffer);
 }
 
@@ -197,10 +197,10 @@ void menu_analise_da_temperatura_por_ano(DADOS* dados)
         switch (alinea)
         {
         case 1:
-            analise_por_pais(dados, ano);
+            analise_por_pais_ou_cidade(dados, ano, false);
             break;
         case 2:
-            analise_por_cidade(ano);
+            analise_por_pais_ou_cidade(dados, ano, true);
             break;
         case 0:
             dentroDoMenu = false;
@@ -424,7 +424,7 @@ void imprime_intervalos(DADOS* dados, int numIntervalos, float *tempMin,
         do {
             printf("a para avançar, q para sair\n");
             fgets(buffer, BUFFER_SIZE, stdin);
-            removeNewLine(buffer);
+            removeLastCharIfMatch(buffer, '\n');
         } while(strlen(buffer) > 1 || (buffer[0] != 'a' && buffer[0] != 'q'));
         if(buffer[0] == 'a') {
             if(pagina >= numPaginas-1) {
@@ -515,7 +515,7 @@ void dados_analise_por_pais_init(DADOS_ANALISE_POR_ANO* dados) {
 
 //Devolve um o numero de entradas do vetor dadosPorPais
 // aloca memória para o vetor, que deve ser libertada de seguida
-int calculo_dados_por_pais_ou_cidade_num_ano(DADOS* dados, int ano, DADOS_ANALISE_POR_ANO **dadosPorPais) {
+int calculo_dados_por_pais_ou_cidade_num_ano(DADOS* dados, int ano, bool porCidade, DADOS_ANALISE_POR_ANO **dadosPorPais) {
     int numEntries = 0;
     list_node_t *aux = NULL;
     int vecSize = 50;
@@ -527,7 +527,7 @@ int calculo_dados_por_pais_ou_cidade_num_ano(DADOS* dados, int ano, DADOS_ANALIS
         dados_analise_por_pais_init(&(*dadosPorPais)[i]);
     }
 
-    aux = dados->headCountriesFiltrada->next; //->next para a node a seguir à dummy node
+    aux = porCidade ? dados->headCitiesFiltrada->next : dados->headCountriesFiltrada->next; //->next para a node a seguir à dummy node
 
     //Mete o aux a apontar para a primeira node do ano que se quer analisar (a lista está ordenada por data)
     while(aux != NULL && aux->payload->dt.ano != ano) {
@@ -543,12 +543,14 @@ int calculo_dados_por_pais_ou_cidade_num_ano(DADOS* dados, int ano, DADOS_ANALIS
             {
                 //Caso a entrada i do vetor não corresponda estaja vazia, significa que
                 // não foram encontrados dados relativos a este pais/cidade
-                strcpy((*dadosPorPais)[i].paisOuCidade, aux->payload->pais);
+                strcpy((*dadosPorPais)[i].paisOuCidade,
+                    porCidade ? aux->payload->cidade : aux->payload->pais);
                 dadosDoPaisOuCidade = &(*dadosPorPais)[i];
                 numEntries++;
                 break;
             }
-            else if(strcmp((*dadosPorPais)[i].paisOuCidade, aux->payload->pais) == 0)
+            else if(strcmp((*dadosPorPais)[i].paisOuCidade,
+                porCidade ? aux->payload->cidade : aux->payload->pais) == 0)
             {
                 //Caso encontre uma entrada relativa ao aux->payload->pais
                 dadosDoPaisOuCidade = &(*dadosPorPais)[i];
@@ -573,7 +575,8 @@ int calculo_dados_por_pais_ou_cidade_num_ano(DADOS* dados, int ano, DADOS_ANALIS
                 dados_analise_por_pais_init(&(*dadosPorPais)[i]);
             }
             
-            strcpy((*dadosPorPais)[sizeAnterior].paisOuCidade, aux->payload->pais);
+            strcpy((*dadosPorPais)[sizeAnterior].paisOuCidade,
+                porCidade ? aux->payload->cidade : aux->payload->pais);
             dadosDoPaisOuCidade = &(*dadosPorPais)[sizeAnterior];
             numEntries++;
         }
@@ -613,7 +616,7 @@ DADOS_ANALISE_POR_ANO **calcula_topN(int n, DADOS_ANALISE_POR_ANO *dadosPorPais,
                 //Caso encontre um sítio para meter esta entrada no vetor topN
                 
                 //Passar todas as entradas seguintes para baixo
-                for(int k = j+1; k<n; k++) {
+                for(int k = n-2; k>j; k--) {
                     topN[k] = topN[k-1];
                 }
 
@@ -626,14 +629,19 @@ DADOS_ANALISE_POR_ANO **calcula_topN(int n, DADOS_ANALISE_POR_ANO *dadosPorPais,
     return topN;
 }
 
-void analise_por_pais(DADOS* dados, int ano)
+void analise_por_pais_ou_cidade(DADOS* dados, int ano, bool porCidade)
 {
     int n = 5;
     int numEntries = 0;
     DADOS_ANALISE_POR_ANO *dadosPorPais = NULL;
-    printf("\n\n\t---Análise por País---\n\n");
+    if(porCidade) {
+        printf("\n\n\t---Análise por Cidade---\n\n");
+    } else {
+        printf("\n\n\t---Análise por País---\n\n");
+    }
+    
 
-    numEntries = calculo_dados_por_pais_ou_cidade_num_ano(dados, ano, &dadosPorPais);
+    numEntries = calculo_dados_por_pais_ou_cidade_num_ano(dados, ano, porCidade, &dadosPorPais);
 
     //Vectores de apontadores para os dados que estão no dadosPorPais
     // para não estar a fazer cópias das estruturas
@@ -647,30 +655,36 @@ void analise_por_pais(DADOS* dados, int ano)
 
     printf("\n\tTop %d países mais quentes:\n", n);
     for(int i = 0; i<n; i++) {
-        printf("%s: Temp média %f\n", topNMaisQuentes[i]->paisOuCidade,
+        if(topNMaisQuentes[i] == NULL) {
+            break;
+        }
+        printf("%s: Temp média %.2f\n", topNMaisQuentes[i]->paisOuCidade,
             topNMaisQuentes[i]->tempMed);
     }
 
     printf("\n\tTop %d países mais frios:\n", n);
     for(int i = 0; i<n; i++) {
-        printf("%s: Temp média %f\n", topNMaisFrios[i]->paisOuCidade,
+        if(topNMaisFrios[i] == NULL) {
+            break;
+        }
+        printf("%s: Temp média %.2f\n", topNMaisFrios[i]->paisOuCidade,
             topNMaisFrios[i]->tempMed);
     }
 
     printf("\n\tTop %d países com temperaturas mais extremas:\n", n);
     for(int i = 0; i<n; i++) {
-        printf("%s: Temp média ou extremos???z %f\n", topNExtremos[i]->paisOuCidade,
-            topNExtremos[i]->tempMed);
+        if(topNExtremos[i] == NULL) {
+            break;
+        }
+        printf("%s: Temp média %.2f\tAmplitude %.2f\n", topNExtremos[i]->paisOuCidade,
+            topNExtremos[i]->tempMed,
+            topNExtremos[i]->tempAmplitude);
     }
 
     free(topNMaisQuentes);
     free(topNMaisFrios);
     free(topNExtremos);
     free(dadosPorPais);
-}
-void analise_por_cidade(int ano)
-{
-    printf("\n\n\t---Análise por cidade---\n\n");
 }
 
 
@@ -706,7 +720,7 @@ int calculo_aumento_temp(int ano_a_analisar, int M, DADOS *dados, bool porPais, 
         //Caso seja para filtrar por país ou cidade, perguntar o país ou cidade
         getstring(paisOuCidade, porPais ? "País a analisar: " : "Cidade a analisar: ");
     }
-    removeNewLine(paisOuCidade);
+    removeLastCharIfMatch(paisOuCidade, '\n');
 
 
     tempMax = (float*) checkedMalloc(sizeof(float) * M);

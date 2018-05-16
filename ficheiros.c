@@ -65,14 +65,9 @@ void read_file_countries(DADOS *dados, char *_nomeFilePaises, char *_nomeFileCid
 
     while (fgets(buffer, BUFFER_SIZE, fileInput) != NULL)
     {
-        if (buffer[strlen(buffer)-1] == '\r')
-        {
-            buffer[strlen(buffer)-1] = '\0';
-        }
-        if (buffer[strlen(buffer)-2] == '\r')
-        {
-            buffer[strlen(buffer)-2] = '\0';
-        }
+        removeLastCharIfMatch(buffer, '\n');
+        removeLastCharIfMatch(buffer, '\r');
+        
         dados_temp *a = malloc(sizeof(dados_temp));
         check = sscanf(buffer, "%d-%d-%d,%f,%f,%[^\n]",
                        &a->dt.ano,
@@ -84,10 +79,7 @@ void read_file_countries(DADOS *dados, char *_nomeFilePaises, char *_nomeFileCid
 
         //TODO meter nome dos paises e cidades com malloc
         //strcpy(a->pais, nome_temp);
-        if(a->dt.ano == 1781) {
-            int a = 9;
-            a +=2;
-        }
+        
         if (check == 6)
         {
             list_node_t *new_node = create_node(a);

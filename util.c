@@ -17,8 +17,8 @@ void *checkedMalloc(size_t size) {
 }
 
 
-void removeNewLine(char* str) {
-    if(str[strlen(str)-1] == '\n') {
+void removeLastCharIfMatch(char* str, char c) {
+    if(str[strlen(str)-1] == c) {
         str[strlen(str)-1] = '\0';
     }
 }

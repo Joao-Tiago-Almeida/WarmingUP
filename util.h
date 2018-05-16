@@ -4,5 +4,5 @@
 #include <stdlib.h>
 
 void *checkedMalloc(size_t size);
-void removeNewLine(char* str);
+void removeLastCharIfMatch(char* str, char c);
 #endif

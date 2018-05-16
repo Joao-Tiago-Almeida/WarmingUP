@@ -19,8 +19,7 @@ void imprime_intervalos(DADOS* dados, int numIntervalos, float *tempMin,
     float *tempMax, float *tempMed, int *numDados, int periodo);
 void historico_de_temperaturas(DADOS *dados, int periodo, bool porPais, bool porCidade);
 
-void analise_por_pais(DADOS* dados, int ano);
-void analise_por_cidade(int ano);
+void analise_por_pais_ou_cidade(DADOS* dados, int ano, bool porCidade);
 
 
 
