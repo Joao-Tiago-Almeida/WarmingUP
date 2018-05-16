@@ -27,4 +27,13 @@ typedef struct {
 	geo_coord longitude;
 } dados_temp;
 
+typedef struct {
+    char paisOuCidade[100];
+    float tempMed;
+    int numDados; //Numero de meses analisados
+    float tempMin;
+    float tempMax;
+    float tempAmplitude;
+} DADOS_ANALISE_POR_ANO;
+
 #endif
