@@ -580,6 +580,39 @@ int calculo_dados_por_pais_ou_cidade_num_ano(DADOS* dados, int ano, DADOS_ANALIS
     return numEntries;
 }
 
+DADOS_ANALISE_POR_ANO **calcula_topN_mais_quentes() {
+    DADOS_ANALISE_POR_ANO **topN = (DADOS_ANALISE_POR_ANO **) checkedMalloc(n*sizeof(DADOS_ANALISE_POR_ANO*));
+
+    for(int i = 0; i<n; i++) {
+        topN[i] = NULL;
+    }
+
+    numEntries = calculo_dados_por_pais_ou_cidade_num_ano(dados, ano, &dadosPorPais);
+
+    for(int i = 0; i<numEntries; i++) {
+        for(int j = 0; j<n; j++) {
+            if(topN[j] == NULL || dadosPorPais[i].tempMed > topN[j]->tempMed) {
+                //Caso encontre um sítio para meter esta entrada no vetor topN
+                
+                //Passar todas as entradas seguintes para baixo
+                for(int k = j+1; k<n; k++) {
+                    topN[k] = topN[k-1];
+                }
+
+                topN[j] = &dadosPorPais[i];
+                break;
+            }
+        }
+    }
+    
+    for(int i = 0; i<n; i++) {
+        printf("%s, %d, %f, %f, %f\n", topN[i]->paisOuCidade,
+            topN[i]->numDados, topN[i]->tempMin, 
+            topN[i]->tempMax,
+            topN[i]->tempMed / topN[i]->numDados);
+    }
+}
+
 void analise_por_pais(DADOS* dados, int ano)
 {
     int n = 5;
@@ -590,9 +623,13 @@ void analise_por_pais(DADOS* dados, int ano)
     //Vectores de apontadores para os dados que estão no dadosPorPais
     // para não estar a fazer cópias das estruturas
     DADOS_ANALISE_POR_ANO **topNMaisQuentes = (DADOS_ANALISE_POR_ANO **) checkedMalloc(n*sizeof(DADOS_ANALISE_POR_ANO*));
+    DADOS_ANALISE_POR_ANO **topNMaisFrios = (DADOS_ANALISE_POR_ANO **) checkedMalloc(n*sizeof(DADOS_ANALISE_POR_ANO*));
+    DADOS_ANALISE_POR_ANO **topNExtremos = (DADOS_ANALISE_POR_ANO **) checkedMalloc(n*sizeof(DADOS_ANALISE_POR_ANO*));
 
     for(int i = 0; i<n; i++) {
         topNMaisQuentes[i] = NULL;
+        topNMaisFrios[i] = NULL;
+        topNExtremos[i] = NULL;
     }
 
     numEntries = calculo_dados_por_pais_ou_cidade_num_ano(dados, ano, &dadosPorPais);
@@ -621,6 +658,8 @@ void analise_por_pais(DADOS* dados, int ano)
     }
 
     free(topNMaisQuentes);
+    free(topNMaisFrios);
+    free(topNExtremos);
     free(dadosPorPais);
 }
 void analise_por_cidade(int ano)
