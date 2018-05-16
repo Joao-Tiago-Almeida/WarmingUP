@@ -18,7 +18,8 @@ void *checkedMalloc(size_t size) {
 
 
 void removeLastCharIfMatch(char* str, char c) {
-    if(str[strlen(str)-1] == c) {
+    if(str[strlen(str)-1] == c)
+    {
         str[strlen(str)-1] = '\0';
     }
 }

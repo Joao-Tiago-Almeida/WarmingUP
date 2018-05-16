@@ -120,7 +120,11 @@ void sortedInsert(list_node_t *_head, list_node_t **_tail, list_node_t *new_node
         while (tmp != NULL &&
                 (tmp->payload->dt.ano < new_node->payload->dt.ano ||
                 (tmp->payload->dt.ano == new_node->payload->dt.ano &&
-                 tmp->payload->dt.mes < new_node->payload->dt.mes )))//TODO ordenar por dia
+                 tmp->payload->dt.mes < new_node->payload->dt.mes ) ||
+                (tmp->payload->dt.ano == new_node->payload->dt.ano &&
+                 tmp->payload->dt.mes == new_node->payload->dt.mes &&
+                 tmp->payload->dt.dia < new_node->payload->dt.dia)))
+
         {
             aux = tmp;
             tmp = aux->next;
