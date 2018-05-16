@@ -76,9 +76,6 @@ void read_file_countries(DADOS *dados, char *_nomeFilePaises, char *_nomeFileCid
                        &a->temp,
                        &a->incerteza,
                        a->pais);
-
-        //TODO meter nome dos paises e cidades com malloc
-        //strcpy(a->pais, nome_temp);
         
         if (check == 6)
         {
