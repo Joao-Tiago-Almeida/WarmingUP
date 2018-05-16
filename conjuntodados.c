@@ -10,17 +10,29 @@ void dados_init(DADOS *dados)
 }
 
 void dados_free(DADOS* dados) {
-    dados_apaga_listaFiltrada(dados);
-    dados->headCountriesFiltrada = NULL;
+    if(dados->headCountriesOriginal != NULL) {
+        //Caso o ficheiro dos paises tenha sido lido (no modo gráfico não é)
+        dados_apaga_listaFiltrada(dados);
+        dados->headCountriesFiltrada = NULL;
 
-    //Apaga a lista e os dados também
-    // (true no remove_nodes faz free dos payload)
-    remove_nodes(dados->headCountriesOriginal, true);
-    free(dados->headCountriesOriginal);
-    dados->headCountriesOriginal = NULL;
+        //Apaga a lista e os dados também
+        // (true no remove_nodes faz free dos payload)
+        remove_nodes(dados->headCountriesOriginal, true);
+        free(dados->headCountriesOriginal);
+        dados->headCountriesOriginal = NULL;
+    }
+
+    if(dados->headCitiesOriginal != NULL) {
+        //TODO apagar lista filtrada cities
+
+        remove_nodes(dados->headCitiesOriginal, true);
+        free(dados->headCitiesOriginal);
+        dados->headCitiesOriginal = NULL;
+    }
 }
 
 void dados_apaga_listaFiltrada(DADOS* dados) {
+    //TODO filtrar lista das cidades
     if (dados->headCountriesFiltrada != dados->headCountriesOriginal)
     {
         //Caso a lista filtrada exita (a lista filtrada não aponta para a original)

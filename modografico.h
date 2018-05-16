@@ -11,6 +11,6 @@ SDL_Window* CreateWindow(int , int);
 SDL_Renderer* CreateRenderer(int , int , SDL_Window *);
 void RenderTable( SDL_Surface **, SDL_Renderer *);
 
-void modoGrafico();
+void modoGrafico(char *nomeFileCidades);
 
 #endif

@@ -92,8 +92,8 @@ void modoTextual(char *nomeFilePaises, char *nomeFileCidades) {
     DADOS dados;
     dados_init(&dados);
 
-    read_file_countries (&dados, nomeFilePaises, nomeFileCidades);
-    read_file_cities (&dados, nomeFilePaises, nomeFileCidades);
+    read_file_countries (&dados, nomeFilePaises);
+    read_file_cities (&dados, nomeFileCidades);
     //print_list(dados.headCountriesOriginal);
     print_list(dados.headCitiesOriginal);
 
@@ -114,7 +114,7 @@ int main(int argc, char *argv[])
     if(modo_grafico) {
         //Inicializar modo grafico
         printf("Modo grafico!\n");
-        modoGrafico();
+        modoGrafico(nomeFileCidades);
     } else {
         modoTextual(nomeFilePaises, nomeFileCidades);
     }

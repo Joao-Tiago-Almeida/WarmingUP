@@ -712,6 +712,7 @@ void fgetstring(list_node_t * aux, bool string_pais, char string [BUFFER_SIZE])
         aux = aux->next;
     }
 }
+
 //TODO acabar!!
 int calculo_aumento_temp(int ano_a_analisar, int M, DADOS *dados, bool porPais, bool porCidade)
 {
