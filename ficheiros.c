@@ -25,7 +25,7 @@ long getFileSize(FILE *file)
     return size;
 }
 
-void read_file_countries(DADOS *dados, char *_nomeFilePaises, char *_nomeFileCidades)
+void read_file_countries(DADOS *dados, char *_nomeFilePaises)
 {
     long totalFileSize = 0;
     int i = 0, check = -1;
@@ -144,7 +144,7 @@ void read_file_countries(DADOS *dados, char *_nomeFilePaises, char *_nomeFileCid
     dados->countriesListSize = i;
 }
 
-void read_file_cities(DADOS *dados, char *_nomeFilePaises, char *_nomeFileCidades)
+void read_file_cities(DADOS *dados, char *_nomeFileCidades)
 {
     long totalFileSize = 0;
     int i = 0, check = -1;

@@ -7,6 +7,9 @@ void dados_init(DADOS *dados)
     limpar_criterios(&dados->criterios);
     dados->headCountriesOriginal = NULL;
     dados->headCountriesFiltrada = NULL;
+    dados->headCitiesOriginal = NULL;
+    dados->headCitiesFiltrada = NULL;
+    printf("---DADOS INIT---\n");
 }
 
 void dados_free(DADOS* dados) {

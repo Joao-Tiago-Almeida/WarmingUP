@@ -6,6 +6,7 @@
 #include "menus.h"
 #include "estruturas.h"
 #include "util.h"
+#include "modografico.h"
 
 #define BUFFER_SIZE 100
 #define NUM_INTERVALOS_POR_PAGINA 20
@@ -93,8 +94,8 @@ int calculo_num_intervalos(int _periodo, DADOS *dados, bool porCidade)
     return intervalos;
 }
 
-
-void menu_principal(DADOS* dados)
+// Devolve false se for para sair do programa ou true se for para mudar para o modo textual
+bool menu_principal(DADOS* dados)
 {
     bool dentroDoMenu = true;
     int alinea = -1;
@@ -103,7 +104,8 @@ void menu_principal(DADOS* dados)
     {
         printf("\n\n\tMenu Principal\n\nEscolha uma das opções seguintes:\n");
         printf("1. Filtragem de dados;\n2. Histórico de Temperaturas;\n");
-        printf("3. Análise da temperatura por ano;\n4. Análise da temperatura global.\n");
+        printf("3. Análise da temperatura por ano;\n4. Análise da temperatura global;\n");
+        printf("5. Modo gráfico.\n");
         printf("\n0 ou Enter. Sair do programa.\n");
 
         alinea = perguntar_menu_choice();
@@ -122,6 +124,9 @@ void menu_principal(DADOS* dados)
         case 4:
             menu_analise_da_temperatura_global(dados);
             break;
+        case 5:
+            return true; // devolve true se for para mudar para o modo textual
+            break;
         case 0:
             printf("Quit\n");
             exit(EXIT_SUCCESS);
@@ -131,6 +136,7 @@ void menu_principal(DADOS* dados)
             break;
         }
     }
+    return false; // devolve false se for para sair do programa
 }
 
 void menu_historico_de_temperaturas(DADOS* dados)

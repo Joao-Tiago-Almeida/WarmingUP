@@ -4,7 +4,7 @@
 #include "estruturas.h"
 #include "conjuntodados.h"
 
-void menu_principal(DADOS* dados);
+bool menu_principal(DADOS* dados);
 void menu_filtragem_de_dados(DADOS* dados);
 void menu_historico_de_temperaturas(DADOS* dados);
 void menu_analise_da_temperatura_por_ano(DADOS* dados);
