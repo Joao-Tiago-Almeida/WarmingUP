@@ -361,15 +361,17 @@ void RenderColor(SDL_Renderer * _renderer, int _temperatura, int _latitude, int 
 }
 
 void RenderCity(SDL_Renderer * _renderer, int width, int height, TTF_Font *_font, dados_temp* cidade, DADOS *dados) {
-    float latitude = 0.0f;
-    float longitude = 0.0f;
+    float x = 0.0f;
+    float y = 0.0f;
 
-    latitude = calculo_coordenada(cidade->latitude.angular,
+    x = calculo_coordenada(cidade->latitude.angular,
         cidade->latitude.direcao, width, height, true);
-    longitude = calculo_coordenada(cidade->longitude.angular,
+    y = calculo_coordenada(cidade->longitude.angular,
         cidade->longitude.direcao, width, height, false);
+
+    printf("%s %f, %f\n", cidade->cidade, x, y);
     
-    RenderColor(_renderer, cidade->temp, latitude, longitude, dados);
+    RenderColor(_renderer, cidade->temp, x, y, dados);
 }
 
 //TODO a cor não percisa de ser ponteiro duplo
