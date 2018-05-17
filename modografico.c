@@ -5,7 +5,11 @@
 #include <stdlib.h>
 #include <time.h>
 #include <stdbool.h>
+
 #include "modografico.h"
+#include "conjuntodados.h"
+#include "ficheiros.h"
+#include "util.h"
 #include "data.h"
 
 #define M_PI 3.14159265358979323846264338327950288
@@ -26,7 +30,173 @@
 #define TEMP_MIN -40
 #define MAX_RGB 255
 #define TEMP_REF 10
+#define VECT_CIDADES_INITIAL_SIZE 50
 
+void init_empty_cidade(dados_temp *cidade) {
+    cidade->cidade[0] = '\0';
+}
+
+void coloca_ou_atualiza_node_no_vetor_cidades(list_node_t *node, dados_temp **cidades, int **cidadesNumDados, int *vecCidadesSize) {
+    bool necessitaAumentarVetor = true;
+
+    //Vai a cada elemento do vetor das cidades
+    for(int i = 0; i<(*vecCidadesSize); i++) {
+        if((*cidades)[i].cidade[0] == '\0')
+        {
+            //Se encontrar um espaço vazio no vetor, é porque a cidade do nó da lista
+            // não está no vetor
+            //Faz uma cópia da cidade da payload da lista para a entrada do vetor
+            (*cidades)[i] = *node->payload;
+            
+            (*cidadesNumDados)[i]++;
+            necessitaAumentarVetor = false;
+            break;
+        }
+        else if(strcmp(node->payload->cidade, (*cidades)[i].cidade) == 0)
+        {
+            //Se encontrar no vector a cidades correspondente a este nó da lista
+            //Atualiza a temperatura dessa cidade no vetor
+            (*cidades)[i].temp += node->payload->temp;
+            (*cidadesNumDados)[i]++;
+            necessitaAumentarVetor = false;
+            break;
+        }
+    }
+
+    //Caso não tenha encontrado nenhum espaço vazio no vetor e seja necessário
+    // aumentar o seu tamanho
+    if(necessitaAumentarVetor) {
+        //Guarda o tamanho do vetor
+        int sizeAnterior = *vecCidadesSize;
+        //Aumenta o tamanho do vetor
+        *vecCidadesSize += VECT_CIDADES_INITIAL_SIZE;
+        *cidades = (dados_temp*) checkedRealloc(*cidades, (*vecCidadesSize) * sizeof(dados_temp));
+        *cidadesNumDados = (int*) checkedRealloc(*cidadesNumDados, (*vecCidadesSize) * sizeof(dados_temp));
+
+        //Inicializa todas as entradas para cidades novas criadas no vetor
+        for(int i = sizeAnterior; i<(*vecCidadesSize); i++) {    
+            init_empty_cidade(&(*cidades)[i]);
+            (*cidadesNumDados)[i] = 0;
+        }
+
+        //A primeira das novas entradas do vetor criadas é onde vai ser colocada a 
+        // cidade correspondente ao nó da lista
+        //Faz uma cópia da cidade da payload da lista para a entrada do vetor
+        (*cidades)[sizeAnterior] = *node->payload;
+        (*cidadesNumDados)[sizeAnterior]++;
+    }
+}
+
+void atualiza_cidades_ao_aumentar_ano_ou_ano_inicial(DADOS *dados, dados_temp **cidades, int *vecCidadesSize, int ano) {
+    //Vetor que contem o numero de valores para cada cidade, para depois fazer a média
+    //No cidades[i].temp vai ser guardada a soma de todas as temperaturas desse ano
+    // e depois a temperatura final vai ser calculada dividindo pelo numero de dados 
+    int *cidadesNumDados = NULL;
+
+    //Caso seja o primeiro ano ou se esteja a voltar para trás cria um vetor novo
+    //Ao andar para trás ele analisa todos os anos desde o inicial até ao ano
+    if(ano == dados->citiesAnoMin)
+    {
+        //Caso seja o primeiro ano inicializa o vetor
+
+        //Se passar do ultimo ano de volta para o primeiro tem de apagar o vetor
+        if(*cidades != NULL) {
+            free(*cidades);
+        }
+        
+        *vecCidadesSize = VECT_CIDADES_INITIAL_SIZE;
+        *cidades = (dados_temp*) checkedMalloc((*vecCidadesSize) * sizeof(dados_temp));
+        for(int i = 0; i<(*vecCidadesSize); i++) {
+            init_empty_cidade(&(*cidades)[i]);
+        }
+    }
+
+    //Fazer com que o vetor tenha o mesmo tamanho que o das cidades
+    cidadesNumDados = checkedMalloc((*vecCidadesSize) * sizeof(int));
+    
+
+    //Inicializa o numDados a zero para todas as cidades
+    for(int i = 0; i<(*vecCidadesSize); i++) {
+        cidadesNumDados[i] = 0;
+        (*cidades)[i].tempAnterior = (*cidades)[i].temp;
+    }
+
+    list_node_t *aux = dados->headCitiesOriginal->next;
+
+    //Avança o aux até ao ano que se quer
+    while(aux != NULL && aux->payload->dt.ano < ano) {
+        aux = aux->next;
+    }
+
+    //Começando com o aux a apontar para o primeiro elemento da lista com dt.ano == ano
+    while(aux != NULL && aux->payload->dt.ano == ano) {
+        coloca_ou_atualiza_node_no_vetor_cidades(aux, cidades, &cidadesNumDados, vecCidadesSize);
+
+        aux = aux->next;
+    }
+
+    //Calcula as médias
+    for(int i = 0; i<(*vecCidadesSize); i++) {
+        if((*cidades)[i].cidade[0] == '\0') {
+            //Se encontrar uma entrada do vetor cidades vazia sai do loop, porque
+            // o resto do vetor está vazio
+            break;
+        }
+        if(cidadesNumDados[i] > 0) {
+            (*cidades)[i].temp = (*cidades)[i].temp / cidadesNumDados[i];
+        } else {
+            //TODO se tiver a andar para trás tira-o da lista
+            // (nota: se houver varios anos consecutivos sem dados não basta ver numDados = 0
+            // Tenho de ter um bool array para verificar se leu dados sobre esse?
+            // mesmo assim acho que não dá. Se calhar cago só
+
+            //Se tiver 0 dados sobre essa cidade em relacao a este ano
+            // coloca a sua temperatura à temperatura anterior
+            (*cidades)[i].temp = (*cidades)[i].tempAnterior;
+        }
+    }
+
+    free(cidadesNumDados);
+}
+
+//TODO isto é muito lento a andar para trás
+void mudarAno(DADOS *dados, dados_temp **cidades, int *vecCidadesSize, int *ano, bool forward) {
+    //Aumenta ou diminui o ano
+    //Se passar dos limites "dá a volta"
+    if(forward) {
+        (*ano)++;
+        if(*ano > dados->citiesAnoMax) {
+            *ano = dados->citiesAnoMin;
+        }
+    } else {
+        (*ano)--;
+        if(*ano < dados->citiesAnoMin) {
+            *ano = dados->citiesAnoMax;
+        }
+    }
+
+    if(forward) {
+        atualiza_cidades_ao_aumentar_ano_ou_ano_inicial(dados, cidades, vecCidadesSize, *ano);
+    } else {
+        //Se for para andar para trás, vai voltar a criar o vetor desde o ano
+        // inicial até ao ano para que se mudou
+        for(int a = dados->citiesAnoMin; a<(*ano); a++) {
+            atualiza_cidades_ao_aumentar_ano_ou_ano_inicial(dados, cidades, vecCidadesSize, a);
+        }
+    }
+}
+
+void printCenas(dados_temp *cidades, int vecCidadesSize, int anoAtual) {
+    printf("\n\t--%d--\n\n", anoAtual);
+    for(int i = 0; i<vecCidadesSize; i++) {
+        if(cidades[i].cidade[0] == '\0') {
+            //Se encontrar uma entrada do vetor cidades vazia sai do loop, porque
+            // o resto do vetor está vazio
+            break;
+        }
+        printf("%s - %.2f\n", cidades[i].cidade, cidades[i].temp);
+    }
+}
 
 /**
  * main function: entry point of the program
@@ -46,7 +216,17 @@ bool modoGrafico( char *nomeFilePaises, char *nomeFileCidades, DADOS *dados  )
     int delay = 0;
     bool modo_texto = false;
 
+    //Ano que está a ser mostrado
+    int anoAtual = 0;
+
+    //Vector com as cidades que estão a ser mostradas
+    dados_temp *cidades = NULL;
+    int vecCidadesSize = 0;
+
     if(dados->headCitiesOriginal == NULL)  read_file_cities (dados,nomeFileCidades);
+
+    //Começa no menor ano
+    anoAtual = dados->citiesAnoMin-1;
 
     // initialize graphics
     InitEverything(width, height, &AppleGaramond, imgs, &window, &renderer);
@@ -70,6 +250,15 @@ bool modoGrafico( char *nomeFilePaises, char *nomeFileCidades, DADOS *dados  )
                         break;
                     case SDLK_q:
                         stay = false;
+                        break;
+                    case SDLK_a:
+                        //mudarAno(dados, &cidades, &vecCidadesSize, &anoAtual, false);
+                        //printCenas(cidades, vecCidadesSize, anoAtual);
+                        break;
+                    case SDLK_s:
+                        mudarAno(dados, &cidades, &vecCidadesSize, &anoAtual, true);
+                        printCenas(cidades, vecCidadesSize, anoAtual);
+                        break;
                     default:
                         break;
                 }
@@ -77,8 +266,19 @@ bool modoGrafico( char *nomeFilePaises, char *nomeFileCidades, DADOS *dados  )
         }
         // render game table
         RenderMap( imgs, renderer, width, height);
+
+        for(int i = 0; i<vecCidadesSize; i++) {
+            if(cidades[i].cidade[0] == '\0') {
+                //Se encontrar uma entrada do vetor cidades vazia sai do loop, porque
+                // o resto do vetor está vazio
+                break;
+            }
+            RenderCity(renderer, width, height, AppleGaramond, &cidades[i], dados);
+        }
+        //printf("\n\t--%d--%d\n\n", anoAtual, vecCidadesSize);
+
         // render a circle around the country
-        RenderCircle( renderer ,width, height, AppleGaramond, dados);
+        //RenderCircle( renderer ,width, height, AppleGaramond);
         // render in the screen all changes above
         SDL_RenderPresent(renderer);
         // add a delay
@@ -158,6 +358,18 @@ void RenderColor(SDL_Renderer * _renderer, int _temperatura, int _latitude, int 
         filledCircleRGBA(_renderer, _latitude, _longitude, 5, 255, green, 0);
     }
     //printf("temperatura == %d\ngreen:: %d\n", _temperatura, green);
+}
+
+void RenderCity(SDL_Renderer * _renderer, int width, int height, TTF_Font *_font, dados_temp* cidade, DADOS *dados) {
+    float latitude = 0.0f;
+    float longitude = 0.0f;
+
+    latitude = calculo_coordenada(cidade->latitude.angular,
+        cidade->latitude.direcao, width, height, true);
+    longitude = calculo_coordenada(cidade->longitude.angular,
+        cidade->longitude.direcao, width, height, false);
+    
+    RenderColor(_renderer, cidade->temp, latitude, longitude, dados);
 }
 
 //TODO a cor não percisa de ser ponteiro duplo

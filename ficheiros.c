@@ -25,7 +25,130 @@ long getFileSize(FILE *file)
     return size;
 }
 
+
 void read_file_countries(DADOS *dados, char *_nomeFilePaises)
+{
+    long totalFileSize = 0;
+    int i = 0, check = -1;
+    char buffer[BUFFER_SIZE];
+    FILE *fileInput = NULL;
+
+    //Vetor de que contem o uma lista para cada ano
+    int sizeAnoPointers = 2100; //TODO realloc
+    list_node_t **insertionSortStartForYear = (list_node_t **) checkedMalloc(sizeAnoPointers * sizeof(list_node_t*));
+
+    printf("A ler dados dos países...\n");
+
+    dados->headCountriesOriginal = create_list();
+    dados->countriesAnoMin = __INT32_MAX__;
+    dados->countriesAnoMax = 0;
+
+    //Inicializa o vetor para todos os anos terem a sua lista
+    for(int i = 0; i<sizeAnoPointers; i++) {
+        insertionSortStartForYear[i] = create_list();
+    }
+
+    fileInput = fopen(_nomeFilePaises, "r");
+    if (fileInput == NULL)
+    {
+        //Caso haja um erro imprime-o e sai do programa
+        perror("Erro a abrir o ficheiro");
+        exit(EXIT_FAILURE);
+    }
+
+    totalFileSize = getFileSize(fileInput);
+
+    printf("Progresso: 0%%");
+
+    while (fgets(buffer, BUFFER_SIZE, fileInput) != NULL)
+    {
+        removeLastCharIfMatch(buffer, '\n');
+        removeLastCharIfMatch(buffer, '\r');
+        dados_temp *a = malloc(sizeof(dados_temp));
+        check = sscanf(buffer, "%d-%d-%d,%f,%f,%[^\n]",
+                       &a->dt.ano,
+                       &a->dt.mes,
+                       &a->dt.dia,
+                       &a->temp,
+                       &a->incerteza,
+                       a->pais);
+
+        //TODO meter nome dos paises e cidades com malloc
+        //strcpy(a->pais, nome_temp);
+
+        if (check == 6)
+        {
+            list_node_t *new_node = create_node(a);
+            list_node_t *remover_TODO_tail = NULL;
+            sortedInsert(insertionSortStartForYear[a->dt.ano], &remover_TODO_tail, new_node);
+
+            //caso seja o ano min, determinar o menor mes
+            if (a->dt.ano == dados->countriesAnoMin)
+            {
+                dados->countriesMesMin = a->dt.mes;
+            }
+
+            //Determinar ano máx e mín
+            if (a->dt.ano < dados->countriesAnoMin)
+            {
+                dados->countriesAnoMin = a->dt.ano;
+                dados->countriesMesMin = a->dt.mes;
+            }
+            if (a->dt.ano > dados->countriesAnoMax)
+            {
+                dados->countriesAnoMax = a->dt.ano;
+            }
+
+            i++;
+        }
+
+        //A cada 100 linhas lidas atualiza o progresso de leitura
+        if (i % 100)
+        {
+            printf("\rProgresso: %ld%%", ftell(fileInput) * 100 / totalFileSize);
+        }
+    }
+
+
+    dados->headCountriesOriginal->next = insertionSortStartForYear[0]->next;
+    free(insertionSortStartForYear[0]); //Free da dummy node da lista para o ano 0
+    //TODO tail
+    for(int i = 1; i<sizeAnoPointers; i++) {
+        //Vai achar a tail da lista original
+        list_node_t *tailOrig = dados->headCountriesOriginal;
+        while(tailOrig->next != NULL)
+        {
+            tailOrig = tailOrig->next;
+        }
+
+        tailOrig->next = insertionSortStartForYear[i]->next;
+        free(insertionSortStartForYear[i]); //Free da dummy node da lista para este ano
+    }
+
+    printf("\rProgresso: 100%%\n");
+
+
+
+    //Teste ao sort
+    /*for(int i = 0 ; i< 50 ; i++)
+    {
+        dados_temp a;
+        a.dt.ano = rand()%20 +1;
+        a.dt.mes = rand()%6 +7;
+            list_node_t* node = create_node(&a);
+            sortedInsert(*_head, node);
+            printf("%d\t", i);
+    }*/
+    //TODO free a cada lista 
+    free(insertionSortStartForYear);
+    fclose(fileInput);
+    dados->headCountriesFiltrada = dados->headCountriesOriginal;
+    dados->countriesListSize = i;
+}
+
+//TODO fazer com que a funcao de ler paises e cidades sejam só uma com um parametro bool 
+// pq são quase iguais
+/*void read_file_countries(DADOS *dados, char *_nomeFilePaises)
 {
     long totalFileSize = 0;
     int i = 0, check = -1;
@@ -143,7 +266,7 @@ void read_file_countries(DADOS *dados, char *_nomeFilePaises)
     fclose(fileInput);
     dados->headCountriesFiltrada = dados->headCountriesOriginal;
     dados->countriesListSize = i;
-}
+}*/
 
 void read_file_cities(DADOS *dados, char *_nomeFileCidades)
 {

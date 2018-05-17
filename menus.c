@@ -198,9 +198,11 @@ void menu_analise_da_temperatura_por_ano(DADOS* dados)
         {
         case 1:
             analise_por_pais_ou_cidade(dados, false);
+            dentroDoMenu = false;
             break;
         case 2:
             analise_por_pais_ou_cidade(dados, true);
+            dentroDoMenu = false;
             break;
         case 0:
             dentroDoMenu = false;
@@ -614,10 +616,11 @@ DADOS_ANALISE_POR_ANO **calcula_topN(int n, DADOS_ANALISE_POR_ANO *dadosPorPais,
 
 void analise_por_pais_ou_cidade(DADOS* dados, bool porCidade)
 {
-    int n = 5;
+    int n = 0;
     int numEntries = 0;
     int ano = 0;
     char comentario[] = "Qual o ano a que pretende analisar?";
+    char comentario2[] = "Quantos valores quer (top N)?";
 
     DADOS_ANALISE_POR_ANO *dadosPorPais = NULL;
     if(porCidade) {
@@ -632,6 +635,8 @@ void analise_por_pais_ou_cidade(DADOS* dados, bool porCidade)
         ano = perguntar_referencia_a_analisar(dados->countriesAnoMin, dados->countriesAnoMax, comentario);
     }
 
+    n = perguntar_referencia_a_analisar(1, 20, comentario2);
+    
 
     numEntries = calculo_dados_por_pais_ou_cidade_num_ano(dados, ano, porCidade, &dadosPorPais);
 
@@ -650,7 +655,7 @@ void analise_por_pais_ou_cidade(DADOS* dados, bool porCidade)
         if(topNMaisQuentes[i] == NULL) {
             break;
         }
-        printf("%s: Temp média %.2f\n", topNMaisQuentes[i]->paisOuCidade,
+        printf("%d %s: Temp média %.2f\n", i+1, topNMaisQuentes[i]->paisOuCidade,
             topNMaisQuentes[i]->tempMed);
     }
 
@@ -659,7 +664,7 @@ void analise_por_pais_ou_cidade(DADOS* dados, bool porCidade)
         if(topNMaisFrios[i] == NULL) {
             break;
         }
-        printf("%s: Temp média %.2f\n", topNMaisFrios[i]->paisOuCidade,
+        printf("%d %s: Temp média %.2f\n", i+1, topNMaisFrios[i]->paisOuCidade,
             topNMaisFrios[i]->tempMed);
     }
 
@@ -668,7 +673,7 @@ void analise_por_pais_ou_cidade(DADOS* dados, bool porCidade)
         if(topNExtremos[i] == NULL) {
             break;
         }
-        printf("%s: Temp média %.2f\tAmplitude %.2f\n", topNExtremos[i]->paisOuCidade,
+        printf("%d %s: Temp média %.2f\tAmplitude %.2f\n", i+1, topNExtremos[i]->paisOuCidade,
             topNExtremos[i]->tempMed,
             topNExtremos[i]->tempAmplitude);
     }
@@ -697,6 +702,7 @@ void fgetstring(list_node_t * aux, bool string_pais, char string [BUFFER_SIZE])
         aux = aux->next;
     }
 }
+
 //TODO acabar!!
 /*int calculo_aumento_temp(int ano_a_analisar, int M, DADOS *dados, bool porPais, bool porCidade)
 {

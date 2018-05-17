@@ -12,10 +12,9 @@ void dados_init(DADOS *dados)
     printf("---DADOS INIT---\n");
 }
 
-void dados_free(DADOS* dados)
-{
-    if(dados->headCountriesOriginal != NULL)
-    {
+void dados_free(DADOS* dados) {
+    if(dados->headCountriesOriginal != NULL) {
+        //Caso o ficheiro dos paises tenha sido lido (no modo gráfico não é)
         dados_apaga_listaFiltrada(dados);
         dados->headCountriesFiltrada = NULL;
 
@@ -41,6 +40,7 @@ void dados_free(DADOS* dados)
 }
 
 void dados_apaga_listaFiltrada(DADOS* dados) {
+    //TODO filtrar lista das cidades
     if (dados->headCountriesFiltrada != dados->headCountriesOriginal)
     {
         //Caso exista lista filtrada (a lista filtrada não aponta para a original)

@@ -25,6 +25,8 @@ typedef struct {
 	char cidade[100];
 	geo_coord latitude;
 	geo_coord longitude;
+
+	float tempAnterior; //Serve para o modo gráfico
 } dados_temp;
 
 typedef struct {

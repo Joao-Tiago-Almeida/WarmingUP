@@ -17,6 +17,20 @@ void *checkedMalloc(size_t size) {
 }
 
 
+//Aloca memoria, e faz a verificação se o return do realloc não foi NULL
+void *checkedRealloc(void *ptr, size_t size) {
+    void *mem = realloc(ptr, size);
+
+    if(mem == NULL)
+    {
+        printf("Out of memory!\n");
+        exit(EXIT_FAILURE);
+    }
+
+    return mem;
+}
+
+
 void removeLastCharIfMatch(char* str, char c) {
     if(str[strlen(str)-1] == c)
     {
