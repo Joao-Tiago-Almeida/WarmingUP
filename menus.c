@@ -654,11 +654,8 @@ void analise_por_pais_ou_cidade(DADOS* dados, bool porCidade)
         ano = perguntar_referencia_a_analisar(dados->countriesAnoMin, dados->countriesAnoMax, comentario);
     }
 
-<<<<<<< HEAD
     n = perguntar_referencia_a_analisar(1, 20, comentario2);
     
-=======
->>>>>>> master
 
     numEntries = calculo_dados_por_pais_ou_cidade_num_ano(dados, ano, porCidade, &dadosPorPais);
 
