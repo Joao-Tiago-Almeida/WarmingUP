@@ -42,5 +42,6 @@ int dados_get_mesmin_para_ano(DADOS* dados);
 
 bool cumpre_criterios(dados_temp* valor, CRITERIOS_FILTRAGEM *criterios);
 void limpar_criterios(CRITERIOS_FILTRAGEM *criterios);
+void criacao_lista_filtrada(DADOS * dados, bool lista_paises, CRITERIOS_FILTRAGEM *novos_criterios);
 
 #endif

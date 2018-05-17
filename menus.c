@@ -273,25 +273,7 @@ void opcao_escolhe_intervalos_para_analise(CRITERIOS_FILTRAGEM *criterios, DADOS
     int mes = 0, ano = 0;
     bool primeiraTentativa = true;
     char comentario[] = "Qual o ano a partir do qual pretende analisar?";
-    //bool intervalo_valido = true;
 
-    /*do
-    {
-        if(!primeiraTentativa) {
-            printf("Tem de estar dentro dos limites!\n");
-        }
-
-        printf("Qual o ano a partir do qual pretende analisar [%d-%d]:\t", MIN_ANO, MAX_ANO);
-
-        fgets(buf, BUFFER_SIZE, stdin);
-        if (sscanf(buf, "%d", &ano) != 1)
-        {
-            ano = -1;
-        }
-        primeiraTentativa = false;
-    } while (ano < MIN_ANO || MAX_ANO < ano);
-
-    printf("\n");*/
     ano = perguntar_referencia_a_analisar(dados->countriesAnoMin,
         dados->countriesAnoMax, comentario);
 
@@ -302,11 +284,10 @@ void opcao_escolhe_intervalos_para_analise(CRITERIOS_FILTRAGEM *criterios, DADOS
             printf("Tem de estar dentro dos limites!\n");
         }
 
-        //Caso o
+        //Caso o utilizador escolha o primerio ano, e este não tenha todos os dados
+        // assumindo que para tds os outros anos têm valores seguidos
         if(ano == dados->countriesAnoMin) {
-            //TODO fazer com que um ano sem ser o minimo também apareca isto
             printf("Para o ano de %d só há valores apartir do mês %d !\n", ano, dados->countriesMesMin);
-            //intervalo_valido = true;
         }
         printf("Qual o mes a partir do qual pretende analisar [%d-12]:\t",
             ano == dados->countriesAnoMin ? dados->countriesMesMin : 1);

@@ -25,16 +25,37 @@ void dados_free(DADOS* dados)
         free(dados->headCountriesOriginal);
         dados->headCountriesOriginal = NULL;
     }
+
+    if(dados->headCitiesOriginal != NULL)
+    {
+        dados_apaga_listaFiltrada(dados);
+        //em prol de se fazer free anteriormente , aponta pata NULL
+        dados->headCitiesFiltrada = NULL;
+
+        //Apaga a lista e os dados também
+        // (true no remove_nodes faz free dos payload)
+        remove_nodes(dados->headCitiesOriginal, true);
+        free(dados->headCitiesOriginal);
+        dados->headCitiesOriginal = NULL;
+    }
 }
 
 void dados_apaga_listaFiltrada(DADOS* dados) {
     if (dados->headCountriesFiltrada != dados->headCountriesOriginal)
     {
-        //Caso a lista filtrada exita (a lista filtrada não aponta para a original)
+        //Caso exista lista filtrada (a lista filtrada não aponta para a original)
         printf("[DEBUG] Apagar lista filtrada\n");
         remove_nodes(dados->headCountriesFiltrada, false);
         free(dados->headCountriesFiltrada);
         dados->headCountriesFiltrada = dados->headCountriesOriginal;
+    }
+    else if (dados->headCitiesFiltrada != dados->headCitiesOriginal)
+    {
+        //Caso exista lista filtrada (a lista filtrada não aponta para a original)
+        printf("[DEBUG] Apagar lista filtrada\n");
+        remove_nodes(dados->headCitiesFiltrada, false);
+        free(dados->headCitiesFiltrada);
+        dados->headCitiesFiltrada = dados->headCitiesOriginal;
     }
     else
     {
@@ -47,8 +68,6 @@ void dados_apaga_listaFiltrada(DADOS* dados) {
 // (para nao ter de fazer uma copia da estrutura).
 void dados_aplicar_novos_criterios(DADOS *dados, CRITERIOS_FILTRAGEM *novos_criterios)
 {
-    int debug_inseridos = 0;
-
 
     //Apaga a lista filtrada
     //E coloca a listaFiltrada a apontar para a listaOriginal
@@ -58,27 +77,36 @@ void dados_aplicar_novos_criterios(DADOS *dados, CRITERIOS_FILTRAGEM *novos_crit
     if (novos_criterios->filtraPorIntervalo || novos_criterios->filtraPorMeses)
     {
         //Caso a lista filtrada nao exista e é para aplicar criterios
-        list_node_t *aux = NULL;
 
         printf("[DEBUG] Aplicar criterios\n");
 
-        //Cria novas entradas na lista filtrada
-        dados->headCountriesFiltrada = create_list();
-        aux = dados->headCountriesOriginal->next;
-
-        while (aux != NULL)
-        {
-            //Caso cumpra os criterios copia para a lista filtrada
-            if (cumpre_criterios(aux->payload, novos_criterios)) {
-                printf("%d\t", debug_inseridos);
-                insert_node(dados->headCountriesFiltrada, aux->payload);
-                debug_inseridos++;
-            }
-            aux = aux->next;
-        }
+        //criação da nova lista de paises
+        criacao_lista_filtrada(dados, true, novos_criterios);
+        //criação da nova lista de cidades
+        criacao_lista_filtrada(dados, false, novos_criterios);
     }
 
     dados->criterios = *novos_criterios;
+}
+
+void criacao_lista_filtrada(DADOS * dados, bool lista_paises, CRITERIOS_FILTRAGEM *novos_criterios)
+{
+    list_node_t *aux = NULL;
+
+    //Cria novas entradas na lista filtrada
+    if(lista_paises)    dados->headCountriesFiltrada = create_list();
+    else    dados->headCitiesFiltrada = create_list();
+
+    aux = lista_paises ? dados->headCountriesOriginal->next : dados->headCitiesOriginal->next;
+    while (aux != NULL)
+    {
+        //Caso cumpra os criterios copia para a lista filtrada
+        if (cumpre_criterios(aux->payload, novos_criterios))
+        {
+            insert_node(lista_paises ? dados->headCountriesFiltrada : dados->headCitiesFiltrada, aux->payload);
+        }
+        aux = aux->next;
+    }
 }
 
 //TODO confirmar isto tudo
