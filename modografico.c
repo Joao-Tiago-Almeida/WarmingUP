@@ -16,8 +16,6 @@
 #define STRING_SIZE 100       // max size for some strings
 #define HEIGHT_WINDOW_SIZE 850
 #define WIDTH_WINDOW_SIZE 1390
-#define LATITUDE_0 425      //latitude de coordenada 0,  latitude de referencia
-#define LONGITUDE_0 695     //longitude de coordenada 0, longitude de referncia
 #define WINDOW_POSX 0       // initial position of the window: x
 #define WINDOW_POSY 0       // initial position of the window: y         n sei oq e
 #define NORTE 0
@@ -213,7 +211,7 @@ bool modoGrafico( char *nomeFilePaises, char *nomeFileCidades, DADOS *dados  )
     bool stay = true;
     int width = WIDTH_WINDOW_SIZE;
     int height = HEIGHT_WINDOW_SIZE;
-    int delay = 0;
+    int delay = 16;
     bool modo_texto = false;
 
     //Ano que está a ser mostrado
@@ -301,14 +299,14 @@ bool modoGrafico( char *nomeFilePaises, char *nomeFileCidades, DADOS *dados  )
 //cai guardar temporariamente o deslocamnetonum eixo  da coordenada (0,0) à cidade
 //e dps vai ter a coordenada exata do pais
 //bool:: calculo da latitude ? => true , longitude => false
-int calculo_coordenada(float coord_local, int _direcao, int _widht, int _height, bool latitude)
+int calculo_coordenada(float coord_local, int _direcao, int _width, int _height, bool latitude)
 {
     //TODO escrever melhor
     //a divisão por dois justifica se pois o fator de deslocamento por pixel
     //recaí sobre uma distância total e apartir do centro da imagem
     //o deslocamento máximo para cada lado pode no máximo ser metade da distÂncia total
     float latitude_por_pixel = (float)_height/(2.0f*LATITUDE_MAX);
-    float longitude_por_pixel = (float)_widht/(2.0f*LONGITUDE_MAX);
+    float longitude_por_pixel = (float)_width/(2.0f*LONGITUDE_MAX);
 
     //permite defenir quando se adiciona ou se subtrai
 
@@ -316,11 +314,11 @@ int calculo_coordenada(float coord_local, int _direcao, int _widht, int _height,
 
     if(latitude)
     {
-        coord_local = LATITUDE_0 + indice * (latitude_por_pixel * coord_local);
+        coord_local = (_height/2) + indice * (latitude_por_pixel * coord_local);
     }
     else
     {
-        coord_local = LONGITUDE_0 + indice * (longitude_por_pixel * coord_local);
+        coord_local = (_width/2) + indice * (longitude_por_pixel * coord_local);
     }
 
     return coord_local;
