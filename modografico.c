@@ -252,8 +252,8 @@ bool modoGrafico( char *nomeFilePaises, char *nomeFileCidades, DADOS *dados  )
                         stay = false;
                         break;
                     case SDLK_a:
-                        mudarAno(dados, &cidades, &vecCidadesSize, &anoAtual, false);
-                        printCenas(cidades, vecCidadesSize, anoAtual);
+                        //mudarAno(dados, &cidades, &vecCidadesSize, &anoAtual, false);
+                        //printCenas(cidades, vecCidadesSize, anoAtual);
                         break;
                     case SDLK_s:
                         mudarAno(dados, &cidades, &vecCidadesSize, &anoAtual, true);
@@ -266,8 +266,19 @@ bool modoGrafico( char *nomeFilePaises, char *nomeFileCidades, DADOS *dados  )
         }
         // render game table
         RenderMap( imgs, renderer, width, height);
+
+        for(int i = 0; i<vecCidadesSize; i++) {
+            if(cidades[i].cidade[0] == '\0') {
+                //Se encontrar uma entrada do vetor cidades vazia sai do loop, porque
+                // o resto do vetor está vazio
+                break;
+            }
+            RenderCity(renderer, width, height, AppleGaramond, &cidades[i]);
+        }
+        printf("\n\t--%d--%d\n\n", anoAtual, vecCidadesSize);
+
         // render a circle around the country
-        RenderCircle( renderer ,width, height, AppleGaramond);
+        //RenderCircle( renderer ,width, height, AppleGaramond);
         // render in the screen all changes above
         SDL_RenderPresent(renderer);
         // add a delay
@@ -347,6 +358,18 @@ void RenderColor(SDL_Renderer * _renderer, int _temperatura, int _latitude, int 
         filledCircleRGBA(_renderer, _latitude, _longitude, 5, 255, green, 0);
     }
     //printf("temperatura == %d\ngreen:: %d\n", _temperatura, green);
+}
+
+void RenderCity(SDL_Renderer * _renderer, int width, int height, TTF_Font *_font, dados_temp* cidade) {
+    float latitude = 0.0f;
+    float longitude = 0.0f;
+
+    latitude = calculo_coordenada(cidade->latitude.angular,
+        cidade->latitude.direcao, width, height, true);
+    longitude = calculo_coordenada(cidade->longitude.angular,
+        cidade->longitude.direcao, width, height, false);
+    
+    RenderColor(_renderer, cidade->temp, latitude, longitude);
 }
 
 //TODO a cor não percisa de ser ponteiro duplo
