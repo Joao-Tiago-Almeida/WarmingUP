@@ -3,14 +3,36 @@
 #include <string.h>
 #include <stdbool.h>
 
-#include "estruturas.h"
-#include "lista.h"
-#include "menus.h"
-#include "ficheiros.h"
-#include "conjuntodados.h"
-#include "modografico.h"
+#include "data.h"
 
 #define comando_mal 0
+
+int main(int argc, char *argv[])
+{
+    bool modo_grafico = false;
+    char *nomeFilePaises = NULL, *nomeFileCidades = NULL;
+    ler_argumentos(argc, argv, &modo_grafico, &nomeFilePaises, &nomeFileCidades);
+
+    DADOS dados;
+    dados_init(&dados);
+    bool mudaDeModo = true;
+    do
+    {
+        if(modo_grafico) {
+            //Inicializar modo grafico
+            printf("Modo grafico!\n");
+            mudaDeModo = modoGrafico(nomeFilePaises, nomeFileCidades, &dados);
+        } else {
+            mudaDeModo = modoTextual(nomeFilePaises, nomeFileCidades, &dados);
+        }
+        modo_grafico = !modo_grafico; // Se tiver no modo grafico muda para o modo textual e vice versa
+    } while (mudaDeModo); //A variavel mudaDeModo é true se for para continuar no programa, e muda de modo
+
+
+    dados_free(&dados);
+    printf("END OF THE PROGRAM!!\n");
+    return EXIT_SUCCESS;
+}
 
 void display_usage(char *arg)
 {
@@ -88,37 +110,14 @@ void ler_argumentos(int argc, char *argv[], bool *modoGrafico, char **nomeFilePa
     }
 }
 
-void modoTextual(char *nomeFilePaises, char *nomeFileCidades) {
-    DADOS dados;
-    dados_init(&dados);
+// Devolve false se for para sair do programa ou true se for para mudar para o modo textual
+bool modoTextual(char *nomeFilePaises, char *nomeFileCidades, DADOS *dados ) {
 
-    read_file_countries (&dados, nomeFilePaises);
-    read_file_cities (&dados, nomeFileCidades);
+    if(dados->headCitiesOriginal == NULL)  read_file_cities (dados,nomeFileCidades);
+    if(dados->headCountriesOriginal == NULL)  read_file_countries (dados, nomeFilePaises);
+
     //print_list(dados.headCountriesOriginal);
-    print_list(dados.headCitiesOriginal);
+    //print_list(dados->headCitiesOriginal);
 
-    menu_principal(&dados);
-
-    dados_free(&dados);
-
-    printf("END\n");
-}
-
-int main(int argc, char *argv[])
-{
-    bool modo_grafico = false;
-    char *nomeFilePaises = NULL, *nomeFileCidades = NULL;
-    ler_argumentos(argc, argv, &modo_grafico, &nomeFilePaises, &nomeFileCidades);
-
-
-    if(modo_grafico) {
-        //Inicializar modo grafico
-        printf("Modo grafico!\n");
-        modoGrafico(nomeFileCidades);
-    } else {
-        modoTextual(nomeFilePaises, nomeFileCidades);
-    }
-
-    printf("END OF THE PROGRAM!!\n");
-    return EXIT_SUCCESS;
+    return menu_principal(dados);
 }

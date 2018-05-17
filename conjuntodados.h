@@ -34,7 +34,7 @@ typedef struct {
     CRITERIOS_FILTRAGEM criterios;
 } DADOS;
 
-void dados_init(DADOS* dados);
+void dados_init(DADOS *dados);
 void dados_free(DADOS* dados);
 void dados_apaga_listaFiltrada(DADOS* dados);
 void dados_aplicar_novos_criterios(DADOS* dados, CRITERIOS_FILTRAGEM *novos_criterios);

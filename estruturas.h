@@ -3,8 +3,8 @@
 
 #define NORTE 0
 #define SUL 1
-#define ESTE 2
-#define OESTE 3
+#define ESTE 3
+#define OESTE 2
 
 typedef struct {
 	int dia;

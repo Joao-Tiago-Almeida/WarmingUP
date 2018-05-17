@@ -25,8 +25,11 @@ long getFileSize(FILE *file)
     return size;
 }
 
+<<<<<<< HEAD
 //TODO fazer com que a funcao de ler paises e cidades sejam só uma com um parametro bool 
 // pq são quase iguais
+=======
+>>>>>>> master
 void read_file_countries(DADOS *dados, char *_nomeFilePaises)
 {
     long totalFileSize = 0;

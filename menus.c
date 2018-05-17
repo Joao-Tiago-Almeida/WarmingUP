@@ -6,6 +6,7 @@
 #include "menus.h"
 #include "estruturas.h"
 #include "util.h"
+#include "modografico.h"
 
 #define BUFFER_SIZE 100
 #define NUM_INTERVALOS_POR_PAGINA 20
@@ -84,7 +85,7 @@ int calculo_num_intervalos(int _periodo, DADOS *dados, bool porCidade)
     } else {
         intervalos = (dados->countriesAnoMax - dados->countriesAnoMin)/_periodo;
     }
-    
+
     if((porCidade && (dados->citiesAnoMax - dados->citiesAnoMin) % _periodo > 0) ||
         (!porCidade && (dados->countriesAnoMax - dados->countriesAnoMin) % _periodo > 0)) {
         //Caso os intervalor não dividam exatamente os anos, vai haver mais um intervalo com menos anos que o periodo
@@ -93,8 +94,8 @@ int calculo_num_intervalos(int _periodo, DADOS *dados, bool porCidade)
     return intervalos;
 }
 
-
-void menu_principal(DADOS* dados)
+// Devolve false se for para sair do programa ou true se for para mudar para o modo textual
+bool menu_principal(DADOS* dados)
 {
     bool dentroDoMenu = true;
     int alinea = -1;
@@ -103,7 +104,8 @@ void menu_principal(DADOS* dados)
     {
         printf("\n\n\tMenu Principal\n\nEscolha uma das opções seguintes:\n");
         printf("1. Filtragem de dados;\n2. Histórico de Temperaturas;\n");
-        printf("3. Análise da temperatura por ano;\n4. Análise da temperatura global.\n");
+        printf("3. Análise da temperatura por ano;\n4. Análise da temperatura global;\n");
+        printf("5. Modo gráfico.\n");
         printf("\n0 ou Enter. Sair do programa.\n");
 
         alinea = perguntar_menu_choice();
@@ -122,6 +124,9 @@ void menu_principal(DADOS* dados)
         case 4:
             menu_analise_da_temperatura_global(dados);
             break;
+        case 5:
+            return true; // devolve true se for para mudar para o modo textual
+            break;
         case 0:
             printf("Quit\n");
             exit(EXIT_SUCCESS);
@@ -131,14 +136,13 @@ void menu_principal(DADOS* dados)
             break;
         }
     }
+    return false; // devolve false se for para sair do programa
 }
 
 void menu_historico_de_temperaturas(DADOS* dados)
 {
     bool dentroDoMenu = false;
     int alinea = -1;
-    int periodo = -1;
-    int intervalo = 0;
 
     printf("\n\tMenu Histórico de Temperaturas\n\n");
     do
@@ -485,7 +489,7 @@ void historico_de_temperaturas(DADOS *dados, bool porPais, bool porCidade) {
             int intervalo = 0;
             intervalo = porCidade ? (aux->payload->dt.ano - dados->citiesAnoMin) / periodo :
                 (aux->payload->dt.ano - anoMin) / periodo;
-                
+
 
             tempMax[intervalo] = MAX(tempMax[intervalo], aux->payload->temp);
             tempMin[intervalo] = MIN(tempMin[intervalo], aux->payload->temp);
@@ -574,7 +578,7 @@ int calculo_dados_por_pais_ou_cidade_num_ano(DADOS* dados, int ano, bool porCida
             for(int i = sizeAnterior; i<vecSize; i++) {
                 dados_analise_por_pais_init(&(*dadosPorPais)[i]);
             }
-            
+
             strcpy((*dadosPorPais)[sizeAnterior].paisOuCidade,
                 porCidade ? aux->payload->cidade : aux->payload->pais);
             dadosDoPaisOuCidade = &(*dadosPorPais)[sizeAnterior];
@@ -599,7 +603,7 @@ int calculo_dados_por_pais_ou_cidade_num_ano(DADOS* dados, int ano, bool porCida
     return numEntries;
 }
 
-// 
+//
 DADOS_ANALISE_POR_ANO **calcula_topN(int n, DADOS_ANALISE_POR_ANO *dadosPorPais, int numEntries, int mode) {
     DADOS_ANALISE_POR_ANO **topN = (DADOS_ANALISE_POR_ANO **) checkedMalloc(n*sizeof(DADOS_ANALISE_POR_ANO*));
 
@@ -614,7 +618,7 @@ DADOS_ANALISE_POR_ANO **calcula_topN(int n, DADOS_ANALISE_POR_ANO *dadosPorPais,
                 (mode == MODO_ANALISE_MAIS_FRIO && dadosPorPais[i].tempMed < topN[j]->tempMed) ||
                 (mode == MODO_ANALISE_EXTREMOS && dadosPorPais[i].tempAmplitude > topN[j]->tempAmplitude)) {
                 //Caso encontre um sítio para meter esta entrada no vetor topN
-                
+
                 //Passar todas as entradas seguintes para baixo
                 for(int k = n-2; k>j; k--) {
                     topN[k] = topN[k-1];
@@ -625,7 +629,7 @@ DADOS_ANALISE_POR_ANO **calcula_topN(int n, DADOS_ANALISE_POR_ANO *dadosPorPais,
             }
         }
     }
-    
+
     return topN;
 }
 
@@ -643,15 +647,18 @@ void analise_por_pais_ou_cidade(DADOS* dados, bool porCidade)
     } else {
         printf("\n\n\t---Análise por País---\n\n");
     }
-    
+
     if(porCidade) {
         ano = perguntar_referencia_a_analisar(dados->citiesAnoMin, dados->citiesAnoMax, comentario);
     } else {
         ano = perguntar_referencia_a_analisar(dados->countriesAnoMin, dados->countriesAnoMax, comentario);
     }
 
+<<<<<<< HEAD
     n = perguntar_referencia_a_analisar(1, 20, comentario2);
     
+=======
+>>>>>>> master
 
     numEntries = calculo_dados_por_pais_ou_cidade_num_ano(dados, ano, porCidade, &dadosPorPais);
 
@@ -719,7 +726,7 @@ void fgetstring(list_node_t * aux, bool string_pais, char string [BUFFER_SIZE])
 }
 
 //TODO acabar!!
-int calculo_aumento_temp(int ano_a_analisar, int M, DADOS *dados, bool porPais, bool porCidade)
+/*int calculo_aumento_temp(int ano_a_analisar, int M, DADOS *dados, bool porPais, bool porCidade)
 {
     char paisOuCidade[100];
     list_node_t *aux = NULL;
@@ -774,7 +781,7 @@ int calculo_aumento_temp(int ano_a_analisar, int M, DADOS *dados, bool porPais, 
             aux = aux->next;
         }
     }
-}
+}*/
 
 void menu_analise_da_temperatura_global(DADOS *dados)
 {

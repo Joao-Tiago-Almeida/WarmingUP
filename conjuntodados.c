@@ -7,6 +7,9 @@ void dados_init(DADOS *dados)
     limpar_criterios(&dados->criterios);
     dados->headCountriesOriginal = NULL;
     dados->headCountriesFiltrada = NULL;
+    dados->headCitiesOriginal = NULL;
+    dados->headCitiesFiltrada = NULL;
+    printf("---DADOS INIT---\n");
 }
 
 void dados_free(DADOS* dados) {
@@ -20,14 +23,6 @@ void dados_free(DADOS* dados) {
         remove_nodes(dados->headCountriesOriginal, true);
         free(dados->headCountriesOriginal);
         dados->headCountriesOriginal = NULL;
-    }
-
-    if(dados->headCitiesOriginal != NULL) {
-        //TODO apagar lista filtrada cities
-
-        remove_nodes(dados->headCitiesOriginal, true);
-        free(dados->headCitiesOriginal);
-        dados->headCitiesOriginal = NULL;
     }
 }
 
