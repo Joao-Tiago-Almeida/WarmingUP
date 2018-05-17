@@ -74,32 +74,15 @@ void coloca_ou_atualiza_node_no_vetor_cidades(list_node_t *node, dados_temp **ci
     }
 }
 
-//TODO isto assume que as o ficheiro das cidades só tem uma valor para cada cidade por ano
-// é preciso fazer a média se houver mais que um valor num ano????
-//a flag forward serve para controlar se o ano aumente ao diminui
-void atualiza_cidades_para_ano(DADOS *dados, dados_temp **cidades, int *vecCidadesSize, int *ano, bool forward) {
-    //TODO ir para trás
-
+void atualiza_cidades_ao_aumentar_ano_ou_ano_inicial(DADOS *dados, dados_temp **cidades, int *vecCidadesSize, int ano) {
     //Vetor que contem o numero de valores para cada cidade, para depois fazer a média
     //No cidades[i].temp vai ser guardada a soma de todas as temperaturas desse ano
     // e depois a temperatura final vai ser calculada dividindo pelo numero de dados 
     int *cidadesNumDados = NULL;
 
-    //Aumenta ou diminui o ano
-    //Se passar dos limites "dá a volta"
-    if(forward) {
-        (*ano)++;
-        if(*ano > dados->citiesAnoMax) {
-            *ano = dados->citiesAnoMin;
-        }
-    } else {
-        (*ano)--;
-        if(*ano < dados->citiesAnoMin) {
-            *ano = dados->citiesAnoMax;
-        }
-    }
-
-    if(*ano == dados->citiesAnoMin)
+    //Caso seja o primeiro ano ou se esteja a voltar para trás cria um vetor novo
+    //Ao andar para trás ele analisa todos os anos desde o inicial até ao ano
+    if(ano == dados->citiesAnoMin)
     {
         //Caso seja o primeiro ano inicializa o vetor
 
@@ -128,12 +111,12 @@ void atualiza_cidades_para_ano(DADOS *dados, dados_temp **cidades, int *vecCidad
     list_node_t *aux = dados->headCitiesOriginal->next;
 
     //Avança o aux até ao ano que se quer
-    while(aux != NULL && aux->payload->dt.ano < *ano) {
+    while(aux != NULL && aux->payload->dt.ano < ano) {
         aux = aux->next;
     }
 
     //Começando com o aux a apontar para o primeiro elemento da lista com dt.ano == ano
-    while(aux != NULL && aux->payload->dt.ano == *ano) {
+    while(aux != NULL && aux->payload->dt.ano == ano) {
         coloca_ou_atualiza_node_no_vetor_cidades(aux, cidades, &cidadesNumDados, vecCidadesSize);
 
         aux = aux->next;
@@ -161,6 +144,45 @@ void atualiza_cidades_para_ano(DADOS *dados, dados_temp **cidades, int *vecCidad
     }
 
     free(cidadesNumDados);
+}
+
+//TODO isto é muito lento a andar para trás
+void mudarAno(DADOS *dados, dados_temp **cidades, int *vecCidadesSize, int *ano, bool forward) {
+    //Aumenta ou diminui o ano
+    //Se passar dos limites "dá a volta"
+    if(forward) {
+        (*ano)++;
+        if(*ano > dados->citiesAnoMax) {
+            *ano = dados->citiesAnoMin;
+        }
+    } else {
+        (*ano)--;
+        if(*ano < dados->citiesAnoMin) {
+            *ano = dados->citiesAnoMax;
+        }
+    }
+
+    if(forward) {
+        atualiza_cidades_ao_aumentar_ano_ou_ano_inicial(dados, cidades, vecCidadesSize, *ano);
+    } else {
+        //Se for para andar para trás, vai voltar a criar o vetor desde o ano
+        // inicial até ao ano para que se mudou
+        for(int a = dados->citiesAnoMin; a<(*ano); a++) {
+            atualiza_cidades_ao_aumentar_ano_ou_ano_inicial(dados, cidades, vecCidadesSize, a);
+        }
+    }
+}
+
+void printCenas(dados_temp *cidades, int vecCidadesSize, int anoAtual) {
+    printf("\n\t--%d--\n\n", anoAtual);
+    for(int i = 0; i<vecCidadesSize; i++) {
+        if(cidades[i].cidade[0] == '\0') {
+            //Se encontrar uma entrada do vetor cidades vazia sai do loop, porque
+            // o resto do vetor está vazio
+            break;
+        }
+        printf("%s - %.2f\n", cidades[i].cidade, cidades[i].temp);
+    }
 }
 
 /**
@@ -213,28 +235,12 @@ void modoGrafico(char *nomeFileCidades)
                         stay = false;
                         break;
                     case SDLK_a:
-                        atualiza_cidades_para_ano(&dados, &cidades, &vecCidadesSize, &anoAtual, false);
-                        printf("\n\t--%d--\n\n", anoAtual);
-                        for(int i = 0; i<vecCidadesSize; i++) {
-                            if(cidades[i].cidade[0] == '\0') {
-                                //Se encontrar uma entrada do vetor cidades vazia sai do loop, porque
-                                // o resto do vetor está vazio
-                                break;
-                            }
-                            printf("%s - %.2f\n", cidades[i].cidade, cidades[i].temp);
-                        }
+                        mudarAno(&dados, &cidades, &vecCidadesSize, &anoAtual, false);
+                        printCenas(cidades, vecCidadesSize, anoAtual);
                         break;
                     case SDLK_s:
-                        atualiza_cidades_para_ano(&dados, &cidades, &vecCidadesSize, &anoAtual, true);
-                        printf("\n\t--%d--\n\n", anoAtual);
-                        for(int i = 0; i<vecCidadesSize; i++) {
-                            if(cidades[i].cidade[0] == '\0') {
-                                //Se encontrar uma entrada do vetor cidades vazia sai do loop, porque
-                                // o resto do vetor está vazio
-                                break;
-                            }
-                            printf("%s - %.2f\n", cidades[i].cidade, cidades[i].temp);
-                        }
+                        mudarAno(&dados, &cidades, &vecCidadesSize, &anoAtual, true);
+                        printCenas(cidades, vecCidadesSize, anoAtual);
                         break;
                     default:
                         break;
