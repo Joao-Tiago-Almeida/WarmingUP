@@ -78,7 +78,7 @@ bool modoGrafico( char *nomeFilePaises, char *nomeFileCidades, DADOS *dados  )
         // render game table
         RenderMap( imgs, renderer, width, height);
         // render a circle around the country
-        RenderCircle( renderer ,width, height, AppleGaramond);
+        RenderCircle( renderer ,width, height, AppleGaramond, dados);
         // render in the screen all changes above
         SDL_RenderPresent(renderer);
         // add a delay
@@ -129,7 +129,7 @@ int calculo_coordenada(float coord_local, int _direcao, int _widht, int _height,
 //calcula a cor em função da temperatura
 //TODO falta adicionar a temperatura maxima e minima do ficheiro
 //TODO pode ser melhorado apenas com uma função
-void RenderColor(SDL_Renderer * _renderer, int _temperatura, int _latitude, int _longitude)
+void RenderColor(SDL_Renderer * _renderer, int _temperatura, int _latitude, int _longitude, DADOS *dados)
 {
     //m representa o declive que permite calcular componente verde
     int m = 0, b = 0, green = 0;
@@ -138,7 +138,7 @@ void RenderColor(SDL_Renderer * _renderer, int _temperatura, int _latitude, int 
     if(_temperatura<TEMP_REF)
     {
         //cresce à medida que a temperatura diminui
-        m = MAX_RGB/(TEMP_REF-TEMP_MIN);
+        m = MAX_RGB/(TEMP_REF-dados->citiesTempMin);
         //achar o b sabendo que se quando a temperatura fosse 10 o valor de verde seria máximo
         b = MAX_RGB - m * TEMP_REF;
         //calculo do verde em função da _temperatura
@@ -149,7 +149,7 @@ void RenderColor(SDL_Renderer * _renderer, int _temperatura, int _latitude, int 
     else
     {
         //decresce à medida que a temperatura diminui
-        m = MAX_RGB/(TEMP_REF-TEMP_MAX);
+        m = MAX_RGB/(TEMP_REF-dados->citiesTempMax);
         //achar o b sabendo que quando a temperatura é 10 o valor de verde é máximo
         b = MAX_RGB - m * TEMP_REF;
         //calculo do verde em função da _temperatura
@@ -161,7 +161,7 @@ void RenderColor(SDL_Renderer * _renderer, int _temperatura, int _latitude, int 
 }
 
 //TODO a cor não percisa de ser ponteiro duplo
-void RenderCircle(SDL_Renderer * _renderer, int width, int height, TTF_Font *_font )
+void RenderCircle(SDL_Renderer * _renderer, int width, int height, TTF_Font *_font, DADOS *dados)
 {
     float latitude = 0.0f;
     float longitude = 0.0f;
@@ -171,19 +171,19 @@ void RenderCircle(SDL_Renderer * _renderer, int width, int height, TTF_Font *_fo
     latitude = calculo_coordenada(54.0 , NORTE , width, height, true);
     longitude = calculo_coordenada(2.30, OESTE, width, height, false);
     //filledCircleRGBA(_renderer, latitude, longitude, 5, 0, 0, 255);
-    RenderColor(_renderer, -40, latitude, longitude);
+    RenderColor(_renderer, -40, latitude, longitude, dados);
 
     //LISBON
     latitude = calculo_coordenada(38.43 , NORTE , width, height, true);
     longitude = calculo_coordenada(9.10, OESTE, width, height, false);
     //filledCircleRGBA(_renderer, latitude, longitude, 5, 0, 255, 0);
-    RenderColor(_renderer, 10, latitude, longitude);
+    RenderColor(_renderer, 10, latitude, longitude, dados);
 
     //SIDNEY
     latitude = calculo_coordenada(33.51 , SUL , width, height, true);
     longitude = calculo_coordenada(151.12, ESTE, width, height, false);
     //filledCircleRGBA(_renderer, latitude, longitude, 5, 255, 255, 0);
-    RenderColor(_renderer, 50, latitude, longitude);
+    RenderColor(_renderer, 50, latitude, longitude, dados);
 
 
     SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 255 );

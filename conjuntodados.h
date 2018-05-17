@@ -30,6 +30,7 @@ typedef struct {
     list_node_t* headCitiesFiltrada;
     int citiesAnoMin, citiesAnoMax;
     int citiesMesMin;
+    float citiesTempMin, citiesTempMax;
 
     CRITERIOS_FILTRAGEM criterios;
 } DADOS;

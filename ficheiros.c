@@ -97,6 +97,7 @@ void read_file_countries(DADOS *dados, char *_nomeFilePaises)
                 dados->countriesAnoMax = a->dt.ano;
             }
 
+
             i++;
         }
 
@@ -164,6 +165,8 @@ void read_file_cities(DADOS *dados, char *_nomeFileCidades)
     dados->headCitiesOriginal = create_list();
     dados->citiesAnoMin = __INT32_MAX__;
     dados->citiesAnoMax = -__INT32_MAX__;
+    dados->citiesTempMin = __INT32_MAX__;
+    dados->citiesTempMax = -__INT32_MAX__;
 
     //Inicializa o vetor para todos os anos terem a sua lista
     for(int i = 0; i<sizeAnoPointers; i++) {
@@ -228,6 +231,14 @@ void read_file_cities(DADOS *dados, char *_nomeFileCidades)
             if (a->dt.ano > dados->citiesAnoMax)
             {
                 dados->citiesAnoMax = a->dt.ano;
+            }
+            if (a->temp < dados->citiesTempMin)
+            {
+                dados->citiesTempMin = a->temp;
+            }
+            if (a->temp > dados->citiesTempMax)
+            {
+                dados->citiesTempMax = a->temp;
             }
 
             a->latitude.direcao = (latitude_c == 'N') ? NORTE : SUL;
