@@ -32,6 +32,7 @@ void read_file_countries(DADOS *dados, char *_nomeFilePaises)
     int i = 0, check = -1;
     char buffer[BUFFER_SIZE];
     FILE *fileInput = NULL;
+    clock_t timeCounter = clock();
 
     //Vetor de que contem o uma lista para cada ano
     int sizeAnoPointers = 2100; //TODO realloc
@@ -125,7 +126,8 @@ void read_file_countries(DADOS *dados, char *_nomeFilePaises)
         free(insertionSortStartForYear[i]); //Free da dummy node da lista para este ano
     }
 
-    printf("\rProgresso: 100%%\n");
+    timeCounter = clock() - timeCounter;
+    printf("\rProgresso: 100%% (%ld s)\n", timeCounter/CLOCKS_PER_SEC);
 
 
 
@@ -280,8 +282,7 @@ void read_file_cities(DADOS *dados, char *_nomeFileCidades)
 
     //Vetor de que contem o uma lista para cada ano
     int sizeAnoPointers = 2100; //TODO realloc
-    list_node_t **yearsListHead = (list_node_t **) checkedMalloc(sizeAnoPointers * sizeof(list_node_t*));
-    list_node_t **yearsListTail = (list_node_t **) checkedMalloc(sizeAnoPointers * sizeof(list_node_t*));
+    list_node_t **insertionSortStartForYear = (list_node_t **) checkedMalloc(sizeAnoPointers * sizeof(list_node_t*));
 
     printf("A ler dados das cidades...\n");
 
@@ -293,8 +294,7 @@ void read_file_cities(DADOS *dados, char *_nomeFileCidades)
 
     //Inicializa o vetor para todos os anos terem a sua lista
     for(int i = 0; i<sizeAnoPointers; i++) {
-        yearsListHead[i] = create_list();
-        yearsListTail[i] = NULL;
+        insertionSortStartForYear[i] = create_list();
     }
 
     fileInput = fopen(_nomeFileCidades, "r");
@@ -337,7 +337,8 @@ void read_file_cities(DADOS *dados, char *_nomeFileCidades)
         if (check == 11)
         {
             list_node_t *new_node = create_node(a);
-            sortedInsert(yearsListHead[a->dt.ano], &yearsListTail[a->dt.ano], new_node);
+            list_node_t *remover_TODO_tail = NULL;
+            sortedInsert(insertionSortStartForYear[a->dt.ano], &remover_TODO_tail, new_node);
 
             //caso seja o ano min, determinar o menor mes
             if (a->dt.ano == dados->citiesAnoMin)
@@ -382,37 +383,26 @@ void read_file_cities(DADOS *dados, char *_nomeFileCidades)
         }
     }
 
-    dados->headCitiesOriginal->next = yearsListHead[0]->next;
-    list_node_t *headOriginalTail = dados->headCitiesOriginal->next;
-    free(yearsListHead[0]); //Free da dummy node da lista para o ano 0
-
+    dados->headCitiesOriginal->next = insertionSortStartForYear[0]->next;
+    free(insertionSortStartForYear[0]); //Free da dummy node da lista para o ano 0
+    //TODO tail
     for(int i = 1; i<sizeAnoPointers; i++) {
-        if(dados->headCitiesOriginal->next == NULL &&
-            yearsListHead[i]->next != NULL)
+        //Vai achar a tail da lista original
+        list_node_t *tailOrig = dados->headCitiesOriginal;
+        while(tailOrig->next != NULL)
         {
-            //Caso a lista original ainda esteja vazia, meter o head->next e o tail
-            dados->headCitiesOriginal->next = yearsListHead[i]->next;
-            headOriginalTail = yearsListTail[i];
+            tailOrig = tailOrig->next;
         }
 
-        if(headOriginalTail != NULL) {
-            //Meter a tail atual da original a apontar para a head->next da lista deste ano
-            headOriginalTail->next = yearsListHead[i]->next;
-            if(yearsListHead[i]->next != NULL) {
-                yearsListHead[i]->next->prev = headOriginalTail;
-                headOriginalTail = yearsListTail[i]; //Se yearsListHead[i]->next != NULL também é yearsListTail[i]
-            }
-        }
-
-        free(yearsListHead[i]); //Free da dummy node da lista para este ano
+        tailOrig->next = insertionSortStartForYear[i]->next;
+        free(insertionSortStartForYear[i]); //Free da dummy node da lista para este ano
     }
 
 
     timeCounter = clock() - timeCounter;
     printf("\rProgresso: 100%% (%ld s)\n", timeCounter/CLOCKS_PER_SEC);
 
-    free(yearsListHead);
-    free(yearsListTail);
+    free(insertionSortStartForYear);
 
     fclose(fileInput);
     dados->headCitiesFiltrada = dados->headCitiesOriginal;

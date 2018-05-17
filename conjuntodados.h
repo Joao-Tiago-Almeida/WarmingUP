@@ -9,7 +9,7 @@ typedef struct {
     int intervaloMesMin, intervaloAnoMin;
 
     bool filtraPorMeses;
-    int mesMin, mesMax;
+    bool mesesSelecionados[12];
 } CRITERIOS_FILTRAGEM;
 
 typedef struct {
