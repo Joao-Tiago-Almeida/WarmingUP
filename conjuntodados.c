@@ -12,15 +12,19 @@ void dados_init(DADOS *dados)
     printf("---DADOS INIT---\n");
 }
 
-void dados_free(DADOS* dados) {
-    dados_apaga_listaFiltrada(dados);
-    dados->headCountriesFiltrada = NULL;
+void dados_free(DADOS* dados)
+{
+    if(dados->headCountriesOriginal != NULL)
+    {
+        dados_apaga_listaFiltrada(dados);
+        dados->headCountriesFiltrada = NULL;
 
-    //Apaga a lista e os dados também
-    // (true no remove_nodes faz free dos payload)
-    remove_nodes(dados->headCountriesOriginal, true);
-    free(dados->headCountriesOriginal);
-    dados->headCountriesOriginal = NULL;
+        //Apaga a lista e os dados também
+        // (true no remove_nodes faz free dos payload)
+        remove_nodes(dados->headCountriesOriginal, true);
+        free(dados->headCountriesOriginal);
+        dados->headCountriesOriginal = NULL;
+    }
 }
 
 void dados_apaga_listaFiltrada(DADOS* dados) {

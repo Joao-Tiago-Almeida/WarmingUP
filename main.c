@@ -117,7 +117,7 @@ bool modoTextual(char *nomeFilePaises, char *nomeFileCidades, DADOS *dados ) {
     if(dados->headCountriesOriginal == NULL)  read_file_countries (dados, nomeFilePaises);
 
     //print_list(dados.headCountriesOriginal);
-    print_list(dados->headCitiesOriginal);
+    //print_list(dados->headCitiesOriginal);
 
     return menu_principal(dados);
 }

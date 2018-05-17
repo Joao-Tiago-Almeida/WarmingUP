@@ -112,7 +112,7 @@ int calculo_coordenada(float coord_local, int _direcao, int _widht, int _height,
 
     //permite defenir quando se adiciona ou se subtrai
 
-    int indice = _direcao % 2 == 0 ? 1 : -1;
+    int indice = _direcao % 2 == 0 ? -1 : 1;
 
     if(latitude)
     {
