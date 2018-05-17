@@ -276,7 +276,7 @@ bool modoGrafico( char *nomeFilePaises, char *nomeFileCidades, DADOS *dados  )
         //printf("\n\t--%d--%d\n\n", anoAtual, vecCidadesSize);
 
         // render a circle around the country
-        //RenderCircle( renderer ,width, height, AppleGaramond);
+        RenderLegenda( renderer ,width, height, AppleGaramond);
         // render in the screen all changes above
         SDL_RenderPresent(renderer);
         // add a delay
@@ -373,30 +373,9 @@ void RenderCity(SDL_Renderer * _renderer, int width, int height, TTF_Font *_font
 }
 
 //TODO a cor não percisa de ser ponteiro duplo
-void RenderCircle(SDL_Renderer * _renderer, int width, int height, TTF_Font *_font, DADOS *dados)
+void RenderLegenda(SDL_Renderer * _renderer, int width, int height, TTF_Font *_font)
 {
-    float latitude = 0.0f;
-    float longitude = 0.0f;
     SDL_Color white = {255, 255, 255 };
-
-    //UNITED KINGDOM    ?? LONDON
-    latitude = calculo_coordenada(54.0 , NORTE , width, height, true);
-    longitude = calculo_coordenada(2.30, OESTE, width, height, false);
-    //filledCircleRGBA(_renderer, latitude, longitude, 5, 0, 0, 255);
-    RenderColor(_renderer, -40, latitude, longitude, dados);
-
-    //LISBON
-    latitude = calculo_coordenada(38.43 , NORTE , width, height, true);
-    longitude = calculo_coordenada(9.10, OESTE, width, height, false);
-    //filledCircleRGBA(_renderer, latitude, longitude, 5, 0, 255, 0);
-    RenderColor(_renderer, 10, latitude, longitude, dados);
-
-    //SIDNEY
-    latitude = calculo_coordenada(33.51 , SUL , width, height, true);
-    longitude = calculo_coordenada(151.12, ESTE, width, height, false);
-    //filledCircleRGBA(_renderer, latitude, longitude, 5, 255, 255, 0);
-    RenderColor(_renderer, 50, latitude, longitude, dados);
-
 
     SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 255 );
     SDL_Rect legenda = {50, 600, 100, 60};
