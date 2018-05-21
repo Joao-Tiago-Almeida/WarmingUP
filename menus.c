@@ -328,34 +328,42 @@ void opcao_escolhe_mes(CRITERIOS_FILTRAGEM *criterios)
     printf("Apenas serão considerados os dados do periodo delimitado");
 
     char buf[BUFFER_SIZE];
-    int mes_i = 0, mes_f = 0;
-    bool primeiraTentativa = true;
+    char *delim = " ";
+    bool invalido = false;
 
     do
     {
-        if(!primeiraTentativa) {
-            printf("Tem de estar dentro dos limites!\n");
+        invalido = false;
+
+        //Mete todos os meses a não selecionados
+        for(int i = 0; i<DEZEMBRO; i++) {
+            criterios->mesesSelecionados[i] = false;
         }
 
-        printf("Qual o periodo de meses que pertende analidar ao longo dos anos [%d-%d]:\t", JANEIRO, DEZEMBRO);
+        printf("Quais os meses que pretende analisar (entre %d-%d):\t", JANEIRO, DEZEMBRO);
 
         fgets(buf, BUFFER_SIZE, stdin);
-        if (sscanf(buf, "%d %d", &mes_i, &mes_f) == 1)
-        {
-            printf("Introduza os números do intervalo separado por pelo menos um espaço\n");
+        removeLastCharIfMatch(buf, '\n');
+
+        char *token = strtok(buf, delim);
+
+        while(token != NULL) {
+            int mes = atoi(token);
+            if(mes >= JANEIRO && mes <= DEZEMBRO) {
+                criterios->mesesSelecionados[mes-1] = true;
+            } else {
+                printf("Mês inválido\n");
+                invalido = true;
+                break;
+            }
+            token = strtok(NULL, delim);
         }
-        if (sscanf(buf, "%d %d", &mes_i, &mes_f) !=2)
-        {
-            mes_i = -1;
-            mes_f = mes_i;
-        }
-        primeiraTentativa = false;
+
         //TODO pode haver intervalos de 1 mês??
-    } while (mes_i < JANEIRO || DEZEMBRO < mes_i || mes_f < JANEIRO || DEZEMBRO < mes_f );
+    } while (invalido);
 
     criterios->filtraPorIntervalo = true;
-    criterios->mesMin = mes_i;
-    criterios->mesMax = mes_f;
+    
 }
 
 void calc_medias_de_intervalos(int numIntervalos, float *tempMed, int *numDados) {

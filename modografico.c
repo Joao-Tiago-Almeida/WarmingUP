@@ -214,8 +214,11 @@ bool modoGrafico( char *nomeFilePaises, char *nomeFileCidades, DADOS *dados  )
     int delay = 16;
     bool modo_texto = false;
 
+    SDL_Color anoTextColor = { 255, 255, 255 };
+
     //Ano que está a ser mostrado
     int anoAtual = 0;
+    bool pausa = false;
 
     //Vector com as cidades que estão a ser mostradas
     dados_temp *cidades = NULL;
@@ -254,7 +257,6 @@ bool modoGrafico( char *nomeFilePaises, char *nomeFileCidades, DADOS *dados  )
                         //printCenas(cidades, vecCidadesSize, anoAtual);
                         break;
                     case SDLK_s:
-                        mudarAno(dados, &cidades, &vecCidadesSize, &anoAtual, true);
                         printCenas(cidades, vecCidadesSize, anoAtual);
                         break;
                     default:
@@ -262,6 +264,13 @@ bool modoGrafico( char *nomeFilePaises, char *nomeFileCidades, DADOS *dados  )
                 }
             }
         }
+
+        if(!pausa) {
+            //Avança 2 anos
+            mudarAno(dados, &cidades, &vecCidadesSize, &anoAtual, true);
+            mudarAno(dados, &cidades, &vecCidadesSize, &anoAtual, true);
+        }
+    
         // render game table
         RenderMap( imgs, renderer, width, height);
 
@@ -273,7 +282,10 @@ bool modoGrafico( char *nomeFilePaises, char *nomeFileCidades, DADOS *dados  )
             }
             RenderCity(renderer, width, height, AppleGaramond, &cidades[i], dados);
         }
-        //printf("\n\t--%d--%d\n\n", anoAtual, vecCidadesSize);
+
+        char anoStr[12];
+        sprintf(anoStr, "%d", anoAtual);
+        RenderText(100, 100, anoStr, AppleGaramond, &anoTextColor, renderer);
 
         // render a circle around the country
         RenderLegenda( renderer ,width, height, AppleGaramond);
@@ -388,9 +400,6 @@ void RenderLegenda(SDL_Renderer * _renderer, int width, int height, TTF_Font *_f
     filledCircleRGBA(_renderer, 625, 125, 5, 0, 255, 255);
     filledCircleRGBA(_renderer, 640, 60, 5, 255, 255, 0);
     filledCircleRGBA(_renderer, 640, 125, 5, 255, 0, 0);
-
-
-    //filledCircleRGBA(_renderer, LATITUDE_0, LONGITUDE_0, 5, 255, 0, 0);
 }
 /**
  * filledCircleRGBA: renders a filled circle
@@ -460,6 +469,7 @@ void RenderMap( SDL_Surface *_img[], SDL_Renderer* _renderer , int width, int he
     SDL_DestroyTexture(table_texture);
 
 }
+
 /**
  * InitEverything: Initializes the SDL2 library and all graphical components: font, window, renderer
  * \param width width in px of the window

@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define DEZEMBRO 12
+
 void dados_init(DADOS *dados)
 {
     limpar_criterios(&dados->criterios);
@@ -120,8 +122,7 @@ bool cumpre_criterios(dados_temp* valor, CRITERIOS_FILTRAGEM *criterios)
         return false;
     }
 
-    if (criterios->filtraPorMeses &&
-        (valor->dt.mes < criterios->mesMin || valor->dt.mes > criterios->mesMax))
+    if (criterios->filtraPorMeses && criterios->mesesSelecionados[valor->dt.mes])
     {
         //Exclui aqueles cujo mes é menor que o mínimo ou maior que o máximo
         return false;
@@ -136,6 +137,8 @@ void limpar_criterios(CRITERIOS_FILTRAGEM *criterios)
     criterios->filtraPorIntervalo = false;
     criterios->intervaloAnoMin = 0;
     criterios->intervaloMesMin = 0;
-    criterios->mesMin = 0;
-    criterios->mesMax = 0;
+    //Mete todos os meses a não selecionados
+    for(int i = 0; i<DEZEMBRO; i++) {
+        criterios->mesesSelecionados[i] = false;
+    }
 }
