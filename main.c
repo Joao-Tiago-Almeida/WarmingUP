@@ -114,7 +114,7 @@ void ler_argumentos(int argc, char *argv[], bool *modoGrafico, char **nomeFilePa
 bool modoTextual(char *nomeFilePaises, char *nomeFileCidades, DADOS *dados )
 {
     if(dados->headCountriesOriginal == NULL)  read_file_countries (dados, nomeFilePaises);
-    //if(dados->headCitiesOriginal == NULL)  read_file_cities (dados,nomeFileCidades);
+    if(dados->headCitiesOriginal == NULL)  read_file_cities (dados,nomeFileCidades);
 
     //print_list(dados->headCountriesOriginal);
     //print_list(dados->headCitiesOriginal);

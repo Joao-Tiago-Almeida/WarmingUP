@@ -88,7 +88,7 @@ void read_file_cities(DADOS *dados, char *_nomeFileCidades)
     printf("\rProgresso: 100%% (%ld s)           \n", timeCounter/CLOCKS_PER_SEC);
 }
 
-/*void readFileAtualizaMaxMin(DADOS* dados, dados_temp* novoValor) {
+void readFileAtualizaMaxMin(DADOS* dados, dados_temp* novoValor) {
     //TODO calcula mal o mes min e maximo
     //caso seja o ano min, determinar o menor mes
     if (novoValor->dt.ano == dados->countriesAnoMin &&
@@ -113,7 +113,7 @@ void read_file_cities(DADOS *dados, char *_nomeFileCidades)
         dados->countriesAnoMax = novoValor->dt.ano;
         dados->countriesMesMax = novoValor->dt.mes;
     }
-}*/
+}
 
 //Coloca os dados de uma linha numa estrutura do tipo dados_temp
 //Se não leu corretamente devolve NULL
@@ -191,7 +191,7 @@ int readFileToList(char* fileName, DADOS* dados, bool cidades)
         if (a != NULL)
         {
             insert_node(list, a);
-            //readFileAtualizaMaxMin(dados, a);
+            readFileAtualizaMaxMin(dados, a);
             i++;
         }
 
