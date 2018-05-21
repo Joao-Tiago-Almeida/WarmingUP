@@ -85,7 +85,7 @@ void read_file_cities(DADOS *dados, char *_nomeFileCidades)
     mergeSort(dados->headCitiesOriginal, dados->citiesListSize);
 
     timeCounter = clock() - timeCounter;
-    printf("\rProgresso: 100%% (%ld s)        \n", timeCounter/CLOCKS_PER_SEC);
+    printf("\rProgresso: 100%% (%ld s)           \n", timeCounter/CLOCKS_PER_SEC);
 }
 
 /*void readFileAtualizaMaxMin(DADOS* dados, dados_temp* novoValor) {
@@ -166,10 +166,11 @@ int readFileToList(char* fileName, DADOS* dados, bool cidades)
     long totalFileSize = 0;
     int i = 0;
     char buffer[BUFFER_SIZE];
-    
     FILE *fileInput = NULL;
 
     list_node_t* list = cidades ? dados->headCitiesOriginal : dados->headCountriesOriginal;
+
+    int lastPercentage = 0;
 
     printf("A ler dados dos países...\n");
 
@@ -181,6 +182,7 @@ int readFileToList(char* fileName, DADOS* dados, bool cidades)
 
     while (fgets(buffer, BUFFER_SIZE, fileInput) != NULL)
     {
+        int percentage = 0;
         removeLastCharIfMatch(buffer, '\n');
         removeLastCharIfMatch(buffer, '\r');
         
@@ -193,11 +195,19 @@ int readFileToList(char* fileName, DADOS* dados, bool cidades)
             i++;
         }
 
-        //A cada 100 linhas lidas atualiza o progresso de leitura
-        if (i % 100)
-        {
-            printf("\rProgresso: %ld%%", ftell(fileInput) * 100 / totalFileSize);
+        
+
+        //A cada 100 linhas calcula a percentagem e atualiza o progresso de leitura
+        if(i % 100) {
+            percentage = ftell(fileInput) * 100 / totalFileSize;
+            if (lastPercentage != percentage)
+            {
+                printf("\rProgresso: %d%%", percentage);
+                fflush(stdout);
+                lastPercentage = percentage;
+            }
         }
+        
     }
 
     fclose(fileInput);
