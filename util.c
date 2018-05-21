@@ -30,7 +30,6 @@ void *checkedRealloc(void *ptr, size_t size) {
     return mem;
 }
 
-
 void removeLastCharIfMatch(char* str, char c) {
     if(str[strlen(str)-1] == c)
     {

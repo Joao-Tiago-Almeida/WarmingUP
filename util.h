@@ -6,4 +6,5 @@
 void *checkedMalloc(size_t size);
 void *checkedRealloc(void *ptr, size_t size);
 void removeLastCharIfMatch(char* str, char c);
+
 #endif

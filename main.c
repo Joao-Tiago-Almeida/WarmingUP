@@ -113,8 +113,8 @@ void ler_argumentos(int argc, char *argv[], bool *modoGrafico, char **nomeFilePa
 // Devolve false se for para sair do programa ou true se for para mudar para o modo textual
 bool modoTextual(char *nomeFilePaises, char *nomeFileCidades, DADOS *dados )
 {
-    if(dados->headCitiesOriginal == NULL)  read_file_cities (dados,nomeFileCidades);
     if(dados->headCountriesOriginal == NULL)  read_file_countries (dados, nomeFilePaises);
+    //if(dados->headCitiesOriginal == NULL)  read_file_cities (dados,nomeFileCidades);
 
     //print_list(dados->headCountriesOriginal);
     //print_list(dados->headCitiesOriginal);
