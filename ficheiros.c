@@ -32,6 +32,7 @@ void read_file_countries(DADOS *dados, char *_nomeFilePaises)
     int i = 0, check = -1;
     char buffer[BUFFER_SIZE];
     FILE *fileInput = NULL;
+    clock_t timeCounter = clock();
 
     //Vetor de que contem o uma lista para cada ano
     int sizeAnoPointers = 2100; //TODO realloc
@@ -82,10 +83,16 @@ void read_file_countries(DADOS *dados, char *_nomeFilePaises)
             list_node_t *remover_TODO_tail = NULL;
             sortedInsert(insertionSortStartForYear[a->dt.ano], &remover_TODO_tail, new_node);
 
+
+            //TODO calcula mal o mes min e maximo
             //caso seja o ano min, determinar o menor mes
-            if (a->dt.ano == dados->countriesAnoMin)
+            if (a->dt.ano == dados->countriesAnoMin && a->dt.mes < dados->countriesMesMin)
             {
                 dados->countriesMesMin = a->dt.mes;
+            }
+            if (a->dt.ano == dados->countriesAnoMax && a->dt.mes > dados->countriesMesMax)
+            {
+                dados->countriesMesMax = a->dt.mes;
             }
 
             //Determinar ano máx e mín
@@ -97,6 +104,7 @@ void read_file_countries(DADOS *dados, char *_nomeFilePaises)
             if (a->dt.ano > dados->countriesAnoMax)
             {
                 dados->countriesAnoMax = a->dt.ano;
+                dados->countriesMesMax = a->dt.mes;
             }
 
             i++;
@@ -107,6 +115,7 @@ void read_file_countries(DADOS *dados, char *_nomeFilePaises)
         {
             printf("\rProgresso: %ld%%", ftell(fileInput) * 100 / totalFileSize);
         }
+
     }
 
 
@@ -125,7 +134,8 @@ void read_file_countries(DADOS *dados, char *_nomeFilePaises)
         free(insertionSortStartForYear[i]); //Free da dummy node da lista para este ano
     }
 
-    printf("\rProgresso: 100%%\n");
+    timeCounter = clock() - timeCounter;
+    printf("\rProgresso: 100%% (%ld s)\n", timeCounter/CLOCKS_PER_SEC);
 
 
 
@@ -139,14 +149,14 @@ void read_file_countries(DADOS *dados, char *_nomeFilePaises)
             sortedInsert(*_head, node);
             printf("%d\t", i);
     }*/
-    //TODO free a cada lista 
+    //TODO free a cada lista
     free(insertionSortStartForYear);
     fclose(fileInput);
     dados->headCountriesFiltrada = dados->headCountriesOriginal;
     dados->countriesListSize = i;
 }
 
-//TODO fazer com que a funcao de ler paises e cidades sejam só uma com um parametro bool 
+//TODO fazer com que a funcao de ler paises e cidades sejam só uma com um parametro bool
 // pq são quase iguais
 /*void read_file_countries(DADOS *dados, char *_nomeFilePaises)
 {
@@ -340,9 +350,13 @@ void read_file_cities(DADOS *dados, char *_nomeFileCidades)
             sortedInsert(yearsListHead[a->dt.ano], &yearsListTail[a->dt.ano], new_node);
 
             //caso seja o ano min, determinar o menor mes
-            if (a->dt.ano == dados->citiesAnoMin)
+            if (a->dt.ano == dados->citiesAnoMin && a->dt.mes < dados->citiesMesMin)
             {
                 dados->citiesMesMin = a->dt.mes;
+            }
+            if (a->dt.ano == dados->citiesAnoMax && a->dt.mes > dados->citiesMesMax)
+            {
+                dados->citiesMesMax = a->dt.mes;
             }
 
             //Determinar ano máx e mín
@@ -354,6 +368,7 @@ void read_file_cities(DADOS *dados, char *_nomeFileCidades)
             if (a->dt.ano > dados->citiesAnoMax)
             {
                 dados->citiesAnoMax = a->dt.ano;
+                dados->citiesMesMax = a->dt.mes;
             }
             if (a->temp < dados->citiesTempMin)
             {

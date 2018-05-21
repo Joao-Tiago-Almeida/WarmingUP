@@ -38,4 +38,11 @@ typedef struct {
     float tempAmplitude;
 } DADOS_ANALISE_POR_ANO;
 
+typedef struct {
+
+	int nr_de_dados_mes;
+	float soma_dos_dados;
+	float media_das_temp_por_mes;
+
+} DADOS_MOVING_AVERAGE;
 #endif

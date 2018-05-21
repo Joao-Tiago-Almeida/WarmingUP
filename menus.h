@@ -21,7 +21,9 @@ void historico_de_temperaturas(DADOS *dados, bool porPais, bool porCidade);
 
 void analise_por_pais_ou_cidade(DADOS* dados, bool porCidade);
 
+void calculo_MA(int M, DADOS *dados, bool porPais, bool porCidade);
 
+float calculo_aumento_temp(DADOS *dados, float *vectMA,int ano);
 
 
 #endif

@@ -19,9 +19,7 @@ typedef struct {
     // ou é igual a headCountriesOriginal caso não hajam criterios de filtragem
     list_node_t* headCountriesFiltrada;
     int countriesAnoMin, countriesAnoMax;
-    int countriesMesMin;
-
-    //TODO colocar também a lista de cidades
+    int countriesMesMin, countriesMesMax;
 
     int citiesListSize;
     list_node_t* headCitiesOriginal;
@@ -29,7 +27,8 @@ typedef struct {
     // ou é igual a headCitiesOriginal caso não hajam criterios de filtragem
     list_node_t* headCitiesFiltrada;
     int citiesAnoMin, citiesAnoMax;
-    int citiesMesMin;
+    int citiesMesMin, citiesMesMax;
+
     float citiesTempMin, citiesTempMax;
 
     CRITERIOS_FILTRAGEM criterios;
