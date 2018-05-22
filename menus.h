@@ -24,6 +24,7 @@ void analise_por_pais_ou_cidade(DADOS* dados, bool porCidade);
 void calculo_MA(int M, DADOS *dados, bool porPais, bool porCidade);
 
 float calculo_aumento_temp(DADOS *dados, float *vectMA,int ano);
-float media_ano (DADOS *dados, int ano_a_analisar, bool porPais, bool porCidade, char paisOuCidade[100]);
+float media_ano (DADOS *dados, int ano_a_analisar, bool porPais, bool porCidade, char paisOuCidade[100], int M);
+void moving_average(int M, float* vect_temp, bool* vect_mes_tem_dados);
 
 #endif

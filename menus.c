@@ -741,21 +741,23 @@ void calculo_MA(int M, DADOS *dados, bool porPais, bool porCidade)
     int pos_no_vetor = 0;
     while (ano_a_analisar <= anoMax)
     {
-        vectMA_anos[pos_no_vetor] = media_ano (dados, ano_a_analisar, porPais, porCidade, paisOuCidade);
+        vectMA_anos[pos_no_vetor] = media_ano (dados, ano_a_analisar, porPais, porCidade, paisOuCidade, M);
+        //printf("vectMA_anos[pos_no_vetor]:: %f\n", vectMA_anos[pos_no_vetor]);
         ano_a_analisar ++;
         pos_no_vetor ++;
-        printf("vectMA_anos[pos_no_vetor]:: %f\n", vectMA_anos[pos_no_vetor]);
+        //printf("pos_no_vetor: %d\n", pos_no_vetor);
     }
 
 
     free(vectMA_anos);
 }
 
-//TODO fazer para
-float media_ano (DADOS *dados, int ano_a_analisar, bool porPais, bool porCidade, char paisOuCidade[100])
+//TODO mudar nome
+float media_ano (DADOS *dados, int ano_a_analisar, bool porPais, bool porCidade, char paisOuCidade[100], int M)
 {
-    float soma_temperatura_ano = 0;
-    float mes = 0.0;
+    float soma_temperatura_mes = 0;
+    int mes = 0;
+    int mes_a_analisar = 1;
 
     list_node_t *aux =NULL;
     if(porPais || porCidade)
@@ -764,56 +766,107 @@ float media_ano (DADOS *dados, int ano_a_analisar, bool porPais, bool porCidade,
     }
     else  aux = dados->headCountriesOriginal->next;
 
-    list_node_t *temp =aux->next;
 
     //TODO não se aloca memória em função dos meses do ano que têm informação, pois nesse mes
     float *vect_temp = (float*) checkedMalloc(sizeof(float) * (NR_DE_MESES));
+    bool *vect_mes_tem_dados = (bool*) checkedMalloc(sizeof(float) * (NR_DE_MESES));
 
     //TODO mudar para quando não tiverem qq valor
-    for(int b = 0; b < NR_DE_MESES ; b ++)  vect_temp[b] = 0.0f;
+    for(int b = 0; b < NR_DE_MESES ; b ++)
+    {
+        vect_temp[b] = -__FLT_MAX__;
+        vect_mes_tem_dados[b] = false;
+    }
 
-    float nr_dados = 0.0;
+    int nr_dados = 0;
     while( aux->next != NULL)
     {
         //otimizar programa
         if(aux->payload->dt.ano > ano_a_analisar)   break;
 
-        if(temp->next != NULL)
+        if(aux->next != NULL)
         {
-            //quando me encontro no mesmo ano e o node não tem o último dado de temperatura desse país/cidade
-            if( aux->payload->dt.ano == ano_a_analisar && temp->payload->dt.mes == aux->payload->dt.mes)
+            if(aux->payload->dt.ano < ano_a_analisar)  aux = aux ->next;
+            if(aux->payload->dt.ano > ano_a_analisar)  break;
+
+            //quando me encontro no mesmo ano ano e mês
+            if( (aux->payload->dt.ano == ano_a_analisar &&  aux->payload->dt.mes == mes_a_analisar))
             {
                 //o vect_temp guarda temporariamente a soma das temperaturas nesse mes
-                vect_temp[aux->payload->dt.mes] += aux->payload->temp;
+                soma_temperatura_mes += aux->payload->temp;
                 nr_dados ++;
-                printf("ano :: %d\nmes :: %d\n", aux->payload->dt.ano, aux->payload->dt.mes);
+                vect_temp[mes_a_analisar-1] = soma_temperatura_mes / nr_dados;
+
+                aux = aux->next;
+                vect_mes_tem_dados[mes_a_analisar-1] = true;
             }
-            //quando me encontro no mesmo ano e o node tem o último dado de temperatura desse país/cidade
-            else if( aux->payload->dt.ano == ano_a_analisar && temp->payload->dt.mes != aux->payload->dt.mes)
+            else
             {
-                vect_temp[aux->payload->dt.mes] += aux->payload->temp;
-                nr_dados ++;
-                vect_temp[aux->payload->dt.mes] = vect_temp[aux->payload->dt.mes] / nr_dados;
+                soma_temperatura_mes = 0;
+                nr_dados = 0;
+                //TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO ver melhor
+                if(mes_a_analisar == NR_DE_MESES)
+                {
+                    mes_a_analisar = 0;
+                }else
+                {
+                    mes_a_analisar ++;
+                }
             }
         }
-        aux = aux->next;
-        if(temp->next != NULL)  temp = temp->next;
-        //qunado temp->next == NULL, último elemento
-        //printf("ola\n");
+        // qunado temp->next == NULL, último elemento
+        // quando no último elemento aux == temp, pois nao importa o seguinte
     }
-    //printf("ola2\n");
-    for (int t = 0; t < NR_DE_MESES; t++)
-    {
-        //a soma_temperatura guarda a soma das temperaturas nesse ano
-        soma_temperatura_ano += vect_temp[t];
+    // for(int t = 0; t < NR_DE_MESES; t++)
+    // {
+    //     printf("temp media :: %f\nano :: %d\nmes :: %d\n", vect_temp[t], ano_a_analisar, t+1);
+    // }
 
-        if(vect_temp[t] != 0.0f)    mes++;
-    }
     //printf("ola3\n");
-    free(vect_temp);
-    return (soma_temperatura_ano/mes);
+    //free(vect_temp);
+    moving_average(M, vect_temp, vect_mes_tem_dados);
+
+    float media_anual = 0;
+    nr_dados = 0;
+
+    for(int i = 0; i < NR_DE_MESES; i++)
+    {
+        printf("lalalala;; %d\n", vect_mes_tem_dados[i]);
+        if(vect_mes_tem_dados[i])
+        if(vect_mes_tem_dados[i])
+        {
+            // medial anual guarda o valor da soma temporária
+            media_anual += vect_temp[i];
+            nr_dados ++;
+        }
+    }
+    media_anual = (float)media_anual/nr_dados;
+    printf("media anula :: %f\n", media_anual);
+
+    return 1;
+
 }
 
+void moving_average(int M, float* vect_temp, bool* vect_mes_tem_dados)
+{
+    float soma_temp = 0;
+    int m = 0;
+
+    for ( int a = NR_DE_MESES; a > 0; a--)
+    {
+        {
+            m = a + 1 - M < 0 ? a + 1 : M;
+            //calcular a moving average com M variável, não há meses suficientes
+            //calcular a moving average com M fixo
+            for (int b = a - m + 1 ; b <= a ; b++)  //enquanto b < M
+            {
+                soma_temp += vect_temp[b];
+            }
+            vect_temp[a] = (float)soma_temp/m;
+            soma_temp = 0;
+        }
+    }
+}
 
 float calculo_aumento_temp(DADOS *dados, float *vect, int ano)
 {
