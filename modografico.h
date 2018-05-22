@@ -18,5 +18,6 @@ bool modoGrafico(char *nomeFilePaises, char *nomeFileCidades, DADOS *dados);
 void RenderCity(SDL_Renderer * _renderer, int width, int height, TTF_Font *_font, dados_temp* cidade, DADOS *dados);
 void RenderLegenda(SDL_Renderer * _renderer, int width, int height, TTF_Font *_font);
 int RenderText(int, int, const char *, TTF_Font *, SDL_Color *, SDL_Renderer *);
+void RenderStatus(SDL_Renderer *renderer, TTF_Font *font, int ano, bool pausa, int velocidade);
 
 #endif

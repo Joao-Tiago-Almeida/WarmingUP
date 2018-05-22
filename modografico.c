@@ -29,6 +29,7 @@
 #define MAX_RGB 255
 #define TEMP_REF 10
 #define VECT_CIDADES_INITIAL_SIZE 50
+#define BUFFER_SIZE 100
 
 void init_empty_cidade(dados_temp *cidade) {
     cidade->cidade[0] = '\0';
@@ -214,11 +215,10 @@ bool modoGrafico( char *nomeFilePaises, char *nomeFileCidades, DADOS *dados  )
     int delay = 16;
     bool modo_texto = false;
 
-    SDL_Color anoTextColor = { 255, 255, 255 };
-
     //Ano que está a ser mostrado
     int anoAtual = 0;
     bool pausa = false;
+    int velocidade = 0;
 
     //Vector com as cidades que estão a ser mostradas
     dados_temp *cidades = NULL;
@@ -288,9 +288,7 @@ bool modoGrafico( char *nomeFilePaises, char *nomeFileCidades, DADOS *dados  )
             RenderCity(renderer, width, height, AppleGaramond, &cidades[i], dados);
         }
 
-        char anoStr[12];
-        sprintf(anoStr, "%d", anoAtual);
-        RenderText(100, 100, anoStr, AppleGaramond, &anoTextColor, renderer);
+        RenderStatus(renderer, AppleGaramond, anoAtual, pausa, velocidade);
 
         // render a circle around the country
         RenderLegenda( renderer ,width, height, AppleGaramond);
@@ -473,6 +471,23 @@ void RenderMap( SDL_Surface *_img[], SDL_Renderer* _renderer , int width, int he
     // destroy everything
     SDL_DestroyTexture(table_texture);
 
+}
+
+void RenderStatus(SDL_Renderer *renderer, TTF_Font *font, int ano, bool pausa, int velocidade) {
+    char buffer[BUFFER_SIZE];
+    SDL_Color anoTextColor = { 255, 255, 255 };
+    
+    sprintf(buffer, "%d", ano);
+    RenderText(50, 50, buffer, font, &anoTextColor, renderer);
+
+    if(velocidade == 0) {
+        RenderText(50, 65, "Velocidade: 1 (2 anos)", font, &anoTextColor, renderer);
+    } else if(velocidade == 1) {
+        RenderText(50, 65, "Velocidade: 1", font, &anoTextColor, renderer);
+    } else {
+        sprintf(buffer, "Velocidade: 1/%d", ano);
+        RenderText(50, 65, buffer, font, &anoTextColor, renderer);
+    }
 }
 
 /**
