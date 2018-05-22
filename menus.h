@@ -14,10 +14,13 @@ void opcao_limpa_criteritos(CRITERIOS_FILTRAGEM *criterios);
 void opcao_escolhe_intervalos_para_analise(CRITERIOS_FILTRAGEM *criterios, DADOS *dados);
 void opcao_escolhe_mes(CRITERIOS_FILTRAGEM *criterios);
 
-void calc_medias_de_intervalos(int numIntervalos, float *tempMed, int *numDados);
-void imprime_intervalos(DADOS* dados, int numIntervalos, float *tempMin,
-    float *tempMax, float *tempMed, int *numDados, int periodo, bool porCidade);
-void historico_de_temperaturas(DADOS *dados, bool porPais, bool porCidade);
+void calc_medias_de_intervalos(int numIntervalos, DADOS_HISTORICO* temps);
+void imprime_intervalos(DADOS* dados, int numIntervalos, DADOS_HISTORICO* temps, int periodo, bool porCidade);
+void colocaPaisOuCidadeEmVetor(char ***vect, int* vectSize, int* num, char* nome);
+void init_dados_historico(DADOS_HISTORICO* a);
+int CalculaSumMaxEMin(DADOS* dados, int filtra, char paisOuCidade[100], int periodo,
+    DADOS_HISTORICO *temps, char ***paisesOuCidadesEncontrados);
+void historico_de_temperaturas(DADOS *dados, int filtra);
 
 void analise_por_pais_ou_cidade(DADOS* dados, bool porCidade);
 
