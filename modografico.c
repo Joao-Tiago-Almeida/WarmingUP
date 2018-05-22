@@ -227,6 +227,7 @@ bool modoGrafico( char *nomeFilePaises, char *nomeFileCidades, DADOS *dados  )
     if(dados->headCitiesOriginal == NULL)  read_file_cities (dados,nomeFileCidades);
 
     //Começa no menor ano
+    //TODO porquw -1, ?? pq quando chama a função incrementa???
     anoAtual = dados->citiesAnoMin-1;
 
     // initialize graphics
@@ -356,7 +357,7 @@ void RenderColor(SDL_Renderer * _renderer, int _temperatura, int _latitude, int 
         //achar o b sabendo que se quando a temperatura fosse 10 o valor de verde seria máximo
         b = MAX_RGB - m * TEMP_REF;
         //calculo do verde em função da _temperatura
-        green = m*_temperatura + b;
+        green =  m*_temperatura + b;
         filledCircleRGBA(_renderer, _latitude, _longitude, 5, 0, green, 255);
     }
     //quente
@@ -367,7 +368,7 @@ void RenderColor(SDL_Renderer * _renderer, int _temperatura, int _latitude, int 
         //achar o b sabendo que quando a temperatura é 10 o valor de verde é máximo
         b = MAX_RGB - m * TEMP_REF;
         //calculo do verde em função da _temperatura
-        green = m*_temperatura + b;
+        green =  m*_temperatura + b;
 
         filledCircleRGBA(_renderer, _latitude, _longitude, 5, 255, green, 0);
     }
