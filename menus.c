@@ -435,6 +435,9 @@ void imprime_intervalos(DADOS* dados, int numIntervalos, DADOS_HISTORICO* temps,
         }
 
 
+        if(numPaginas == 1) {
+            return;
+        }
         char tecla = pergunta_tecla("a para avançar, q para sair\n", 'a', 'q');
         if(tecla == 'a') {
             if(pagina >= numPaginas-1) {
@@ -489,7 +492,7 @@ int CalculaSumMaxEMin(DADOS* dados, int filtra, char paisOuCidade[100], int peri
 {
     list_node_t *aux = NULL;
     
-    int numeroCidadesOuPaisesEncontrados;
+    int numeroCidadesOuPaisesEncontrados = 0;
     int paisesOuCidadesEncontradosSize = 5;
     *paisesOuCidadesEncontrados = checkedMalloc(sizeof(char*) * paisesOuCidadesEncontradosSize);
     for(int i = 0; i<paisesOuCidadesEncontradosSize; i++) {
@@ -519,9 +522,6 @@ int CalculaSumMaxEMin(DADOS* dados, int filtra, char paisOuCidade[100], int peri
             //Conta este nó se não tiver a filtrar por cidade ou pais, ou se
             //  corresponder ao que se está a filtrar
             
-            if(intervalo != (aux->payload->dt.ano - anoMin) / periodo) {
-                printf("aa");
-            }
             intervalo = (aux->payload->dt.ano - anoMin) / periodo;
 
 
@@ -586,8 +586,12 @@ void historico_de_temperaturas(DADOS *dados, int filtra) {
             } else if(numeroCidadesOuPaisesEncontrados > 1) {
                 printf(filtra == POR_CIDADE ? "Foram encontradas as seguintes cidades\n" :
                         "Foram encontrados os seguintes paises\n");
+
+                for(int i = 0; i<numeroCidadesOuPaisesEncontrados; i++) {
+                    printf("%d %s\n", i+1, paisesOuCidadesEncontrados[i]);
+                }
                 
-                char tecla = pergunta_tecla("Quer escolher outro intervalo[s/n] ", 's', 'n');
+                char tecla = pergunta_tecla("Quer escolher outro nome? [s/n]", 's', 'n');
                 if(tecla == 's') {
                     pedeDeNovo = true;
                     free(paisesOuCidadesEncontrados);
