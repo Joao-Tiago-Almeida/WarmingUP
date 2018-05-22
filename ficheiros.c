@@ -60,7 +60,7 @@ void read_file_countries(DADOS *dados, char *_nomeFilePaises)
     dados->countriesAnoMax = 0;
 
     dados->countriesListSize = readFileToList(_nomeFilePaises, dados, false);
-    
+
     printf("\rProgresso: 100%% (A ordenar...)");
     fflush(stdout);
     mergeSort(dados->headCountriesOriginal, dados->countriesListSize);
@@ -78,8 +78,8 @@ void read_file_cities(DADOS *dados, char *_nomeFileCidades)
     dados->citiesAnoMin = __INT32_MAX__;
     dados->citiesAnoMax = 0;
 
-    dados->citiesListSize = readFileToList(_nomeFileCidades, dados, false);
-    
+    dados->citiesListSize = readFileToList(_nomeFileCidades, dados, true);
+
     printf("\rProgresso: 100%% (A ordenar...)");
     fflush(stdout);
     mergeSort(dados->headCitiesOriginal, dados->citiesListSize);
@@ -88,9 +88,10 @@ void read_file_cities(DADOS *dados, char *_nomeFileCidades)
     printf("\rProgresso: 100%% (%ld s)           \n", timeCounter/CLOCKS_PER_SEC);
 }
 
-void readFileAtualizaMaxMin(DADOS* dados, dados_temp* novoValor) {
+void readFileCountriesAtualizaMaxMin(DADOS* dados, dados_temp* novoValor) {
     //TODO calcula mal o mes min e maximo
     //caso seja o ano min, determinar o menor mes
+
     if (novoValor->dt.ano == dados->countriesAnoMin &&
         novoValor->dt.mes < dados->countriesMesMin)
     {
@@ -112,6 +113,34 @@ void readFileAtualizaMaxMin(DADOS* dados, dados_temp* novoValor) {
     {
         dados->countriesAnoMax = novoValor->dt.ano;
         dados->countriesMesMax = novoValor->dt.mes;
+    }
+}
+
+void readFileCitiesAtualizaMaxMin(DADOS* dados, dados_temp* novoValor) {
+    //TODO calcula mal o mes min e maximo
+    //caso seja o ano min, determinar o menor mes
+
+    if (novoValor->dt.ano == dados->citiesAnoMin &&
+        novoValor->dt.mes < dados->citiesMesMin)
+    {
+        dados->citiesMesMin = novoValor->dt.mes;
+    }
+    if (novoValor->dt.ano == dados->citiesAnoMax &&
+        novoValor->dt.mes > dados->citiesMesMax)
+    {
+        dados->citiesMesMax = novoValor->dt.mes;
+    }
+
+    //Determinar ano máx e mín
+    if (novoValor->dt.ano < dados->citiesAnoMin)
+    {
+        dados->citiesAnoMin = novoValor->dt.ano;
+        dados->citiesMesMin = novoValor->dt.mes;
+    }
+    if (novoValor->dt.ano > dados->citiesAnoMax)
+    {
+        dados->citiesAnoMax = novoValor->dt.ano;
+        dados->citiesMesMax = novoValor->dt.mes;
     }
 }
 
@@ -156,7 +185,7 @@ dados_temp *readFileLineToStruct(char* line, bool cidades) {
         free(a);
         a = NULL;
     }
-    
+
     return a;
 }
 
@@ -185,17 +214,18 @@ int readFileToList(char* fileName, DADOS* dados, bool cidades)
         int percentage = 0;
         removeLastCharIfMatch(buffer, '\n');
         removeLastCharIfMatch(buffer, '\r');
-        
+
         dados_temp* a = readFileLineToStruct(buffer, cidades);
 
         if (a != NULL)
         {
             insert_node(list, a);
-            readFileAtualizaMaxMin(dados, a);
+            cidades ? readFileCitiesAtualizaMaxMin(dados, a) : readFileCountriesAtualizaMaxMin(dados, a);
+            //readFileAtualizaMaxMin(dados, a);
             i++;
         }
 
-        
+
 
         //A cada 100 linhas calcula a percentagem e atualiza o progresso de leitura
         if(i % 100) {
@@ -207,7 +237,7 @@ int readFileToList(char* fileName, DADOS* dados, bool cidades)
                 lastPercentage = percentage;
             }
         }
-        
+
     }
 
     fclose(fileInput);
@@ -220,7 +250,7 @@ void mergeSort(list_node_t* list, int listSize) {
         //TODO Sair da funcao sem ordenar
     }
     int nMax = (listSize-1)/8 * 8;
-    
+
     while(n <= nMax) {
         list_node_t* aux = list->next; //Passa da dummy node
         int b = 0;
@@ -239,11 +269,11 @@ void mergeSort(list_node_t* list, int listSize) {
                 }
             }
             //Se o sortJ == NULL, então se considera "metade" TODO MUDAR
-            
+
             for(int k = 0; k<(n*2); k++)
             {
                 if(sortI == NULL && sortJ == NULL) break;
-                
+
                 if((sortJ == NULL || j == n) ||
                     (i < n && sortI != NULL && dataMenorQue(&sortI->payload->dt, &sortJ->payload->dt)))
                 {

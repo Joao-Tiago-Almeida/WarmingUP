@@ -45,7 +45,7 @@ void coloca_ou_atualiza_node_no_vetor_cidades(list_node_t *node, dados_temp **ci
             // não está no vetor
             //Faz uma cópia da cidade da payload da lista para a entrada do vetor
             (*cidades)[i] = *node->payload;
-            
+
             (*cidadesNumDados)[i]++;
             necessitaAumentarVetor = false;
             break;
@@ -72,12 +72,12 @@ void coloca_ou_atualiza_node_no_vetor_cidades(list_node_t *node, dados_temp **ci
         *cidadesNumDados = (int*) checkedRealloc(*cidadesNumDados, (*vecCidadesSize) * sizeof(dados_temp));
 
         //Inicializa todas as entradas para cidades novas criadas no vetor
-        for(int i = sizeAnterior; i<(*vecCidadesSize); i++) {    
+        for(int i = sizeAnterior; i<(*vecCidadesSize); i++) {
             init_empty_cidade(&(*cidades)[i]);
             (*cidadesNumDados)[i] = 0;
         }
 
-        //A primeira das novas entradas do vetor criadas é onde vai ser colocada a 
+        //A primeira das novas entradas do vetor criadas é onde vai ser colocada a
         // cidade correspondente ao nó da lista
         //Faz uma cópia da cidade da payload da lista para a entrada do vetor
         (*cidades)[sizeAnterior] = *node->payload;
@@ -88,7 +88,7 @@ void coloca_ou_atualiza_node_no_vetor_cidades(list_node_t *node, dados_temp **ci
 void atualiza_cidades_ao_aumentar_ano_ou_ano_inicial(DADOS *dados, dados_temp **cidades, int *vecCidadesSize, int ano) {
     //Vetor que contem o numero de valores para cada cidade, para depois fazer a média
     //No cidades[i].temp vai ser guardada a soma de todas as temperaturas desse ano
-    // e depois a temperatura final vai ser calculada dividindo pelo numero de dados 
+    // e depois a temperatura final vai ser calculada dividindo pelo numero de dados
     int *cidadesNumDados = NULL;
 
     //Caso seja o primeiro ano ou se esteja a voltar para trás cria um vetor novo
@@ -101,7 +101,7 @@ void atualiza_cidades_ao_aumentar_ano_ou_ano_inicial(DADOS *dados, dados_temp **
         if(*cidades != NULL) {
             free(*cidades);
         }
-        
+
         *vecCidadesSize = VECT_CIDADES_INITIAL_SIZE;
         *cidades = (dados_temp*) checkedMalloc((*vecCidadesSize) * sizeof(dados_temp));
         for(int i = 0; i<(*vecCidadesSize); i++) {
@@ -111,7 +111,7 @@ void atualiza_cidades_ao_aumentar_ano_ou_ano_inicial(DADOS *dados, dados_temp **
 
     //Fazer com que o vetor tenha o mesmo tamanho que o das cidades
     cidadesNumDados = checkedMalloc((*vecCidadesSize) * sizeof(int));
-    
+
 
     //Inicializa o numDados a zero para todas as cidades
     for(int i = 0; i<(*vecCidadesSize); i++) {
@@ -184,7 +184,7 @@ void mudarAno(DADOS *dados, dados_temp **cidades, int *vecCidadesSize, int *ano,
     }
 }
 
-void printCenas(dados_temp *cidades, int vecCidadesSize, int anoAtual) {
+/*void printCenas(dados_temp *cidades, int vecCidadesSize, int anoAtual) {
     printf("\n\t--%d--\n\n", anoAtual);
     for(int i = 0; i<vecCidadesSize; i++) {
         if(cidades[i].cidade[0] == '\0') {
@@ -194,7 +194,7 @@ void printCenas(dados_temp *cidades, int vecCidadesSize, int anoAtual) {
         }
         printf("%s - %.2f\n", cidades[i].cidade, cidades[i].temp);
     }
-}
+}*/
 
 /**
  * main function: entry point of the program
@@ -252,12 +252,16 @@ bool modoGrafico( char *nomeFilePaises, char *nomeFileCidades, DADOS *dados  )
                     case SDLK_q:
                         stay = false;
                         break;
+                    case SDLK_SPACE:
+                        if(pausa) pausa = false ;
+                        else pausa = true;
+                        break;
                     case SDLK_a:
                         //mudarAno(dados, &cidades, &vecCidadesSize, &anoAtual, false);
                         //printCenas(cidades, vecCidadesSize, anoAtual);
                         break;
                     case SDLK_s:
-                        printCenas(cidades, vecCidadesSize, anoAtual);
+                        //printCenas(cidades, vecCidadesSize, anoAtual);
                         break;
                     default:
                         break;
@@ -270,7 +274,7 @@ bool modoGrafico( char *nomeFilePaises, char *nomeFileCidades, DADOS *dados  )
             mudarAno(dados, &cidades, &vecCidadesSize, &anoAtual, true);
             mudarAno(dados, &cidades, &vecCidadesSize, &anoAtual, true);
         }
-    
+
         // render game table
         RenderMap( imgs, renderer, width, height);
 
@@ -380,7 +384,7 @@ void RenderCity(SDL_Renderer * _renderer, int width, int height, TTF_Font *_font
         cidade->longitude.direcao, width, height, false);
 
     printf("%s %f, %f\n", cidade->cidade, x, y);
-    
+
     RenderColor(_renderer, cidade->temp, x, y, dados);
 }
 
