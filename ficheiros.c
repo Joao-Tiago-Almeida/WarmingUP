@@ -56,8 +56,6 @@ void read_file_countries(DADOS *dados, char *_nomeFilePaises)
 
     dados->headCountriesOriginal = create_list();
     dados->headCountriesFiltrada = dados->headCountriesOriginal;
-    dados->countriesAnoMin = __INT32_MAX__;
-    dados->countriesAnoMax = 0;
 
     dados->countriesListSize = readFileToList(_nomeFilePaises, dados, false);
 
@@ -75,8 +73,6 @@ void read_file_cities(DADOS *dados, char *_nomeFileCidades)
 
     dados->headCitiesOriginal = create_list();
     dados->headCitiesFiltrada = dados->headCitiesOriginal;
-    dados->citiesAnoMin = __INT32_MAX__;
-    dados->citiesAnoMax = 0;
 
     dados->citiesListSize = readFileToList(_nomeFileCidades, dados, true);
 
@@ -142,6 +138,17 @@ void readFileCitiesAtualizaMaxMin(DADOS* dados, dados_temp* novoValor) {
         dados->citiesAnoMax = novoValor->dt.ano;
         dados->citiesMesMax = novoValor->dt.mes;
     }
+    //determinar a temperatura máxima e mínima
+    if (novoValor->temp < dados->citiesTempMin)
+    {
+        dados->citiesTempMin = novoValor->temp;
+    }
+    if (novoValor->temp > dados->citiesTempMax)
+    {
+        dados->citiesTempMax = novoValor->temp;
+    }
+
+
 }
 
 //Coloca os dados de uma linha numa estrutura do tipo dados_temp

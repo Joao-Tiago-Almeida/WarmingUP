@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <stdbool.h>
+#include <math.h>
 
 #include "modografico.h"
 #include "conjuntodados.h"
@@ -24,9 +25,8 @@
 #define OESTE 2
 #define LATITUDE_MAX 90
 #define LONGITUDE_MAX 180
-#define TEMP_MAX 50
-#define TEMP_MIN -40
 #define MAX_RGB 255
+#define MIN_RGB 0
 #define TEMP_REF 10
 #define VECT_CIDADES_INITIAL_SIZE 50
 #define BUFFER_SIZE 100
@@ -344,33 +344,29 @@ int calculo_coordenada(float coord_local, int _direcao, int _width, int _height,
 //TODO pode ser melhorado apenas com uma função
 void RenderColor(SDL_Renderer * _renderer, int _temperatura, int _latitude, int _longitude, DADOS *dados)
 {
-    //m representa o declive que permite calcular componente verde
-    int m = 0, b = 0, green = 0;
+        int m = 0;  //declive da reta
+        int b = 0;  // b vai ser a abcissa do ponto médio (temp_mas - temp_min), em que verde é máximo
+        int red, green, blue;
 
-    //frio
-    if(_temperatura<TEMP_REF)
-    {
-        //cresce à medida que a temperatura diminui
-        m = MAX_RGB/(TEMP_REF-dados->citiesTempMin);
-        //achar o b sabendo que se quando a temperatura fosse 10 o valor de verde seria máximo
-        b = MAX_RGB - m * TEMP_REF;
-        //calculo do verde em função da _temperatura
-        green =  m*_temperatura + b;
-        filledCircleRGBA(_renderer, _latitude, _longitude, 5, 0, green, 255);
-    }
-    //quente
-    else
-    {
-        //decresce à medida que a temperatura diminui
-        m = MAX_RGB/(TEMP_REF-dados->citiesTempMax);
-        //achar o b sabendo que quando a temperatura é 10 o valor de verde é máximo
-        b = MAX_RGB - m * TEMP_REF;
-        //calculo do verde em função da _temperatura
-        green =  m*_temperatura + b;
+        float temp_min = dados->citiesTempMin;
+        float temp_max = dados->citiesTempMax;
 
-        filledCircleRGBA(_renderer, _latitude, _longitude, 5, 255, green, 0);
-    }
-    //printf("temperatura == %d\ngreen:: %d\n", _temperatura, green);
+        m = ((MAX_RGB-MIN_RGB)/(temp_max-temp_min))*2;        //múltiplico por 2 pois o pico tem de ser a meio da reta
+        b = temp_min + (fabsf(temp_min) + fabsf(temp_max))*0.5;
+        printf("\nb :;:; %d\n", b);
+
+        //green
+        green = MAX_RGB - abs((_temperatura  - b) * m);
+
+        //blue
+        blue = _temperatura < b ? 255 - (-1)*(_temperatura  - b) * m : 0;
+
+        //red
+        red = _temperatura > b ? (_temperatura  - b) * m : 0;
+        printf("red :: %d\ngreen :: %d\nblue :: %d\n, temperatura:: %d\n", red, green, blue, _temperatura);
+
+
+        filledCircleRGBA(_renderer, _latitude, _longitude, 5, red, green, blue);
 }
 
 void RenderCity(SDL_Renderer * _renderer, int width, int height, TTF_Font *_font, dados_temp* cidade, DADOS *dados) {
@@ -476,7 +472,7 @@ void RenderMap( SDL_Surface *_img[], SDL_Renderer* _renderer , int width, int he
 void RenderStatus(SDL_Renderer *renderer, TTF_Font *font, int ano, bool pausa, int velocidade) {
     char buffer[BUFFER_SIZE];
     SDL_Color anoTextColor = { 255, 255, 255 };
-    
+
     sprintf(buffer, "%d", ano);
     RenderText(50, 50, buffer, font, &anoTextColor, renderer);
 

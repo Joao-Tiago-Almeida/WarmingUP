@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define FLOAT_MAX   10000
+
 #define DEZEMBRO 12
 
 void dados_init(DADOS *dados)
@@ -11,6 +13,12 @@ void dados_init(DADOS *dados)
     dados->headCountriesFiltrada = NULL;
     dados->headCitiesOriginal = NULL;
     dados->headCitiesFiltrada = NULL;
+    dados->countriesAnoMin = __INT32_MAX__;
+    dados->countriesAnoMax = -__INT32_MAX__;
+    dados->citiesAnoMin = __INT32_MAX__;
+    dados->citiesAnoMax = -__INT32_MAX__;
+    dados->citiesTempMax = -FLOAT_MAX;
+    dados->citiesTempMin = FLOAT_MAX ;
     printf("---DADOS INIT---\n");
 }
 
