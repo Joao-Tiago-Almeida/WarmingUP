@@ -22,5 +22,6 @@ void RenderStatus(SDL_Renderer *renderer, TTF_Font *font, int ano, bool pausa, i
 void RenderPausa(SDL_Renderer *renderer, int pausaCounter);
 int CalcDistance(int x1, int y1, int x2, int y2);
 void RenderSelectedCity(SDL_Renderer *renderer, TTF_Font *font, dados_temp *cidade);
+SDL_Texture *CreateRenderTexture(SDL_Renderer* _renderer, int width, int height);
 
 #endif

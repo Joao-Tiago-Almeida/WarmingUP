@@ -200,6 +200,7 @@ bool modoGrafico( char *nomeFilePaises, char *nomeFileCidades, DADOS *dados  )
     TTF_Font *AppleGaramond = NULL;
     SDL_Surface *imgs[1];
     SDL_Event event;
+    SDL_Texture *renderTexture; //Serve para fazer zoom
     bool stay = true;
     int width = WIDTH_WINDOW_SIZE;
     int height = HEIGHT_WINDOW_SIZE;
@@ -221,6 +222,9 @@ bool modoGrafico( char *nomeFilePaises, char *nomeFileCidades, DADOS *dados  )
 
     int selectedCity = -1;
 
+    int zoomPosX = -1, zoomPosY = -1;
+    SDL_Rect windowRect = {0, 0, width, height};
+
     if(dados->headCitiesOriginal == NULL)  read_file_cities (dados,nomeFileCidades);
 
     //Começa no menor ano
@@ -229,9 +233,11 @@ bool modoGrafico( char *nomeFilePaises, char *nomeFileCidades, DADOS *dados  )
 
     // initialize graphics
     InitEverything(width, height, &AppleGaramond, imgs, &window, &renderer);
+    renderTexture = CreateRenderTexture(renderer,width, height);
 
     while( stay )
     {
+        SDL_GetMouseState(&mouseX, &mouseY);
         // while there's events to handle
         while( SDL_PollEvent( &event ) )
         {
@@ -268,6 +274,14 @@ bool modoGrafico( char *nomeFilePaises, char *nomeFileCidades, DADOS *dados  )
                     default:
                         break;
                 }
+            } else if(event.type == SDL_MOUSEBUTTONDOWN) {
+                if(zoomPosX == -1) {
+                    zoomPosX = mouseX;
+                    zoomPosY = mouseY;
+                } else {
+                    zoomPosX = -1;
+                    zoomPosY = -1;
+                }
             }
         }
 
@@ -287,7 +301,8 @@ bool modoGrafico( char *nomeFilePaises, char *nomeFileCidades, DADOS *dados  )
 
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
-        
+        SDL_SetRenderTarget(renderer, renderTexture);
+        //Desenha o mapa e as cidades na renderTexture
 
         RenderMap( imgs, renderer, width, height);
 
@@ -309,6 +324,16 @@ bool modoGrafico( char *nomeFilePaises, char *nomeFileCidades, DADOS *dados  )
             }
         }
 
+        SDL_RenderPresent(renderer);
+
+        //Desenha na janela
+        SDL_SetRenderTarget(renderer, NULL);
+
+        //Desenha o mapa com os pontos
+        
+        SDL_RenderCopy(renderer, renderTexture, &windowRect, &windowRect);
+
+
         if(selectedCity != -1) {
             RenderSelectedCity(renderer, AppleGaramond, &cidades[selectedCity]);
         }
@@ -324,8 +349,25 @@ bool modoGrafico( char *nomeFilePaises, char *nomeFileCidades, DADOS *dados  )
 
         RenderLegenda( renderer ,width, height, AppleGaramond);
 
-        // render in the screen all changes above
+        if(zoomPosX != -1) {
+            //RenderZoom(renderer, zoom)
+            
+            SDL_Rect zoomRectSrc, zoomRectDest;
+
+            zoomRectSrc.x = zoomPosX - 100;
+            zoomRectSrc.y = zoomPosY - 100;
+            zoomRectSrc.w = 200;
+            zoomRectSrc.h = 200;
+            zoomRectDest.x = zoomPosX - 200;
+            zoomRectDest.y = zoomPosY - 200;
+            zoomRectDest.w = 400;
+            zoomRectDest.h = 400;
+
+            SDL_RenderCopy(renderer, renderTexture, &zoomRectSrc, &zoomRectDest);
+        }
+
         SDL_RenderPresent(renderer);
+
         // add a delay
         SDL_Delay(DELAY);
     }
@@ -492,10 +534,6 @@ void RenderMap( SDL_Surface *_img[], SDL_Renderer* _renderer , int width, int he
     SDL_Texture *table_texture;
     SDL_Rect tableSrc, tableDest;//, board, board_square;
 
-
-    // clear the window
-    SDL_RenderClear( _renderer );
-
     tableDest.x = tableSrc.x = 0;
     tableDest.y = tableSrc.y = 0;
     tableSrc.w = _img[0]->w;
@@ -510,7 +548,6 @@ void RenderMap( SDL_Surface *_img[], SDL_Renderer* _renderer , int width, int he
 
     // destroy everything
     SDL_DestroyTexture(table_texture);
-
 }
 
 void RenderStatus(SDL_Renderer *renderer, TTF_Font *font, int ano, bool pausa, int velocidade) {
@@ -644,6 +681,15 @@ SDL_Renderer* CreateRenderer(int width, int height, SDL_Window *_window)
     return renderer;
 }
 
+SDL_Texture *CreateRenderTexture(SDL_Renderer* _renderer, int width, int height) {
+    SDL_Texture *texture = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, width, height);
+    if(texture == NULL)
+    {
+        printf("Failed to create render texture : %s\n", SDL_GetError() );
+        exit(EXIT_FAILURE);
+    }
+    return texture;
+}
 /**
  * RenderText function: Renders some text on a position inside the app window
  * \param x X coordinate of the text
