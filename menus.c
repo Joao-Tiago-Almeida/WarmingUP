@@ -703,25 +703,25 @@ void analise_por_pais_ou_cidade(DADOS* dados, bool porCidade)
 
 //TODO não usada
 //usar para procurar os strings nos ficheiro
-void fgetstring(list_node_t * aux, bool string_pais, char string [BUFFER_SIZE])
+bool fgetstring(list_node_t * aux, bool porPais, char string [BUFFER_SIZE])
 {
     while(aux != NULL)
     {
-        if(string_pais && (strstr(aux->payload->pais, string) != NULL))
+        if(porPais && (strstr(aux->payload->pais, string) != NULL))
         {
-            printf("found country :: %s\n", aux->payload->pais);
+            return true;
         }
         else if(strstr(aux->payload->cidade,string) != NULL)
         {
-            printf("found country :: %s\n", aux->payload->cidade);
+            return true;
         }
         aux = aux->next;
     }
+    return false;
 }
 
-//TODO acabar!!
 //função estrutural do cálculo do miving average
-void calculo_MA(int M, DADOS *dados, bool porPais, bool porCidade)
+void m4_calculo_MA(int M, DADOS *dados, bool porPais, bool porCidade)
 {
     int anos_a_estudar[NR_DE_ANOS_A_ESTUDAR] = {ANO_A_ESTUDAR_1860, ANO_A_ESTUDAR_1910, ANO_A_ESTUDAR_1960, ANO_A_ESTUDAR_1990, ANO_A_ESTUDAR_2013};
     float *vectMA_anos = NULL;
@@ -731,36 +731,60 @@ void calculo_MA(int M, DADOS *dados, bool porPais, bool porCidade)
 
     int anoMax = porCidade ? dados->citiesAnoMax : dados->countriesAnoMax;
     int anoMin = porCidade ? dados->citiesAnoMin : dados->countriesAnoMin;
-    // int mesMax = porCidade ? dados->citiesMesMax : dados->countriesMesMax;
-    // int mesMin = porCidade ? dados->citiesMesMin : dados->countriesMesMin;
+
+    list_node_t *aux = NULL;
+    if(porPais || porCidade)
+    {
+        aux = porCidade ? dados->headCitiesOriginal->next : dados->headCountriesOriginal->next; //->next para a node a seguir à dummy node
+    }
+    else
+    {
+        aux = dados->headCountriesOriginal->next;
+    }
 
      vectMA_anos = (float*) checkedMalloc(sizeof(float) * (anoMax - anoMin + 1));
+
      if(porPais || porCidade) getstring(paisOuCidade, porPais ? pais_a_analisar : cidade_a_analisar);
+
 
     int ano_a_analisar = anoMin;
     int pos_no_vetor = 0;
     while (ano_a_analisar <= anoMax )
     {
-        vectMA_anos[pos_no_vetor] = media_ano (dados, ano_a_analisar, porPais, porCidade, paisOuCidade, M);
-        //printf("vectMA_anos[pos_no_vetor]:: %f\n", vectMA_anos[pos_no_vetor]);
-        printf("vetor: %f\n", vectMA_anos[pos_no_vetor]);
+        vectMA_anos[pos_no_vetor] = m4_media_ano (dados, ano_a_analisar, porPais, porCidade, paisOuCidade, M, aux);
         ano_a_analisar ++;
         pos_no_vetor ++;
     }
 
-    for (int g = 0; g < NR_DE_ANOS_A_ESTUDAR; g++)
-   {
-       if(!porPais && !porCidade)
+    if(fgetstring(aux, porPais, paisOuCidade) || (!porPais && !porCidade))
+    {
+        for (int g = 0; g < NR_DE_ANOS_A_ESTUDAR; g++)
        {
-           printf("Em %d, o aumento da temperatura global foi == %f graus\n", anos_a_estudar[g],
-                                                   calculo_aumento_temp(dados, vectMA_anos, anos_a_estudar[g]));
+           if(anos_a_estudar[g] < anoMin)   printf("Não há dados para %d\n", anos_a_estudar[g]);
+           else if(!porPais && !porCidade)
+           {
+               printf("Em %d, o aumento da temperatura global foi == %f graus\n", anos_a_estudar[g],
+                                                       m4_calculo_aumento_temp(dados, vectMA_anos, anos_a_estudar[g], porPais, porCidade));
+           }
+           else
+           {
+               printf("Em %d, o aumento da temperatura em %s foi == %f graus\n", anos_a_estudar[g], paisOuCidade,
+                                                       m4_calculo_aumento_temp(dados, vectMA_anos, anos_a_estudar[g], porPais, porCidade));
+           }
        }
-       else
-       {
-           printf("Em %d, o aumento da temperatura em %s foi == %f graus\n", anos_a_estudar[g], paisOuCidade,
-                                                   calculo_aumento_temp(dados, vectMA_anos, anos_a_estudar[g]));
-       }
-   }
+    }
+    else
+    {
+        if(porPais)
+        {
+            printf("%s não é um país ou está mal escrito!\n", paisOuCidade);
+        }
+        else
+        {
+            printf("%s não é uma cidade ou está mal escrito!\n", paisOuCidade);
+        }
+        printf("Pouca cultura geral!!\tISTudasses\n");
+    }
 
     free(vectMA_anos);
 }
@@ -768,25 +792,15 @@ void calculo_MA(int M, DADOS *dados, bool porPais, bool porCidade)
 //TODO mudar nome
 //calcula a media da temperatura de cada mês ao longo de um ano
 //chama a função moving average
-float media_ano (DADOS *dados, int ano_a_analisar, bool porPais, bool porCidade, char paisOuCidade[100], int M)
+float m4_media_ano (DADOS *dados, int ano_a_analisar, bool porPais, bool porCidade, char paisOuCidade[100], int M, list_node_t *aux)
 {
     float soma_temperatura_mes = 0;
-    // int mes = 0;
     int mes_a_analisar = 1;
 
-    list_node_t *aux =NULL;
-    if(porPais || porCidade)
-    {
-        aux = porCidade ? dados->headCitiesOriginal->next : dados->headCountriesOriginal->next; //->next para a node a seguir à dummy node
-    }
-    else  aux = dados->headCountriesOriginal->next;
 
-
-    //TODO não se aloca memória em função dos meses do ano que têm informação, pois nesse mes
     float *vect_temp = (float*) checkedMalloc(sizeof(float) * (NR_DE_MESES));
     bool *vect_mes_tem_dados = (bool*) checkedMalloc(sizeof(float) * (NR_DE_MESES));
 
-    //TODO mudar para quando não tiverem qq valor
     for(int b = 0; b < NR_DE_MESES ; b ++)
     {
         vect_temp[b] = -__FLT_MAX__;
@@ -828,10 +842,6 @@ float media_ano (DADOS *dados, int ano_a_analisar, bool porPais, bool porCidade,
 
                         vect_mes_tem_dados[mes_a_analisar-1] = true;
                         aux = aux->next;
-                        // printf(":aux->payload->dt.ano:: %d\n", aux->payload->dt.ano);
-                        // printf(":ano_a_analisar:: %d\n", ano_a_analisar);
-                        // printf(":aux->payload->dt.mes:: %d\n", aux->payload->dt.mes);
-                        // printf(":mes_a_analisar:: %d\n", mes_a_analisar);
                     }
                     //quando não tem dados no mês
                     else
@@ -843,91 +853,70 @@ float media_ano (DADOS *dados, int ano_a_analisar, bool porPais, bool porCidade,
         }
         else    aux = aux->next;
     }
-    // for(int t = 0; t < NR_DE_MESES; t++)
-    // {
-    //     printf("temp media :: %f\nano :: %d\nmes :: %d\n", vect_temp[t], ano_a_analisar, t+1);
-    // }
 
-    //printf("ola3\n");
-    //free(vect_temp);
-    moving_average(M, vect_temp, vect_mes_tem_dados);
-    // printf("-------------------------------------------------------------------------------\n");
-    // for(int t = 0; t < NR_DE_MESES; t++)
-    // {
-    //     printf("temp media :: %f\nano :: %d\nmes :: %d\n", vect_temp[t], ano_a_analisar, t+1);
-    // }
+    float media_anual = m4_moving_average(M, vect_temp, vect_mes_tem_dados);
 
-
-    float media_anual = 0;
-    nr_dados = 0;
-
-    for(int i = 0; i < NR_DE_MESES; i++)
-    {
-        //printf("lalalala;; %d\n", vect_mes_tem_dados[i]);
-        if(vect_mes_tem_dados[i])
-        {
-            // medial anual guarda o valor da soma temporária
-            media_anual += vect_temp[i];
-            nr_dados ++;
-            //printf("mes::%d\n", 1+i);
-        }
-    }
-    //TODO ele passa mal os valores
-    media_anual = (float)media_anual/nr_dados;
-    //printf("media anual :: %f\n", media_anual);
-
-    // free(vect_temp);
-    // free(vect_mes_tem_dados);
+    free(vect_temp);
+    free(vect_mes_tem_dados);
     return media_anual;
 
 }
 // calcula um moving average ao longo de uma ano
-void moving_average(int M, float* vect_temp, bool* vect_mes_tem_dados)
+// e a média desse ano
+float m4_moving_average(int M, float* vect_temp, bool* vect_mes_tem_dados)
 {
     float soma_temp = 0;
-    int m = 0;
+    int m = 0;      //nr de meses do moving average
+    float vect_aux[NR_DE_MESES];
+    int nr_de_meses_com_dados = 0;
+    int nr_meses_considerados = 0;
 
-    for ( int a = NR_DE_MESES; a > 0; a--)
+
+    for ( int a = 0; a < NR_DE_MESES; a++)
     {
+        vect_aux[a] = 0.0f;
+        if(vect_mes_tem_dados[a])   nr_de_meses_com_dados ++;
+    }
+    // moving average de cada mês
+    for ( int a = 0; a < NR_DE_MESES; a++)
+    {
+        //se houver dados nesse mês
+        if(vect_mes_tem_dados[a])
         {
-            m = a + 1 - M < 0 ? a + 1 : M;
-            //calcular a moving average com M variável, não há meses suficientes
-            //calcular a moving average com M fixo
-            for (int b = a - m + 1 ; b <= a ; b++)  //enquanto b < M
+            if(m<M)     m++;
+            for(int y = a ; y >= 0; y--)
             {
-                soma_temp += vect_temp[b];
+                if(vect_mes_tem_dados[y])
+                {
+                    soma_temp += vect_temp[y];
+                    nr_meses_considerados++;
+                    if(nr_meses_considerados == m) break;
+                }
             }
-            vect_temp[a] = (float)soma_temp/m;
+            vect_aux[a] = (float)soma_temp / nr_meses_considerados;
             soma_temp = 0;
+            nr_meses_considerados = 0;
         }
     }
-    // for(int t = 0; t < NR_DE_MESES; t++)
-    // {
-    //     printf("temp media :: %f\nmes :: %d\n", vect_temp[t], t+1);
-    // }
+    for ( int a = 0; a < NR_DE_MESES; a++)  soma_temp += vect_aux[a];
+
+    return (float)soma_temp/nr_de_meses_com_dados;
 }
 
 //calcula a amplitude entre o ano minimo do ficheiro e o ano que recebe como parametro de entrada
-float calculo_aumento_temp(DADOS *dados, float *vect, int ano)
+float m4_calculo_aumento_temp(DADOS *dados, float *vect, int ano,  bool porPais, bool porCidade)
 {
     float max = -__FLT_MAX__;
     float min = __FLT_MAX__;
     float ATG = 0;
-    int size = ano - dados->countriesAnoMin;
+    int size = ano - (porCidade ? dados->citiesAnoMin: dados->countriesAnoMin);
 
-    //for(int i = 0; i < 271; i++)    printf("aumento temperatura: %f\n", vect[i]);
-
-    //descobrir os valores máximos e mínimos
-    //TODO confirmar que os valores a comparar tem de estar entre valores esperados
     for (int i = 0; i < size; i++)
     {
-        if(vect[i] < min && vect[i] > 5) min = vect[i];
+        if(vect[i] < min) min = vect[i];
         if(vect[i] > max) max = vect[i];
     }
     ATG = max - min;
-
-    //printf("ja tou farto:: %f, %f\n", max, min);
-
     return ATG;
 }
 
@@ -941,9 +930,11 @@ void menu_analise_da_temperatura_global(DADOS *dados)
     M = perguntar_referencia_a_analisar(1 ,MAX_M, comentario);
 
     // cálculo do aumento de temperatura global
-    calculo_MA(M, dados, false, false);
+    m4_calculo_MA(M, dados, false, false);
     // cálculo do aumento de temperatura por país
-    calculo_MA(M, dados, false, true);
+    m4_calculo_MA(M, dados, true, false);
+    // cálculo do aumento de temperatura por cidade
+    m4_calculo_MA(M, dados, false, true);
 
 
 

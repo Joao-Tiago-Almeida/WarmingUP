@@ -21,10 +21,9 @@ void historico_de_temperaturas(DADOS *dados, bool porPais, bool porCidade);
 
 void analise_por_pais_ou_cidade(DADOS* dados, bool porCidade);
 
-void calculo_MA(int M, DADOS *dados, bool porPais, bool porCidade);
-
-float calculo_aumento_temp(DADOS *dados, float *vectMA,int ano);
-float media_ano (DADOS *dados, int ano_a_analisar, bool porPais, bool porCidade, char paisOuCidade[100], int M);
-void moving_average(int M, float* vect_temp, bool* vect_mes_tem_dados);
+void m4_calculo_MA(int M, DADOS *dados, bool porPais, bool porCidade);
+float m4_calculo_aumento_temp(DADOS *dados, float *vect, int ano,  bool porPais, bool porCidade);
+float m4_media_ano (DADOS *dados, int ano_a_analisar, bool porPais, bool porCidade, char paisOuCidade[100], int M, list_node_t *aux);
+float m4_moving_average(int M, float* vect_temp, bool* vect_mes_tem_dados);
 
 #endif
