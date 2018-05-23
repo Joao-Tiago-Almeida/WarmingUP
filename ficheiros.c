@@ -158,6 +158,7 @@ dados_temp *readFileLineToStruct(char* line, bool cidades) {
     dados_temp *a = malloc(sizeof(dados_temp));
 
     if(cidades) {
+        //TODO faltam cidades check == 10 E
         check = sscanf(line, "%d-%d-%d,%f,%f,%[^,],%[^,],%f%c,%f%c",
             &a->dt.ano,
             &a->dt.mes,
@@ -171,7 +172,7 @@ dados_temp *readFileLineToStruct(char* line, bool cidades) {
             &a->longitude.angular,
             &longitude_c);
             a->latitude.direcao = (latitude_c == 'N') ? NORTE : SUL;
-            a->longitude.direcao = (longitude_c == 'E') ? ESTE : OESTE;
+            a->longitude.direcao = (longitude_c == 'W') ? OESTE : ESTE;
     }
     else
     {
