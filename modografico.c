@@ -530,7 +530,7 @@ void AtualizaCidades(DADOS *dados, dados_temp **cidades, int *vecCidadesSize, in
         //Se passar do ultimo ano de volta para o primeiro tem de apagar o vetor
         if(*cidades != NULL) {
             free(*cidades);
-            cidades = NULL;
+            *cidades = NULL;
         }
 
         *vecCidadesSize = VECT_CIDADES_INITIAL_SIZE;

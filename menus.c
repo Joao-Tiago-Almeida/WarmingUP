@@ -865,17 +865,20 @@ void m4_calculo_MA(int M, DADOS *dados, bool porPais, bool porCidade)
     {
         for (int g = 0; g < NR_DE_ANOS_A_ESTUDAR; g++)
        {
-           if(anos_a_estudar[g] < anoMin)   printf("Não há dados para %d\n", anos_a_estudar[g]);
-           else if(!porPais && !porCidade)
-           {
-               printf("Em %d, o aumento da temperatura global foi == %f graus\n", anos_a_estudar[g],
-                                                       M4_CalculoAumentoTemp(dados, vectMA_anos, anos_a_estudar[g], porCidade));
-           }
-           else
-           {
-               printf("Em %d, o aumento da temperatura em %s foi == %f graus\n", anos_a_estudar[g], paisOuCidade,
-                                                       M4_CalculoAumentoTemp(dados, vectMA_anos, anos_a_estudar[g], porCidade));
-           }
+            if(anos_a_estudar[g] < anoMin)
+            {
+                printf("Não há dados para %d\n", anos_a_estudar[g]);
+            }
+            else if(!porPais && !porCidade)
+            {
+                printf("Em %d, o aumento da temperatura global foi == %f graus\n", anos_a_estudar[g],
+                M4_CalculoAumentoTemp(dados, vectMA_anos, anos_a_estudar[g], porCidade));
+            }
+            else
+            {
+                printf("Em %d, o aumento da temperatura em %s foi == %f graus\n", anos_a_estudar[g], paisOuCidade,
+                M4_CalculoAumentoTemp(dados, vectMA_anos, anos_a_estudar[g], porCidade));
+            }
        }
     }
     else
