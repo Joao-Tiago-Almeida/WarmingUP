@@ -59,6 +59,8 @@ void read_file_countries(DADOS *dados, char *_nomeFilePaises)
     dados->countriesAnoMin = __INT32_MAX__;
     dados->countriesAnoMax = 0;
 
+    printf("A ler dados dos países...\n");
+
     dados->countriesListSize = readFileToList(_nomeFilePaises, dados, false);
 
     printf("\rProgresso: 100%% (A ordenar...)");
@@ -78,6 +80,8 @@ void read_file_cities(DADOS *dados, char *_nomeFileCidades)
     dados->citiesAnoMin = __INT32_MAX__;
     dados->citiesAnoMax = 0;
 
+    printf("A ler dados das cidades...\n");
+
     dados->citiesListSize = readFileToList(_nomeFileCidades, dados, true);
 
     printf("\rProgresso: 100%% (A ordenar...)");
@@ -85,7 +89,7 @@ void read_file_cities(DADOS *dados, char *_nomeFileCidades)
     mergeSort(dados->headCitiesOriginal, dados->citiesListSize);
 
     timeCounter = clock() - timeCounter;
-    printf("\rProgresso: 100%% (%ld s)           \n", timeCounter/CLOCKS_PER_SEC);
+    printf("\rProgresso: 100%% (%ld s)                \n", timeCounter/CLOCKS_PER_SEC);
 }
 
 void readFileCountriesAtualizaMaxMin(DADOS* dados, dados_temp* novoValor) {
@@ -148,8 +152,8 @@ void readFileCitiesAtualizaMaxMin(DADOS* dados, dados_temp* novoValor) {
 //Se não leu corretamente devolve NULL
 dados_temp *readFileLineToStruct(char* line, bool cidades) {
     int check = -1;
-    char longitude_c;
-    char latitude_c;
+    char longitude_c = '\0';
+    char latitude_c = '\0';
 
     dados_temp *a = malloc(sizeof(dados_temp));
 
@@ -200,8 +204,6 @@ int readFileToList(char* fileName, DADOS* dados, bool cidades)
     list_node_t* list = cidades ? dados->headCitiesOriginal : dados->headCountriesOriginal;
 
     int lastPercentage = 0;
-
-    printf("A ler dados dos países...\n");
 
     fileInput = checkedFopen(fileName, "r");
 

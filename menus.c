@@ -152,7 +152,7 @@ bool menu_principal(DADOS* dados)
             break;
         case 0:
             printf("Quit\n");
-            exit(EXIT_SUCCESS);
+            return false;
             break;
         default:
             printf("\nOpção inválida\n");
@@ -339,8 +339,8 @@ void opcao_escolhe_intervalos_para_analise(CRITERIOS_FILTRAGEM *criterios, DADOS
 }
 void opcao_escolhe_mes(CRITERIOS_FILTRAGEM *criterios)
 {
-    printf("\n\n\t---Escolhe um mês---\n\n");
-    printf("Apenas serão considerados os dados do periodo delimitado");
+    printf("\n\n\t---Escolha mêses---\n\n");
+    printf("Apenas serão considerados os dados dos meses (delimitado por espaços)\n");
 
     char buf[BUFFER_SIZE];
     char *delim = " ";
@@ -373,11 +373,10 @@ void opcao_escolhe_mes(CRITERIOS_FILTRAGEM *criterios)
             }
             token = strtok(NULL, delim);
         }
-
         //TODO pode haver intervalos de 1 mês??
     } while (invalido);
 
-    criterios->filtraPorIntervalo = true;
+    criterios->filtraPorMeses = true;
 
 }
 
@@ -591,7 +590,7 @@ void historico_de_temperaturas(DADOS *dados, int filtra) {
                     printf("%d %s\n", i+1, paisesOuCidadesEncontrados[i]);
                 }
                 
-                char tecla = pergunta_tecla("Quer escolher outro nome? [s/n]", 's', 'n');
+                char tecla = pergunta_tecla("\nQuer escolher outro nome? [s/n]", 's', 'n');
                 if(tecla == 's') {
                     pedeDeNovo = true;
                     free(paisesOuCidadesEncontrados);

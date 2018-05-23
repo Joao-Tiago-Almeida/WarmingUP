@@ -96,8 +96,14 @@ void criacao_lista_filtrada(DADOS * dados, bool lista_paises, CRITERIOS_FILTRAGE
     list_node_t *aux = NULL;
 
     //Cria novas entradas na lista filtrada
-    if(lista_paises)    dados->headCountriesFiltrada = create_list();
-    else    dados->headCitiesFiltrada = create_list();
+    if(lista_paises)
+    {
+        dados->headCountriesFiltrada = create_list();
+    }
+    else
+    {
+        dados->headCitiesFiltrada = create_list();
+    }
 
     aux = lista_paises ? dados->headCountriesOriginal->next : dados->headCitiesOriginal->next;
     while (aux != NULL)
@@ -122,9 +128,9 @@ bool cumpre_criterios(dados_temp* valor, CRITERIOS_FILTRAGEM *criterios)
         return false;
     }
 
-    if (criterios->filtraPorMeses && criterios->mesesSelecionados[valor->dt.mes])
+    if (criterios->filtraPorMeses && !criterios->mesesSelecionados[valor->dt.mes-1])
     {
-        //Exclui aqueles cujo mes é menor que o mínimo ou maior que o máximo
+        //Exclui pelo mes
         return false;
     }
 

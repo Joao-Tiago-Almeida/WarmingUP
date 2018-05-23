@@ -1,181 +1,104 @@
-==14808== Memcheck, a memory error detector
-==14808== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
-==14808== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
-==14808== Command: ./WarmingUp -t -f1 tempcountries.csv -f2 tempcities.csv
-==14808== Parent PID: 6361
-==14808== 
-==14808== Conditional jump or move depends on uninitialised value(s)
-==14808==    at 0x10A186: readFileLineToStruct (ficheiros.c:170)
-==14808==    by 0x10A357: readFileToList (ficheiros.c:218)
-==14808==    by 0x109E75: read_file_cities (ficheiros.c:81)
-==14808==    by 0x10AEB7: modoTextual (main.c:117)
-==14808==    by 0x10AB34: main (main.c:26)
-==14808==  Uninitialised value was created by a stack allocation
-==14808==    at 0x10A09F: readFileLineToStruct (ficheiros.c:149)
-==14808== 
-==14808== Conditional jump or move depends on uninitialised value(s)
-==14808==    at 0x10C3B5: historico_de_temperaturas (menus.c:579)
-==14808==    by 0x10B3C3: menu_historico_de_temperaturas (menus.c:191)
-==14808==    by 0x10B2B4: menu_principal (menus.c:142)
-==14808==    by 0x10AEC3: modoTextual (main.c:122)
-==14808==    by 0x10AB34: main (main.c:26)
-==14808==  Uninitialised value was created by a stack allocation
-==14808==    at 0x10BE7B: CalculaSumMaxEMin (menus.c:489)
-==14808== 
-==14808== Conditional jump or move depends on uninitialised value(s)
-==14808==    at 0x10C415: historico_de_temperaturas (menus.c:586)
-==14808==    by 0x10B3C3: menu_historico_de_temperaturas (menus.c:191)
-==14808==    by 0x10B2B4: menu_principal (menus.c:142)
-==14808==    by 0x10AEC3: modoTextual (main.c:122)
-==14808==    by 0x10AB34: main (main.c:26)
-==14808==  Uninitialised value was created by a stack allocation
-==14808==    at 0x10BE7B: CalculaSumMaxEMin (menus.c:489)
-==14808== 
-==14808== 
-==14808== HEAP SUMMARY:
-==14808==     in use at exit: 157,399,612 bytes in 1,192,288 blocks
-==14808==   total heap usage: 2,009,053 allocs, 816,765 frees, 316,155,428 bytes allocated
-==14808== 
-==14808== 4 bytes in 1 blocks are still reachable in loss record 1 of 12
-==14808==    at 0x4C2CEDF: malloc (vg_replace_malloc.c:299)
-==14808==    by 0x6F87943: ??? (in /usr/lib/libglib-2.0.so.0.5600.1)
-==14808==    by 0x6F87EDB: g_private_get (in /usr/lib/libglib-2.0.so.0.5600.1)
-==14808==    by 0x6F5ED4D: g_slice_alloc (in /usr/lib/libglib-2.0.so.0.5600.1)
-==14808==    by 0x6F2F26E: g_hash_table_new_full (in /usr/lib/libglib-2.0.so.0.5600.1)
-==14808==    by 0x6F5187B: ??? (in /usr/lib/libglib-2.0.so.0.5600.1)
-==14808==    by 0x400F109: call_init.part.0 (in /usr/lib/ld-2.27.so)
-==14808==    by 0x400F205: _dl_init (in /usr/lib/ld-2.27.so)
-==14808==    by 0x4000FE9: ??? (in /usr/lib/ld-2.27.so)
-==14808==    by 0x5: ???
-==14808==    by 0x1FFF000222: ???
-==14808==    by 0x1FFF00022E: ???
-==14808== 
-==14808== 24 bytes in 1 blocks are still reachable in loss record 2 of 12
-==14808==    at 0x4C2CEDF: malloc (vg_replace_malloc.c:299)
-==14808==    by 0x10A6AE: create_node (lista.c:9)
-==14808==    by 0x10A721: create_list (lista.c:29)
-==14808==    by 0x109D37: read_file_countries (ficheiros.c:57)
-==14808==    by 0x10AE97: modoTextual (main.c:116)
-==14808==    by 0x10AB34: main (main.c:26)
-==14808== 
-==14808== 24 bytes in 1 blocks are still reachable in loss record 3 of 12
-==14808==    at 0x4C2CEDF: malloc (vg_replace_malloc.c:299)
-==14808==    by 0x10A6AE: create_node (lista.c:9)
-==14808==    by 0x10A721: create_list (lista.c:29)
-==14808==    by 0x109E2C: read_file_cities (ficheiros.c:76)
-==14808==    by 0x10AEB7: modoTextual (main.c:117)
-==14808==    by 0x10AB34: main (main.c:26)
-==14808== 
-==14808== 32 bytes in 1 blocks are still reachable in loss record 4 of 12
-==14808==    at 0x4C2EEF5: calloc (vg_replace_malloc.c:711)
-==14808==    by 0x6F46B21: g_malloc0 (in /usr/lib/libglib-2.0.so.0.5600.1)
-==14808==    by 0x6F2F2CB: g_hash_table_new_full (in /usr/lib/libglib-2.0.so.0.5600.1)
-==14808==    by 0x6F5187B: ??? (in /usr/lib/libglib-2.0.so.0.5600.1)
-==14808==    by 0x400F109: call_init.part.0 (in /usr/lib/ld-2.27.so)
-==14808==    by 0x400F205: _dl_init (in /usr/lib/ld-2.27.so)
-==14808==    by 0x4000FE9: ??? (in /usr/lib/ld-2.27.so)
-==14808==    by 0x5: ???
-==14808==    by 0x1FFF000222: ???
-==14808==    by 0x1FFF00022E: ???
-==14808==    by 0x1FFF000231: ???
-==14808==    by 0x1FFF000235: ???
-==14808== 
-==14808== 64 bytes in 1 blocks are still reachable in loss record 5 of 12
-==14808==    at 0x4C2EEF5: calloc (vg_replace_malloc.c:711)
-==14808==    by 0x6F46B21: g_malloc0 (in /usr/lib/libglib-2.0.so.0.5600.1)
-==14808==    by 0x6F2F2B5: g_hash_table_new_full (in /usr/lib/libglib-2.0.so.0.5600.1)
-==14808==    by 0x6F5187B: ??? (in /usr/lib/libglib-2.0.so.0.5600.1)
-==14808==    by 0x400F109: call_init.part.0 (in /usr/lib/ld-2.27.so)
-==14808==    by 0x400F205: _dl_init (in /usr/lib/ld-2.27.so)
-==14808==    by 0x4000FE9: ??? (in /usr/lib/ld-2.27.so)
-==14808==    by 0x5: ???
-==14808==    by 0x1FFF000222: ???
-==14808==    by 0x1FFF00022E: ???
-==14808==    by 0x1FFF000231: ???
-==14808==    by 0x1FFF000235: ???
-==14808== 
-==14808== 88 bytes in 1 blocks are still reachable in loss record 6 of 12
-==14808==    at 0x4C2CEDF: malloc (vg_replace_malloc.c:299)
-==14808==    by 0x6F46AC9: g_malloc (in /usr/lib/libglib-2.0.so.0.5600.1)
-==14808==    by 0x6F5EF16: g_slice_alloc (in /usr/lib/libglib-2.0.so.0.5600.1)
-==14808==    by 0x6F2F26E: g_hash_table_new_full (in /usr/lib/libglib-2.0.so.0.5600.1)
-==14808==    by 0x6F5187B: ??? (in /usr/lib/libglib-2.0.so.0.5600.1)
-==14808==    by 0x400F109: call_init.part.0 (in /usr/lib/ld-2.27.so)
-==14808==    by 0x400F205: _dl_init (in /usr/lib/ld-2.27.so)
-==14808==    by 0x4000FE9: ??? (in /usr/lib/ld-2.27.so)
-==14808==    by 0x5: ???
-==14808==    by 0x1FFF000222: ???
-==14808==    by 0x1FFF00022E: ???
-==14808==    by 0x1FFF000231: ???
-==14808== 
-==14808== 2,032 bytes in 1 blocks are still reachable in loss record 7 of 12
-==14808==    at 0x4C2EEF5: calloc (vg_replace_malloc.c:711)
-==14808==    by 0x6F46B21: g_malloc0 (in /usr/lib/libglib-2.0.so.0.5600.1)
-==14808==    by 0x6F5EF86: g_slice_alloc (in /usr/lib/libglib-2.0.so.0.5600.1)
-==14808==    by 0x6F2F26E: g_hash_table_new_full (in /usr/lib/libglib-2.0.so.0.5600.1)
-==14808==    by 0x6F5187B: ??? (in /usr/lib/libglib-2.0.so.0.5600.1)
-==14808==    by 0x400F109: call_init.part.0 (in /usr/lib/ld-2.27.so)
-==14808==    by 0x400F205: _dl_init (in /usr/lib/ld-2.27.so)
-==14808==    by 0x4000FE9: ??? (in /usr/lib/ld-2.27.so)
-==14808==    by 0x5: ???
-==14808==    by 0x1FFF000222: ???
-==14808==    by 0x1FFF00022E: ???
-==14808==    by 0x1FFF000231: ???
-==14808== 
-==14808== 16,384 bytes in 1 blocks are still reachable in loss record 8 of 12
-==14808==    at 0x4C2CEDF: malloc (vg_replace_malloc.c:299)
-==14808==    by 0x6F46AC9: g_malloc (in /usr/lib/libglib-2.0.so.0.5600.1)
-==14808==    by 0x6F5188D: ??? (in /usr/lib/libglib-2.0.so.0.5600.1)
-==14808==    by 0x400F109: call_init.part.0 (in /usr/lib/ld-2.27.so)
-==14808==    by 0x400F205: _dl_init (in /usr/lib/ld-2.27.so)
-==14808==    by 0x4000FE9: ??? (in /usr/lib/ld-2.27.so)
-==14808==    by 0x5: ???
-==14808==    by 0x1FFF000222: ???
-==14808==    by 0x1FFF00022E: ???
-==14808==    by 0x1FFF000231: ???
-==14808==    by 0x1FFF000235: ???
-==14808==    by 0x1FFF000247: ???
-==14808== 
-==14808== 1,231,896 bytes in 51,329 blocks are still reachable in loss record 9 of 12
-==14808==    at 0x4C2CEDF: malloc (vg_replace_malloc.c:299)
-==14808==    by 0x10A6AE: create_node (lista.c:9)
-==14808==    by 0x10A753: insert_node (lista.c:36)
-==14808==    by 0x10A375: readFileToList (ficheiros.c:222)
-==14808==    by 0x109E75: read_file_cities (ficheiros.c:81)
-==14808==    by 0x10AEB7: modoTextual (main.c:117)
-==14808==    by 0x10AB34: main (main.c:26)
-==14808== 
-==14808== 12,318,960 bytes in 51,329 blocks are still reachable in loss record 10 of 12
-==14808==    at 0x4C2CEDF: malloc (vg_replace_malloc.c:299)
-==14808==    by 0x10A0D2: readFileLineToStruct (ficheiros.c:154)
-==14808==    by 0x10A357: readFileToList (ficheiros.c:218)
-==14808==    by 0x109E75: read_file_cities (ficheiros.c:81)
-==14808==    by 0x10AEB7: modoTextual (main.c:117)
-==14808==    by 0x10AB34: main (main.c:26)
-==14808== 
-==14808== 13,075,464 bytes in 544,811 blocks are still reachable in loss record 11 of 12
-==14808==    at 0x4C2CEDF: malloc (vg_replace_malloc.c:299)
-==14808==    by 0x10A6AE: create_node (lista.c:9)
-==14808==    by 0x10A753: insert_node (lista.c:36)
-==14808==    by 0x10A375: readFileToList (ficheiros.c:222)
-==14808==    by 0x109D80: read_file_countries (ficheiros.c:62)
-==14808==    by 0x10AE97: modoTextual (main.c:116)
-==14808==    by 0x10AB34: main (main.c:26)
-==14808== 
-==14808== 130,754,640 bytes in 544,811 blocks are still reachable in loss record 12 of 12
-==14808==    at 0x4C2CEDF: malloc (vg_replace_malloc.c:299)
-==14808==    by 0x10A0D2: readFileLineToStruct (ficheiros.c:154)
-==14808==    by 0x10A357: readFileToList (ficheiros.c:218)
-==14808==    by 0x109D80: read_file_countries (ficheiros.c:62)
-==14808==    by 0x10AE97: modoTextual (main.c:116)
-==14808==    by 0x10AB34: main (main.c:26)
-==14808== 
-==14808== LEAK SUMMARY:
-==14808==    definitely lost: 0 bytes in 0 blocks
-==14808==    indirectly lost: 0 bytes in 0 blocks
-==14808==      possibly lost: 0 bytes in 0 blocks
-==14808==    still reachable: 157,399,612 bytes in 1,192,288 blocks
-==14808==         suppressed: 0 bytes in 0 blocks
-==14808== 
-==14808== For counts of detected and suppressed errors, rerun with: -v
-==14808== ERROR SUMMARY: 187933 errors from 3 contexts (suppressed: 0 from 0)
+==2605== Memcheck, a memory error detector
+==2605== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==2605== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==2605== Command: ./WarmingUp -t -f1 tempcountries_short.csv -f2 tempcities_short.csv
+==2605== Parent PID: 1240
+==2605== 
+==2605== 
+==2605== HEAP SUMMARY:
+==2605==     in use at exit: 18,604 bytes in 6 blocks
+==2605==   total heap usage: 216,391 allocs, 216,385 frees, 32,710,612 bytes allocated
+==2605== 
+==2605== 4 bytes in 1 blocks are still reachable in loss record 1 of 6
+==2605==    at 0x4C2CEDF: malloc (vg_replace_malloc.c:299)
+==2605==    by 0x6F87943: ??? (in /usr/lib/libglib-2.0.so.0.5600.1)
+==2605==    by 0x6F87EDB: g_private_get (in /usr/lib/libglib-2.0.so.0.5600.1)
+==2605==    by 0x6F5ED4D: g_slice_alloc (in /usr/lib/libglib-2.0.so.0.5600.1)
+==2605==    by 0x6F2F26E: g_hash_table_new_full (in /usr/lib/libglib-2.0.so.0.5600.1)
+==2605==    by 0x6F5187B: ??? (in /usr/lib/libglib-2.0.so.0.5600.1)
+==2605==    by 0x400F109: call_init.part.0 (in /usr/lib/ld-2.27.so)
+==2605==    by 0x400F205: _dl_init (in /usr/lib/ld-2.27.so)
+==2605==    by 0x4000FE9: ??? (in /usr/lib/ld-2.27.so)
+==2605==    by 0x5: ???
+==2605==    by 0x1FFF000216: ???
+==2605==    by 0x1FFF000222: ???
+==2605== 
+==2605== 32 bytes in 1 blocks are still reachable in loss record 2 of 6
+==2605==    at 0x4C2EEF5: calloc (vg_replace_malloc.c:711)
+==2605==    by 0x6F46B21: g_malloc0 (in /usr/lib/libglib-2.0.so.0.5600.1)
+==2605==    by 0x6F2F2CB: g_hash_table_new_full (in /usr/lib/libglib-2.0.so.0.5600.1)
+==2605==    by 0x6F5187B: ??? (in /usr/lib/libglib-2.0.so.0.5600.1)
+==2605==    by 0x400F109: call_init.part.0 (in /usr/lib/ld-2.27.so)
+==2605==    by 0x400F205: _dl_init (in /usr/lib/ld-2.27.so)
+==2605==    by 0x4000FE9: ??? (in /usr/lib/ld-2.27.so)
+==2605==    by 0x5: ???
+==2605==    by 0x1FFF000216: ???
+==2605==    by 0x1FFF000222: ???
+==2605==    by 0x1FFF000225: ???
+==2605==    by 0x1FFF000229: ???
+==2605== 
+==2605== 64 bytes in 1 blocks are still reachable in loss record 3 of 6
+==2605==    at 0x4C2EEF5: calloc (vg_replace_malloc.c:711)
+==2605==    by 0x6F46B21: g_malloc0 (in /usr/lib/libglib-2.0.so.0.5600.1)
+==2605==    by 0x6F2F2B5: g_hash_table_new_full (in /usr/lib/libglib-2.0.so.0.5600.1)
+==2605==    by 0x6F5187B: ??? (in /usr/lib/libglib-2.0.so.0.5600.1)
+==2605==    by 0x400F109: call_init.part.0 (in /usr/lib/ld-2.27.so)
+==2605==    by 0x400F205: _dl_init (in /usr/lib/ld-2.27.so)
+==2605==    by 0x4000FE9: ??? (in /usr/lib/ld-2.27.so)
+==2605==    by 0x5: ???
+==2605==    by 0x1FFF000216: ???
+==2605==    by 0x1FFF000222: ???
+==2605==    by 0x1FFF000225: ???
+==2605==    by 0x1FFF000229: ???
+==2605== 
+==2605== 88 bytes in 1 blocks are still reachable in loss record 4 of 6
+==2605==    at 0x4C2CEDF: malloc (vg_replace_malloc.c:299)
+==2605==    by 0x6F46AC9: g_malloc (in /usr/lib/libglib-2.0.so.0.5600.1)
+==2605==    by 0x6F5EF16: g_slice_alloc (in /usr/lib/libglib-2.0.so.0.5600.1)
+==2605==    by 0x6F2F26E: g_hash_table_new_full (in /usr/lib/libglib-2.0.so.0.5600.1)
+==2605==    by 0x6F5187B: ??? (in /usr/lib/libglib-2.0.so.0.5600.1)
+==2605==    by 0x400F109: call_init.part.0 (in /usr/lib/ld-2.27.so)
+==2605==    by 0x400F205: _dl_init (in /usr/lib/ld-2.27.so)
+==2605==    by 0x4000FE9: ??? (in /usr/lib/ld-2.27.so)
+==2605==    by 0x5: ???
+==2605==    by 0x1FFF000216: ???
+==2605==    by 0x1FFF000222: ???
+==2605==    by 0x1FFF000225: ???
+==2605== 
+==2605== 2,032 bytes in 1 blocks are still reachable in loss record 5 of 6
+==2605==    at 0x4C2EEF5: calloc (vg_replace_malloc.c:711)
+==2605==    by 0x6F46B21: g_malloc0 (in /usr/lib/libglib-2.0.so.0.5600.1)
+==2605==    by 0x6F5EF86: g_slice_alloc (in /usr/lib/libglib-2.0.so.0.5600.1)
+==2605==    by 0x6F2F26E: g_hash_table_new_full (in /usr/lib/libglib-2.0.so.0.5600.1)
+==2605==    by 0x6F5187B: ??? (in /usr/lib/libglib-2.0.so.0.5600.1)
+==2605==    by 0x400F109: call_init.part.0 (in /usr/lib/ld-2.27.so)
+==2605==    by 0x400F205: _dl_init (in /usr/lib/ld-2.27.so)
+==2605==    by 0x4000FE9: ??? (in /usr/lib/ld-2.27.so)
+==2605==    by 0x5: ???
+==2605==    by 0x1FFF000216: ???
+==2605==    by 0x1FFF000222: ???
+==2605==    by 0x1FFF000225: ???
+==2605== 
+==2605== 16,384 bytes in 1 blocks are still reachable in loss record 6 of 6
+==2605==    at 0x4C2CEDF: malloc (vg_replace_malloc.c:299)
+==2605==    by 0x6F46AC9: g_malloc (in /usr/lib/libglib-2.0.so.0.5600.1)
+==2605==    by 0x6F5188D: ??? (in /usr/lib/libglib-2.0.so.0.5600.1)
+==2605==    by 0x400F109: call_init.part.0 (in /usr/lib/ld-2.27.so)
+==2605==    by 0x400F205: _dl_init (in /usr/lib/ld-2.27.so)
+==2605==    by 0x4000FE9: ??? (in /usr/lib/ld-2.27.so)
+==2605==    by 0x5: ???
+==2605==    by 0x1FFF000216: ???
+==2605==    by 0x1FFF000222: ???
+==2605==    by 0x1FFF000225: ???
+==2605==    by 0x1FFF000229: ???
+==2605==    by 0x1FFF000241: ???
+==2605== 
+==2605== LEAK SUMMARY:
+==2605==    definitely lost: 0 bytes in 0 blocks
+==2605==    indirectly lost: 0 bytes in 0 blocks
+==2605==      possibly lost: 0 bytes in 0 blocks
+==2605==    still reachable: 18,604 bytes in 6 blocks
+==2605==         suppressed: 0 bytes in 0 blocks
+==2605== 
+==2605== For counts of detected and suppressed errors, rerun with: -v
+==2605== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
