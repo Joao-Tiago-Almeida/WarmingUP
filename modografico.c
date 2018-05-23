@@ -308,6 +308,7 @@ bool modoGrafico( char *nomeFilePaises, char *nomeFileCidades, DADOS *dados  )
         selectedCity = RenderCities(renderer, AppleGaramond, dados, cidades, vecCidadesSize);
         SDL_RenderPresent(renderer);
 
+
         //Desenha na janela
         SDL_SetRenderTarget(renderer, NULL);
 

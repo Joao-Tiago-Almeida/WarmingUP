@@ -152,14 +152,13 @@ void readFileCitiesAtualizaMaxMin(DADOS* dados, dados_temp* novoValor) {
 //Se não leu corretamente devolve NULL
 dados_temp *readFileLineToStruct(char* line, bool cidades) {
     int check = -1;
-    char longitude_c = '\0';
-    char latitude_c = '\0';
+    char longitude[BUFFER_SIZE] = {'\0'};
+    char latitude[BUFFER_SIZE] = {'\0'};
 
     dados_temp *a = malloc(sizeof(dados_temp));
 
     if(cidades) {
-        //TODO faltam cidades check == 10 E
-        check = sscanf(line, "%d-%d-%d,%f,%f,%[^,],%[^,],%f%c,%f%c",
+        check = sscanf(line, "%d-%d-%d,%f,%f,%[^,],%[^,],%[^,],%[^,]",
             &a->dt.ano,
             &a->dt.mes,
             &a->dt.dia,
@@ -167,12 +166,17 @@ dados_temp *readFileLineToStruct(char* line, bool cidades) {
             &a->incerteza,
             a->cidade,
             a->pais,
-            &a->latitude.angular,
-            &latitude_c,
-            &a->longitude.angular,
-            &longitude_c);
-            a->latitude.direcao = (latitude_c == 'N') ? NORTE : SUL;
-            a->longitude.direcao = (longitude_c == 'W') ? OESTE : ESTE;
+            latitude,
+            longitude);
+        
+        a->latitude.direcao = (latitude[strlen(latitude)-1] == 'N') ? NORTE : SUL;
+        a->longitude.direcao = (longitude[strlen(longitude)-1] == 'W') ? OESTE : ESTE;
+        
+        //Tira o carcater da direção da string
+        latitude[strlen(latitude)-1] = '\0';
+        longitude[strlen(longitude)-1] = '\0';
+        a->latitude.angular = atof(latitude);
+        a->longitude.angular = atof(longitude);
     }
     else
     {
@@ -185,7 +189,7 @@ dados_temp *readFileLineToStruct(char* line, bool cidades) {
                         a->pais);
     }
 
-    if((!cidades && check != 6) || (cidades && check != 11)) {
+    if((!cidades && check != 6) || (cidades && check != 9)) {
         //Se a linha não foi bem lida coloca o apontador para a estrutura a NULL
         free(a);
         a = NULL;
