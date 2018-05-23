@@ -856,7 +856,7 @@ void m4_calculo_MA(int M, DADOS *dados, bool porPais, bool porCidade)
     int pos_no_vetor = 0;
     while (ano_a_analisar <= anoMax )
     {
-        vectMA_anos[pos_no_vetor] = m4_media_ano (dados, ano_a_analisar, porPais, porCidade, paisOuCidade, M, aux);
+        vectMA_anos[pos_no_vetor] = M4_MediaAno (ano_a_analisar, porPais, porCidade, paisOuCidade, M, aux);
         ano_a_analisar ++;
         pos_no_vetor ++;
     }
@@ -869,12 +869,12 @@ void m4_calculo_MA(int M, DADOS *dados, bool porPais, bool porCidade)
            else if(!porPais && !porCidade)
            {
                printf("Em %d, o aumento da temperatura global foi == %f graus\n", anos_a_estudar[g],
-                                                       m4_calculo_aumento_temp(dados, vectMA_anos, anos_a_estudar[g], porPais, porCidade));
+                                                       M4_CalculoAumentoTemp(dados, vectMA_anos, anos_a_estudar[g], porCidade));
            }
            else
            {
                printf("Em %d, o aumento da temperatura em %s foi == %f graus\n", anos_a_estudar[g], paisOuCidade,
-                                                       m4_calculo_aumento_temp(dados, vectMA_anos, anos_a_estudar[g], porPais, porCidade));
+                                                       M4_CalculoAumentoTemp(dados, vectMA_anos, anos_a_estudar[g], porCidade));
            }
        }
     }
@@ -897,7 +897,7 @@ void m4_calculo_MA(int M, DADOS *dados, bool porPais, bool porCidade)
 //TODO mudar nome
 //calcula a media da temperatura de cada mês ao longo de um ano
 //chama a função moving average
-float m4_media_ano (DADOS *dados, int ano_a_analisar, bool porPais, bool porCidade, char paisOuCidade[100], int M, list_node_t *aux)
+float M4_MediaAno (int ano_a_analisar, bool porPais, bool porCidade, char paisOuCidade[100], int M, list_node_t *aux)
 {
     float soma_temperatura_mes = 0;
     int mes_a_analisar = 1;
@@ -1009,7 +1009,7 @@ float m4_moving_average(int M, float* vect_temp, bool* vect_mes_tem_dados)
 }
 
 //calcula a amplitude entre o ano minimo do ficheiro e o ano que recebe como parametro de entrada
-float m4_calculo_aumento_temp(DADOS *dados, float *vect, int ano,  bool porPais, bool porCidade)
+float M4_CalculoAumentoTemp(DADOS *dados, float *vect, int ano, bool porCidade)
 {
     float max = -__FLT_MAX__;
     float min = __FLT_MAX__;

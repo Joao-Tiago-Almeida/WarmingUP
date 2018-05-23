@@ -68,7 +68,7 @@ void read_file_countries(DADOS *dados, char *_nomeFilePaises)
     mergeSort(dados->headCountriesOriginal, dados->countriesListSize);
 
     timeCounter = clock() - timeCounter;
-    printf("\rProgresso: 100%% (%ld s)        \n", timeCounter/CLOCKS_PER_SEC);
+    printf("\rProgresso: 100%% (%ld s)                 \n", timeCounter/CLOCKS_PER_SEC);
 }
 
 void read_file_cities(DADOS *dados, char *_nomeFileCidades)
@@ -89,7 +89,7 @@ void read_file_cities(DADOS *dados, char *_nomeFileCidades)
     mergeSort(dados->headCitiesOriginal, dados->citiesListSize);
 
     timeCounter = clock() - timeCounter;
-    printf("\rProgresso: 100%% (%ld s)                \n", timeCounter/CLOCKS_PER_SEC);
+    printf("\rProgresso: 100%% (%ld s)                 \n", timeCounter/CLOCKS_PER_SEC);
 }
 
 void readFileCountriesAtualizaMaxMin(DADOS* dados, dados_temp* novoValor) {
