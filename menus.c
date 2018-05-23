@@ -803,31 +803,32 @@ float media_ano (DADOS *dados, int ano_a_analisar, bool porPais, bool porCidade,
             if(aux->payload->dt.ano > ano_a_analisar)  break;
 
             //quando me encontro no mesmo ano ano e mês
-            if( (aux->payload->dt.ano == ano_a_analisar &&  aux->payload->dt.mes == mes_a_analisar))
+            if( aux->payload->dt.ano == ano_a_analisar )// &&  aux->payload->dt.mes == mes_a_analisar))
             {
-                //o vect_temp guarda temporariamente a soma das temperaturas nesse mes
-                soma_temperatura_mes += aux->payload->temp;
-                nr_dados ++;
-                vect_temp[mes_a_analisar-1] = soma_temperatura_mes / nr_dados;
+                //atualiza a conatgem de dados
+                if(mes_a_analisar != aux->payload->dt.mes)
+                {
+                    if(mes_a_analisar != NR_DE_MESES)   mes_a_analisar ++;
+                    soma_temperatura_mes = 0;
+                    nr_dados = 0;
+                }
+                if(aux->payload->dt.mes == mes_a_analisar)
+                {
+                    //o vect_temp guarda temporariamente a soma das temperaturas nesse mes
+                    soma_temperatura_mes += aux->payload->temp;
+                    nr_dados ++;
+                    vect_temp[mes_a_analisar-1] = soma_temperatura_mes / nr_dados;
 
-                vect_mes_tem_dados[mes_a_analisar-1] = true;
-                aux = aux->next;
-                // printf(":aux->payload->dt.ano:: %d\n", aux->payload->dt.ano);
-                // printf(":ano_a_analisar:: %d\n", ano_a_analisar);
-                // printf(":aux->payload->dt.mes:: %d\n", aux->payload->dt.mes);
-                // printf(":mes_a_analisar:: %d\n", mes_a_analisar);
-            }
-            else
-            {
-                soma_temperatura_mes = 0;
-                nr_dados = 0;
-                //TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO ver melhor
-                if(mes_a_analisar == NR_DE_MESES)
+                    vect_mes_tem_dados[mes_a_analisar-1] = true;
+                    aux = aux->next;
+                    // printf(":aux->payload->dt.ano:: %d\n", aux->payload->dt.ano);
+                    // printf(":ano_a_analisar:: %d\n", ano_a_analisar);
+                    // printf(":aux->payload->dt.mes:: %d\n", aux->payload->dt.mes);
+                    // printf(":mes_a_analisar:: %d\n", mes_a_analisar);
+                }
+                else
                 {
-                    mes_a_analisar = 0;
-                }else
-                {
-                    mes_a_analisar ++;
+                    aux = aux->next;
                 }
             }
         }
@@ -865,7 +866,7 @@ float media_ano (DADOS *dados, int ano_a_analisar, bool porPais, bool porCidade,
     }
     //TODO ele passa mal os valores
     media_anual = (float)media_anual/nr_dados;
-    printf("media anual :: %f\n", media_anual);
+    //printf("media anual :: %f\n", media_anual);
 
     // free(vect_temp);
     // free(vect_mes_tem_dados);
@@ -913,12 +914,12 @@ float calculo_aumento_temp(DADOS *dados, float *vect, int ano)
     //TODO confirmar que os valores a comparar tem de estar entre valores esperados
     for (int i = 0; i < size; i++)
     {
-        if(vect[i] < min && vect[i] > -100) min = vect[i];
+        if(vect[i] < min && vect[i] > 5) min = vect[i];
         if(vect[i] > max) max = vect[i];
     }
     ATG = max - min;
 
-    printf("ja tou farto:: %f, %f\n", max, min);
+    //printf("ja tou farto:: %f, %f\n", max, min);
 
     return ATG;
 }
