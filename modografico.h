@@ -15,9 +15,16 @@ void filledCircleRGBA(SDL_Renderer * _renderer, float _circleX, float _circleY, 
 void RenderCircle(SDL_Renderer * _renderer, int width, int height, TTF_Font *_font , DADOS *dados);
 int calculo_coordenada( float coord_local, int _direcao, int _widht, int _height, bool latituede);
 bool modoGrafico(char *nomeFilePaises, char *nomeFileCidades, DADOS *dados);
-void RenderCity(SDL_Renderer * _renderer, int width, int height, TTF_Font *_font, dados_temp* cidade, DADOS *dados);
+int GetSelectedCity(dados_temp* cidades, int vecCidadesSize, int zoomPosX, int zoomPosY);
+void RenderCity(SDL_Renderer * _renderer, int width, int height, dados_temp* cidade, DADOS *dados);
 void RenderLegenda(SDL_Renderer * _renderer, int width, int height, TTF_Font *_font);
 int RenderText(int, int, const char *, TTF_Font *, SDL_Color *, SDL_Renderer *);
 void RenderStatus(SDL_Renderer *renderer, TTF_Font *font, int ano, bool pausa, int velocidade);
+void RenderPausa(SDL_Renderer *renderer, int pausaCounter);
+int CalcDistance(int x1, int y1, int x2, int y2);
+void RenderSelectedCity(SDL_Renderer *renderer, TTF_Font *font, dados_temp *cidade);
+SDL_Texture *CreateRenderTexture(SDL_Renderer* _renderer, int width, int height);
+void RenderCities(SDL_Renderer *renderer, TTF_Font *AppleGaramond, DADOS* dados, dados_temp* cidades, int vecCidadesSize);
+void RenderZoom(SDL_Renderer* renderer, SDL_Texture* renderTexture, int zoomPosX, int zoomPosY);
 
 #endif

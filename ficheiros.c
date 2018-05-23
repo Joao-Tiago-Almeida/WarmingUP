@@ -59,6 +59,8 @@ void read_file_countries(DADOS *dados, char *_nomeFilePaises)
     dados->countriesAnoMin = __INT32_MAX__;
     dados->countriesAnoMax = 0;
 
+    printf("A ler dados dos países...\n");
+
     dados->countriesListSize = readFileToList(_nomeFilePaises, dados, false);
 
     printf("\rProgresso: 100%% (A ordenar...)");
@@ -78,6 +80,8 @@ void read_file_cities(DADOS *dados, char *_nomeFileCidades)
     dados->citiesAnoMin = __INT32_MAX__;
     dados->citiesAnoMax = 0;
 
+    printf("A ler dados das cidades...\n");
+
     dados->citiesListSize = readFileToList(_nomeFileCidades, dados, true);
 
     printf("\rProgresso: 100%% (A ordenar...)");
@@ -85,7 +89,7 @@ void read_file_cities(DADOS *dados, char *_nomeFileCidades)
     mergeSort(dados->headCitiesOriginal, dados->citiesListSize);
 
     timeCounter = clock() - timeCounter;
-    printf("\rProgresso: 100%% (%ld s)           \n", timeCounter/CLOCKS_PER_SEC);
+    printf("\rProgresso: 100%% (%ld s)                \n", timeCounter/CLOCKS_PER_SEC);
 }
 
 void readFileCountriesAtualizaMaxMin(DADOS* dados, dados_temp* novoValor) {
@@ -148,13 +152,13 @@ void readFileCitiesAtualizaMaxMin(DADOS* dados, dados_temp* novoValor) {
 //Se não leu corretamente devolve NULL
 dados_temp *readFileLineToStruct(char* line, bool cidades) {
     int check = -1;
-    char longitude_c;
-    char latitude_c;
+    char longitude[BUFFER_SIZE] = {'\0'};
+    char latitude[BUFFER_SIZE] = {'\0'};
 
     dados_temp *a = malloc(sizeof(dados_temp));
 
     if(cidades) {
-        check = sscanf(line, "%d-%d-%d,%f,%f,%[^,],%[^,],%f%c,%f%c",
+        check = sscanf(line, "%d-%d-%d,%f,%f,%[^,],%[^,],%[^,],%[^,]",
             &a->dt.ano,
             &a->dt.mes,
             &a->dt.dia,
@@ -162,12 +166,17 @@ dados_temp *readFileLineToStruct(char* line, bool cidades) {
             &a->incerteza,
             a->cidade,
             a->pais,
-            &a->latitude.angular,
-            &latitude_c,
-            &a->longitude.angular,
-            &longitude_c);
-            a->latitude.direcao = (latitude_c == 'N') ? NORTE : SUL;
-            a->longitude.direcao = (longitude_c == 'E') ? ESTE : OESTE;
+            latitude,
+            longitude);
+        
+        a->latitude.direcao = (latitude[strlen(latitude)-1] == 'N') ? NORTE : SUL;
+        a->longitude.direcao = (longitude[strlen(longitude)-1] == 'W') ? OESTE : ESTE;
+        
+        //Tira o carcater da direção da string
+        latitude[strlen(latitude)-1] = '\0';
+        longitude[strlen(longitude)-1] = '\0';
+        a->latitude.angular = atof(latitude);
+        a->longitude.angular = atof(longitude);
     }
     else
     {
@@ -180,7 +189,7 @@ dados_temp *readFileLineToStruct(char* line, bool cidades) {
                         a->pais);
     }
 
-    if((!cidades && check != 6) || (cidades && check != 11)) {
+    if((!cidades && check != 6) || (cidades && check != 9)) {
         //Se a linha não foi bem lida coloca o apontador para a estrutura a NULL
         free(a);
         a = NULL;
@@ -200,8 +209,6 @@ int readFileToList(char* fileName, DADOS* dados, bool cidades)
     list_node_t* list = cidades ? dados->headCitiesOriginal : dados->headCountriesOriginal;
 
     int lastPercentage = 0;
-
-    printf("A ler dados dos países...\n");
 
     fileInput = checkedFopen(fileName, "r");
 
