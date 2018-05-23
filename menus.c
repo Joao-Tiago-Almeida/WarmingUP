@@ -419,10 +419,10 @@ void imprime_intervalos(DADOS* dados, int numIntervalos, DADOS_HISTORICO* temps,
 
             if(temps[i].numDados > 0) {
                 if(intervalorFechado) {
-                    printf("[ %d , %d ]\tMin:%f Max:%f Med:%f\n", anoMenor, anoMaior,
+                    printf("[ %d , %d ]\tMin:%.2f Max:%.2f Med:%.2f\n", anoMenor, anoMaior,
                         temps[i].tempMin, temps[i].tempMax, temps[i].tempMed);
                 } else {
-                    printf("[ %d , %d [\tMin:%f Max:%f Med:%f\n", anoMenor, anoMaior,
+                    printf("[ %d , %d [\tMin:%.2f Max:%.2f Med:%.2f\n", anoMenor, anoMaior,
                         temps[i].tempMin, temps[i].tempMax, temps[i].tempMed);
                 }
             } else {

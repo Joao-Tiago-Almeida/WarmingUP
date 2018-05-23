@@ -30,6 +30,12 @@
 #define TEMP_REF 10
 #define VECT_CIDADES_INITIAL_SIZE 50
 #define BUFFER_SIZE 100
+#define VELOCIDADE_MAX 10
+#define DELAY 30
+#define MAX_PAUSA_COUNTER 20
+
+#define DIST_MIN_RATO_CIDADE 13
+
 
 void init_empty_cidade(dados_temp *cidade) {
     cidade->cidade[0] = '\0';
@@ -159,30 +165,15 @@ void atualiza_cidades_ao_aumentar_ano_ou_ano_inicial(DADOS *dados, dados_temp **
 }
 
 //TODO isto é muito lento a andar para trás
-void mudarAno(DADOS *dados, dados_temp **cidades, int *vecCidadesSize, int *ano, bool forward) {
-    //Aumenta ou diminui o ano
+void mudarAno(DADOS *dados, dados_temp **cidades, int *vecCidadesSize, int *ano) {
+    //Aumenta o ano
     //Se passar dos limites "dá a volta"
-    if(forward) {
-        (*ano)++;
-        if(*ano > dados->citiesAnoMax) {
-            *ano = dados->citiesAnoMin;
-        }
-    } else {
-        (*ano)--;
-        if(*ano < dados->citiesAnoMin) {
-            *ano = dados->citiesAnoMax;
-        }
+    (*ano)++;
+    if(*ano > dados->citiesAnoMax) {
+        *ano = dados->citiesAnoMin;
     }
 
-    if(forward) {
-        atualiza_cidades_ao_aumentar_ano_ou_ano_inicial(dados, cidades, vecCidadesSize, *ano);
-    } else {
-        //Se for para andar para trás, vai voltar a criar o vetor desde o ano
-        // inicial até ao ano para que se mudou
-        for(int a = dados->citiesAnoMin; a<(*ano); a++) {
-            atualiza_cidades_ao_aumentar_ano_ou_ano_inicial(dados, cidades, vecCidadesSize, a);
-        }
-    }
+    atualiza_cidades_ao_aumentar_ano_ou_ano_inicial(dados, cidades, vecCidadesSize, *ano);
 }
 
 /*void printCenas(dados_temp *cidades, int vecCidadesSize, int anoAtual) {
@@ -212,17 +203,23 @@ bool modoGrafico( char *nomeFilePaises, char *nomeFileCidades, DADOS *dados  )
     bool stay = true;
     int width = WIDTH_WINDOW_SIZE;
     int height = HEIGHT_WINDOW_SIZE;
-    int delay = 16;
     bool modo_texto = false;
 
     //Ano que está a ser mostrado
     int anoAtual = 0;
     bool pausa = false;
+    int pausaCounter = 0; //Para ir mudando a transparência do simbolo da pausa
+
     int velocidade = 0;
+    int velocidadeCounter = 0;
 
     //Vector com as cidades que estão a ser mostradas
     dados_temp *cidades = NULL;
     int vecCidadesSize = 0;
+
+    int mouseX = 0, mouseY = 0;
+
+    int selectedCity = -1;
 
     if(dados->headCitiesOriginal == NULL)  read_file_cities (dados,nomeFileCidades);
 
@@ -254,15 +251,19 @@ bool modoGrafico( char *nomeFilePaises, char *nomeFileCidades, DADOS *dados  )
                         stay = false;
                         break;
                     case SDLK_SPACE:
-                        if(pausa) pausa = false ;
-                        else pausa = true;
+                        pausa = !pausa;
                         break;
                     case SDLK_a:
-                        //mudarAno(dados, &cidades, &vecCidadesSize, &anoAtual, false);
-                        //printCenas(cidades, vecCidadesSize, anoAtual);
+                        if(velocidade > 0) {
+                            velocidade--;
+                            velocidadeCounter = 0;
+                        }
                         break;
                     case SDLK_s:
-                        //printCenas(cidades, vecCidadesSize, anoAtual);
+                        if(velocidade < VELOCIDADE_MAX) {
+                            velocidade++;
+                            velocidadeCounter = 0;
+                        }
                         break;
                     default:
                         break;
@@ -270,32 +271,63 @@ bool modoGrafico( char *nomeFilePaises, char *nomeFileCidades, DADOS *dados  )
             }
         }
 
+        //Se não estiver na pausa avança o ano
         if(!pausa) {
-            //Avança 2 anos
-            mudarAno(dados, &cidades, &vecCidadesSize, &anoAtual, true);
-            mudarAno(dados, &cidades, &vecCidadesSize, &anoAtual, true);
+            if(velocidade == 0) { //Velocidade 0 significa andar de 2 em dois anos
+                mudarAno(dados, &cidades, &vecCidadesSize, &anoAtual);
+                mudarAno(dados, &cidades, &vecCidadesSize, &anoAtual);
+            } else {
+                velocidadeCounter++;
+                if(velocidadeCounter >= velocidade) {
+                    velocidadeCounter = 0;
+                    mudarAno(dados, &cidades, &vecCidadesSize, &anoAtual);
+                }
+            }
         }
 
-        // render game table
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_RenderClear(renderer);
+        
+
         RenderMap( imgs, renderer, width, height);
 
+        
+        SDL_GetMouseState(&mouseX, &mouseY);
+        
+        selectedCity = -1;
         for(int i = 0; i<vecCidadesSize; i++) {
+            int x = 0, y = 0;
             if(cidades[i].cidade[0] == '\0') {
                 //Se encontrar uma entrada do vetor cidades vazia sai do loop, porque
                 // o resto do vetor está vazio
                 break;
             }
-            RenderCity(renderer, width, height, AppleGaramond, &cidades[i], dados);
+            RenderCity(renderer, width, height, AppleGaramond, &cidades[i], dados, &x, &y);
+
+            if(CalcDistance(x, y, mouseX, mouseY) < DIST_MIN_RATO_CIDADE) {
+                selectedCity = i;
+            }
+        }
+
+        if(selectedCity != -1) {
+            RenderSelectedCity(renderer, AppleGaramond, &cidades[selectedCity]);
         }
 
         RenderStatus(renderer, AppleGaramond, anoAtual, pausa, velocidade);
+        if(pausa) {
+            pausaCounter++;
+            if(pausaCounter > MAX_PAUSA_COUNTER) {
+                pausaCounter = 0;
+            }
+            RenderPausa(renderer, pausaCounter);
+        }
 
-        // render a circle around the country
         RenderLegenda( renderer ,width, height, AppleGaramond);
+
         // render in the screen all changes above
         SDL_RenderPresent(renderer);
         // add a delay
-        SDL_Delay( delay );
+        SDL_Delay(DELAY);
     }
 
     // free memory allocated for images and textures and closes everything including fonts
@@ -306,6 +338,19 @@ bool modoGrafico( char *nomeFilePaises, char *nomeFileCidades, DADOS *dados  )
     SDL_Quit();
 
     return modo_texto;
+}
+
+void RenderSelectedCity(SDL_Renderer *renderer, TTF_Font *font, dados_temp *cidade) {
+    char buffer[BUFFER_SIZE];
+    SDL_Color color = { 255, 255, 255, 255 };
+
+    RenderText(WIDTH_WINDOW_SIZE-100, 0, cidade->cidade, font, &color, renderer);
+    sprintf(buffer, "%.2f C", cidade->temp);
+    RenderText(WIDTH_WINDOW_SIZE-100, 25, buffer, font, &color, renderer);
+}
+
+int CalcDistance(int x1, int y1, int x2, int y2) {
+    return sqrt((x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2));
 }
 
 //recebe dois argumentos e faz o calculo entre eles
@@ -342,7 +387,7 @@ int calculo_coordenada(float coord_local, int _direcao, int _width, int _height,
 //calcula a cor em função da temperatura
 //TODO falta adicionar a temperatura maxima e minima do ficheiro
 //TODO pode ser melhorado apenas com uma função
-void RenderColor(SDL_Renderer * _renderer, int _temperatura, int _latitude, int _longitude, DADOS *dados)
+void RenderColor(SDL_Renderer * _renderer, int _temperatura, int x, int y, DADOS *dados)
 {
     //m representa o declive que permite calcular componente verde
     int m = 0, b = 0, green = 0;
@@ -356,7 +401,7 @@ void RenderColor(SDL_Renderer * _renderer, int _temperatura, int _latitude, int 
         b = MAX_RGB - m * TEMP_REF;
         //calculo do verde em função da _temperatura
         green =  m*_temperatura + b;
-        filledCircleRGBA(_renderer, _latitude, _longitude, 5, 0, green, 255);
+        filledCircleRGBA(_renderer, x, y, 5, 0, green, 255);
     }
     //quente
     else
@@ -368,23 +413,18 @@ void RenderColor(SDL_Renderer * _renderer, int _temperatura, int _latitude, int 
         //calculo do verde em função da _temperatura
         green =  m*_temperatura + b;
 
-        filledCircleRGBA(_renderer, _latitude, _longitude, 5, 255, green, 0);
+        filledCircleRGBA(_renderer, x, y, 5, 255, green, 0);
     }
     //printf("temperatura == %d\ngreen:: %d\n", _temperatura, green);
 }
 
-void RenderCity(SDL_Renderer * _renderer, int width, int height, TTF_Font *_font, dados_temp* cidade, DADOS *dados) {
-    float x = 0.0f;
-    float y = 0.0f;
-
-    x = calculo_coordenada(cidade->latitude.angular,
-        cidade->latitude.direcao, width, height, true);
-    y = calculo_coordenada(cidade->longitude.angular,
+void RenderCity(SDL_Renderer * _renderer, int width, int height, TTF_Font *_font, dados_temp* cidade, DADOS *dados, int *x, int *y) {
+    *x = calculo_coordenada(cidade->longitude.angular,
         cidade->longitude.direcao, width, height, false);
+    *y = calculo_coordenada(cidade->latitude.angular,
+        cidade->latitude.direcao, width, height, true);
 
-    printf("%s %f, %f\n", cidade->cidade, x, y);
-
-    RenderColor(_renderer, cidade->temp, x, y, dados);
+    RenderColor(_renderer, cidade->temp, *x, *y, dados);
 }
 
 //TODO a cor não percisa de ser ponteiro duplo
@@ -399,10 +439,10 @@ void RenderLegenda(SDL_Renderer * _renderer, int width, int height, TTF_Font *_f
     char quente[] = "quente";
     RenderText(80, 615, frio, _font, &white, _renderer);
     RenderText(70, 630, quente, _font, &white, _renderer);
-    filledCircleRGBA(_renderer, 625, 60, 5, 0, 0, 255);
-    filledCircleRGBA(_renderer, 625, 125, 5, 0, 255, 255);
-    filledCircleRGBA(_renderer, 640, 60, 5, 255, 255, 0);
-    filledCircleRGBA(_renderer, 640, 125, 5, 255, 0, 0);
+    filledCircleRGBA(_renderer, 60, 625, 5, 0, 0, 255);
+    filledCircleRGBA(_renderer, 125, 625, 5, 0, 255, 255);
+    filledCircleRGBA(_renderer, 60, 640, 5, 255, 255, 0);
+    filledCircleRGBA(_renderer, 125, 640, 5, 255, 0, 0);
 }
 /**
  * filledCircleRGBA: renders a filled circle
@@ -413,7 +453,7 @@ void RenderLegenda(SDL_Renderer * _renderer, int width, int height, TTF_Font *_f
  * \param _g gree
  * \param _b blue
  */
-void filledCircleRGBA(SDL_Renderer * _renderer, float _circleY, float _circleX, int _circleR, int _r, int _g, int _b)
+void filledCircleRGBA(SDL_Renderer * _renderer, float _circleX, float _circleY, int _circleR, int _r, int _g, int _b)
 {
     int off_x = 0;
     int off_y = 0;
@@ -485,9 +525,18 @@ void RenderStatus(SDL_Renderer *renderer, TTF_Font *font, int ano, bool pausa, i
     } else if(velocidade == 1) {
         RenderText(50, 65, "Velocidade: 1", font, &anoTextColor, renderer);
     } else {
-        sprintf(buffer, "Velocidade: 1/%d", ano);
+        sprintf(buffer, "Velocidade: 1/%d", velocidade);
         RenderText(50, 65, buffer, font, &anoTextColor, renderer);
     }
+}
+
+void RenderPausa(SDL_Renderer *renderer, int pausaCounter) {
+    SDL_Rect rect = { 10, 10, 10, 40 };
+    int alpha = 200 + 55 * abs(pausaCounter - MAX_PAUSA_COUNTER/2) / MAX_PAUSA_COUNTER/2;
+    SDL_SetRenderDrawColor(renderer, 43, 168, 11, alpha);
+    SDL_RenderFillRect(renderer, &rect);
+    rect.x += 25;
+    SDL_RenderFillRect(renderer, &rect);
 }
 
 /**
@@ -514,7 +563,7 @@ void InitEverything(int width, int height, TTF_Font **_font, SDL_Surface *_img[]
         exit(EXIT_FAILURE);
     }
     // this opens (loads) a font file and sets a size
-    *_font = TTF_OpenFont("AppleGaramond.ttf", 16);
+    *_font = TTF_OpenFont("AppleGaramond.ttf", 24);
     if(!*_font)
     {
         printf("TTF_OpenFont: %s\n", TTF_GetError());
@@ -590,6 +639,7 @@ SDL_Renderer* CreateRenderer(int width, int height, SDL_Window *_window)
 
     // set size of renderer to the same as window
     SDL_RenderSetLogicalSize( renderer, width, height );
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
     return renderer;
 }
