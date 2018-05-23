@@ -237,7 +237,6 @@ bool modoGrafico( char *nomeFilePaises, char *nomeFileCidades, DADOS *dados  )
 
     while( stay )
     {
-        SDL_GetMouseState(&mouseX, &mouseY);
         // while there's events to handle
         while( SDL_PollEvent( &event ) )
         {
@@ -275,6 +274,7 @@ bool modoGrafico( char *nomeFilePaises, char *nomeFileCidades, DADOS *dados  )
                         break;
                 }
             } else if(event.type == SDL_MOUSEBUTTONDOWN) {
+                SDL_GetMouseState(&mouseX, &mouseY);
                 if(zoomPosX == -1) {
                     zoomPosX = mouseX;
                     zoomPosY = mouseY;
@@ -302,38 +302,19 @@ bool modoGrafico( char *nomeFilePaises, char *nomeFileCidades, DADOS *dados  )
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
         SDL_SetRenderTarget(renderer, renderTexture);
+
         //Desenha o mapa e as cidades na renderTexture
-
         RenderMap( imgs, renderer, width, height);
-
-        
-        SDL_GetMouseState(&mouseX, &mouseY);
-        
-        selectedCity = -1;
-        for(int i = 0; i<vecCidadesSize; i++) {
-            int x = 0, y = 0;
-            if(cidades[i].cidade[0] == '\0') {
-                //Se encontrar uma entrada do vetor cidades vazia sai do loop, porque
-                // o resto do vetor está vazio
-                break;
-            }
-            RenderCity(renderer, width, height, AppleGaramond, &cidades[i], dados, &x, &y);
-
-            if(CalcDistance(x, y, mouseX, mouseY) < DIST_MIN_RATO_CIDADE) {
-                selectedCity = i;
-            }
-        }
-
+        selectedCity = RenderCities(renderer, AppleGaramond, dados, cidades, vecCidadesSize);
         SDL_RenderPresent(renderer);
 
         //Desenha na janela
         SDL_SetRenderTarget(renderer, NULL);
 
-        //Desenha o mapa com os pontos
-        
+        //Desenha o mapa e os pontos na janela
         SDL_RenderCopy(renderer, renderTexture, &windowRect, &windowRect);
 
-
+        //Se tiver o rato ao pé de alguma cidade mostra informações
         if(selectedCity != -1) {
             RenderSelectedCity(renderer, AppleGaramond, &cidades[selectedCity]);
         }
@@ -350,20 +331,7 @@ bool modoGrafico( char *nomeFilePaises, char *nomeFileCidades, DADOS *dados  )
         RenderLegenda( renderer ,width, height, AppleGaramond);
 
         if(zoomPosX != -1) {
-            //RenderZoom(renderer, zoom)
-            
-            SDL_Rect zoomRectSrc, zoomRectDest;
-
-            zoomRectSrc.x = zoomPosX - 100;
-            zoomRectSrc.y = zoomPosY - 100;
-            zoomRectSrc.w = 200;
-            zoomRectSrc.h = 200;
-            zoomRectDest.x = zoomPosX - 200;
-            zoomRectDest.y = zoomPosY - 200;
-            zoomRectDest.w = 400;
-            zoomRectDest.h = 400;
-
-            SDL_RenderCopy(renderer, renderTexture, &zoomRectSrc, &zoomRectDest);
+            RenderZoom(renderer, renderTexture, zoomPosX, zoomPosY);
         }
 
         SDL_RenderPresent(renderer);
@@ -380,6 +348,44 @@ bool modoGrafico( char *nomeFilePaises, char *nomeFileCidades, DADOS *dados  )
     SDL_Quit();
 
     return modo_texto;
+}
+
+void RenderZoom(SDL_Renderer* renderer, SDL_Texture* renderTexture, int zoomPosX, int zoomPosY) {
+    SDL_Rect zoomRectSrc, zoomRectDest;
+
+    zoomRectSrc.x = zoomPosX - 100;
+    zoomRectSrc.y = zoomPosY - 100;
+    zoomRectSrc.w = 200;
+    zoomRectSrc.h = 200;
+    zoomRectDest.x = zoomPosX - 200;
+    zoomRectDest.y = zoomPosY - 200;
+    zoomRectDest.w = 400;
+    zoomRectDest.h = 400;
+
+    SDL_RenderCopy(renderer, renderTexture, &zoomRectSrc, &zoomRectDest);
+}
+
+//Devolve o indice da cidade selecionada
+int RenderCities(SDL_Renderer *renderer, TTF_Font *AppleGaramond, DADOS* dados, dados_temp* cidades, int vecCidadesSize) {
+    int mouseX = 0, mouseY = 0;
+    int selectedCity = -1;
+    SDL_GetMouseState(&mouseX, &mouseY);
+
+    for(int i = 0; i<vecCidadesSize; i++) {
+        int x = 0, y = 0;
+        if(cidades[i].cidade[0] == '\0') {
+            //Se encontrar uma entrada do vetor cidades vazia sai do loop, porque
+            // o resto do vetor está vazio
+            break;
+        }
+        RenderCity(renderer, WIDTH_WINDOW_SIZE, HEIGHT_WINDOW_SIZE, AppleGaramond, &cidades[i], dados, &x, &y);
+
+        if(CalcDistance(x, y, mouseX, mouseY) < DIST_MIN_RATO_CIDADE) {
+            selectedCity = i;
+        }
+    }
+
+    return selectedCity;
 }
 
 void RenderSelectedCity(SDL_Renderer *renderer, TTF_Font *font, dados_temp *cidade) {

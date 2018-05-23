@@ -23,5 +23,7 @@ void RenderPausa(SDL_Renderer *renderer, int pausaCounter);
 int CalcDistance(int x1, int y1, int x2, int y2);
 void RenderSelectedCity(SDL_Renderer *renderer, TTF_Font *font, dados_temp *cidade);
 SDL_Texture *CreateRenderTexture(SDL_Renderer* _renderer, int width, int height);
+int RenderCities(SDL_Renderer *renderer, TTF_Font *AppleGaramond, DADOS* dados, dados_temp* cidades, int vecCidadesSize);
+void RenderZoom(SDL_Renderer* renderer, SDL_Texture* renderTexture, int zoomPosX, int zoomPosY);
 
 #endif
