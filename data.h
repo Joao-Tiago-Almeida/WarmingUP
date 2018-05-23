@@ -12,7 +12,7 @@
 #include "conjuntodados.h"
 #include "modografico.h"
 
-bool modoTextual(char *nomeFilePaises, char *nomeFileCidades, DADOS *dados);
+bool ModoTextual(char *nomeFilePaises, char *nomeFileCidades, DADOS *dados);
 void display_usage(char *arg);
 void ler_argumentos(int argc, char *argv[], bool *modoGrafico, char **nomeFilePaises, char **nomeFileCidades);
 

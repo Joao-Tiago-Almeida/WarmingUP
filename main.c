@@ -21,15 +21,16 @@ int main(int argc, char *argv[])
         if(modo_grafico) {
             //Inicializar modo grafico
             printf("Modo grafico!\n");
-            mudaDeModo = modoGrafico(nomeFilePaises, nomeFileCidades, &dados);
+            mudaDeModo = ModoGrafico(nomeFileCidades, &dados);
         } else {
-            mudaDeModo = modoTextual(nomeFilePaises, nomeFileCidades, &dados);
+            mudaDeModo = ModoTextual(nomeFilePaises, nomeFileCidades, &dados);
         }
         modo_grafico = !modo_grafico; // Se tiver no modo grafico muda para o modo textual e vice versa
     } while (mudaDeModo); //A variavel mudaDeModo é true se for para continuar no programa, e muda de modo
 
 
     dados_free(&dados);
+    
     printf("END OF THE PROGRAM!!\n");
     return EXIT_SUCCESS;
 }
@@ -89,12 +90,12 @@ void ler_argumentos(int argc, char *argv[], bool *modoGrafico, char **nomeFilePa
                 {
                   expectingFileName = true;
                 }
-            else
-            {
-                printf("argumento:: %d\n", i+1);
-                display_usage(argv[i]);
-                exit(EXIT_FAILURE);
-            }
+                else
+                {
+                    printf("argumento:: %d\n", i+1);
+                    display_usage(argv[i]);
+                    exit(EXIT_FAILURE);
+                }
             }
         }
     }
@@ -111,7 +112,7 @@ void ler_argumentos(int argc, char *argv[], bool *modoGrafico, char **nomeFilePa
 }
 
 // Devolve false se for para sair do programa ou true se for para mudar para o modo textual
-bool modoTextual(char *nomeFilePaises, char *nomeFileCidades, DADOS *dados )
+bool ModoTextual(char *nomeFilePaises, char *nomeFileCidades, DADOS *dados )
 {
     if(dados->headCountriesOriginal == NULL)  read_file_countries (dados, nomeFilePaises);
     if(dados->headCitiesOriginal == NULL)  read_file_cities (dados,nomeFileCidades);
