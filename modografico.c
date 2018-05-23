@@ -11,6 +11,7 @@
 #include "ficheiros.h"
 #include "util.h"
 #include "data.h"
+#include "math.h"
 
 #define M_PI 3.14159265358979323846264338327950288
 #define STRING_SIZE 100       // max size for some strings
@@ -35,6 +36,8 @@
 #define MAX_PAUSA_COUNTER 20
 
 #define DIST_MIN_RATO_CIDADE 13
+#define ZOOM_RECT_SIZE 400
+#define ZOOM_SRC_RECT_SIZE 200
 
 
 void init_empty_cidade(dados_temp *cidade) {
@@ -305,7 +308,7 @@ bool modoGrafico( char *nomeFilePaises, char *nomeFileCidades, DADOS *dados  )
 
         //Desenha o mapa e as cidades na renderTexture
         RenderMap( imgs, renderer, width, height);
-        selectedCity = RenderCities(renderer, AppleGaramond, dados, cidades, vecCidadesSize);
+        RenderCities(renderer, AppleGaramond, dados, cidades, vecCidadesSize);
         SDL_RenderPresent(renderer);
 
 
@@ -315,6 +318,7 @@ bool modoGrafico( char *nomeFilePaises, char *nomeFileCidades, DADOS *dados  )
         //Desenha o mapa e os pontos na janela
         SDL_RenderCopy(renderer, renderTexture, &windowRect, &windowRect);
 
+        selectedCity = GetSelectedCity(cidades, vecCidadesSize, zoomPosX, zoomPosY);
         //Se tiver o rato ao pé de alguma cidade mostra informações
         if(selectedCity != -1) {
             RenderSelectedCity(renderer, AppleGaramond, &cidades[selectedCity]);
@@ -353,25 +357,39 @@ bool modoGrafico( char *nomeFilePaises, char *nomeFileCidades, DADOS *dados  )
 
 void RenderZoom(SDL_Renderer* renderer, SDL_Texture* renderTexture, int zoomPosX, int zoomPosY) {
     SDL_Rect zoomRectSrc, zoomRectDest;
-
-    zoomRectSrc.x = zoomPosX - 100;
-    zoomRectSrc.y = zoomPosY - 100;
-    zoomRectSrc.w = 200;
-    zoomRectSrc.h = 200;
-    zoomRectDest.x = zoomPosX - 200;
-    zoomRectDest.y = zoomPosY - 200;
-    zoomRectDest.w = 400;
-    zoomRectDest.h = 400;
+    
+    zoomRectSrc.x = zoomPosX - ZOOM_SRC_RECT_SIZE/2;
+    zoomRectSrc.y = zoomPosY - ZOOM_SRC_RECT_SIZE/2;
+    zoomRectSrc.w = ZOOM_SRC_RECT_SIZE;
+    zoomRectSrc.h = ZOOM_SRC_RECT_SIZE;
+    zoomRectDest.x = zoomPosX - ZOOM_RECT_SIZE/2;
+    zoomRectDest.y = zoomPosY - ZOOM_RECT_SIZE/2;
+    zoomRectDest.w = ZOOM_RECT_SIZE;
+    zoomRectDest.h = ZOOM_RECT_SIZE;
 
     SDL_RenderCopy(renderer, renderTexture, &zoomRectSrc, &zoomRectDest);
 }
 
 //Devolve o indice da cidade selecionada
-int RenderCities(SDL_Renderer *renderer, TTF_Font *AppleGaramond, DADOS* dados, dados_temp* cidades, int vecCidadesSize) {
-    int mouseX = 0, mouseY = 0;
+int GetSelectedCity(dados_temp* cidades, int vecCidadesSize, int zoomPosX, int zoomPosY) {
     int selectedCity = -1;
+    int mouseX = 0, mouseY = 0;
+    
     SDL_GetMouseState(&mouseX, &mouseY);
 
+    //Se estiver a fazer zoom
+    if(zoomPosX != -1) {
+        
+        int distX = mouseX-zoomPosX;
+        int distY = mouseY-zoomPosY;
+        //Se rato estiver dentro do quadrado do zoom
+        if(abs(distX) <= ZOOM_RECT_SIZE/2 && abs(distY) <= ZOOM_RECT_SIZE/2) {
+            //Corrige as coordenadas do rato para coincidirem com as coordenadas no mapa
+            mouseX -= distX/2;
+            mouseY -= distY/2;
+        }
+    }
+    
     for(int i = 0; i<vecCidadesSize; i++) {
         int x = 0, y = 0;
         if(cidades[i].cidade[0] == '\0') {
@@ -379,14 +397,30 @@ int RenderCities(SDL_Renderer *renderer, TTF_Font *AppleGaramond, DADOS* dados, 
             // o resto do vetor está vazio
             break;
         }
-        RenderCity(renderer, WIDTH_WINDOW_SIZE, HEIGHT_WINDOW_SIZE, AppleGaramond, &cidades[i], dados, &x, &y);
 
-        if(CalcDistance(x, y, mouseX, mouseY) < DIST_MIN_RATO_CIDADE) {
+        x = calculo_coordenada(cidades[i].longitude.angular,
+            cidades[i].longitude.direcao, WIDTH_WINDOW_SIZE, HEIGHT_WINDOW_SIZE, false);
+        y = calculo_coordenada(cidades[i].latitude.angular,
+            cidades[i].latitude.direcao, WIDTH_WINDOW_SIZE, HEIGHT_WINDOW_SIZE, true);
+
+        int dist = CalcDistance(mouseX, mouseY, x, y);
+        if(dist <= DIST_MIN_RATO_CIDADE) {
             selectedCity = i;
         }
     }
-
     return selectedCity;
+}
+
+
+void RenderCities(SDL_Renderer *renderer, TTF_Font *AppleGaramond, DADOS* dados, dados_temp* cidades, int vecCidadesSize) {
+    for(int i = 0; i<vecCidadesSize; i++) {
+        if(cidades[i].cidade[0] == '\0') {
+            //Se encontrar uma entrada do vetor cidades vazia sai do loop, porque
+            // o resto do vetor está vazio
+            break;
+        }
+        RenderCity(renderer, WIDTH_WINDOW_SIZE, HEIGHT_WINDOW_SIZE, &cidades[i], dados);
+    }
 }
 
 void RenderSelectedCity(SDL_Renderer *renderer, TTF_Font *font, dados_temp *cidade) {
@@ -467,13 +501,13 @@ void RenderColor(SDL_Renderer * _renderer, int _temperatura, int x, int y, DADOS
     //printf("temperatura == %d\ngreen:: %d\n", _temperatura, green);
 }
 
-void RenderCity(SDL_Renderer * _renderer, int width, int height, TTF_Font *_font, dados_temp* cidade, DADOS *dados, int *x, int *y) {
-    *x = calculo_coordenada(cidade->longitude.angular,
+void RenderCity(SDL_Renderer * _renderer, int width, int height, dados_temp* cidade, DADOS *dados) {
+    int x = calculo_coordenada(cidade->longitude.angular,
         cidade->longitude.direcao, width, height, false);
-    *y = calculo_coordenada(cidade->latitude.angular,
+    int y = calculo_coordenada(cidade->latitude.angular,
         cidade->latitude.direcao, width, height, true);
 
-    RenderColor(_renderer, cidade->temp, *x, *y, dados);
+    RenderColor(_renderer, cidade->temp, x, y, dados);
 }
 
 //TODO a cor não percisa de ser ponteiro duplo
@@ -525,16 +559,8 @@ void filledCircleRGBA(SDL_Renderer * _renderer, float _circleX, float _circleY, 
         _circleR--;
     }
 }
-/*
- * RenderTable: Draws the table where the game will be played, namely:
- * -  some texture for the background
- * -  the right part with the IST logo and the student name and number
- * -  the grid for game board with squares and seperator lines
- * \param _board_size_px size of the board
- * \param _font font used to render the text
- * \param _img surfaces with the table background and IST logo (already loaded)
- * \param _renderer renderer to handle all rendering in a window
- */
+
+//Draws the map
 void RenderMap( SDL_Surface *_img[], SDL_Renderer* _renderer , int width, int height)
 {
 

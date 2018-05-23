@@ -380,7 +380,7 @@ void opcao_escolhe_mes(CRITERIOS_FILTRAGEM *criterios)
 
 }
 
-void calc_medias_de_intervalos(int numIntervalos, DADOS_HISTORICO* temps) {
+void m2_calc_medias_de_intervalos(int numIntervalos, DADOS_HISTORICO* temps) {
     //Calcula as médias
     for(int i = 0; i<numIntervalos; i++) {
         if(temps[i].numDados > 0) {
@@ -390,7 +390,7 @@ void calc_medias_de_intervalos(int numIntervalos, DADOS_HISTORICO* temps) {
 }
 
 //TODO esta funcao tem demasiados parametros
-void imprime_intervalos(DADOS* dados, int numIntervalos, DADOS_HISTORICO* temps, int periodo, bool porCidade)
+void m2_imprime_intervalos(DADOS* dados, int numIntervalos, DADOS_HISTORICO* temps, int periodo, bool porCidade)
 {
     int numPaginas = ((numIntervalos-1) / NUM_INTERVALOS_POR_PAGINA) + 1;
     int pagina = 0;
@@ -452,7 +452,7 @@ void imprime_intervalos(DADOS* dados, int numIntervalos, DADOS_HISTORICO* temps,
 
 //Procura um nome num vetor de string. Se não encontrar coloca-o e aumenta o num
 //Se o vetor não for grande o suficiente faz realloc
-void colocaPaisOuCidadeEmVetor(char ***vect, int* vectSize, int* num, char* nome) {
+void m2_colocaPaisOuCidadeEmVetor(char ***vect, int* vectSize, int* num, char* nome) {
     int prevVectSize = *vectSize;
     for(int i = 0; i<(*vectSize); i++) {
         if((*vect)[i] == NULL) {
@@ -467,7 +467,7 @@ void colocaPaisOuCidadeEmVetor(char ***vect, int* vectSize, int* num, char* nome
         }
     }
 
-    
+    *vectSize += 5;
     *vect = (char**) realloc(*vect, sizeof(char*) * (*vectSize));
     for(int i = prevVectSize; i<(*vectSize); i++) {
         (*vect)[i] = NULL;
@@ -478,7 +478,7 @@ void colocaPaisOuCidadeEmVetor(char ***vect, int* vectSize, int* num, char* nome
     (*num)++;
 }
 
-void init_dados_historico(DADOS_HISTORICO* a) {
+void m2_init_dados_historico(DADOS_HISTORICO* a) {
     a->tempMax = -__FLT_MAX__;
     a->tempMin = __FLT_MAX__;
     a->tempMed = 0;
@@ -486,23 +486,22 @@ void init_dados_historico(DADOS_HISTORICO* a) {
 }
 
 //Devolve o numero de paises encontrados
-int CalculaSumMaxEMin(DADOS* dados, int filtra, char paisOuCidade[100], int periodo,
-    DADOS_HISTORICO *temps, char ***paisesOuCidadesEncontrados)
+int m2_CalculaSumMaxEMin(DADOS* dados, int filtra, char paisOuCidade[100], int periodo,
+    DADOS_HISTORICO *temps, char ***cidOuPaisFound)
 {
     list_node_t *aux = NULL;
     
-    int numeroCidadesOuPaisesEncontrados = 0;
-    int paisesOuCidadesEncontradosSize = 5;
-    *paisesOuCidadesEncontrados = checkedMalloc(sizeof(char*) * paisesOuCidadesEncontradosSize);
-    for(int i = 0; i<paisesOuCidadesEncontradosSize; i++) {
-        (*paisesOuCidadesEncontrados)[i] = NULL;
+    //Vetor que tem a lista de cidades ou paises que coincidem com o nome pedido ao utilizador paisOuCidade
+    int numoCidOuPaisFound = 0;
+    int cidOuPaisFoundSize = 5;
+    *cidOuPaisFound = checkedMalloc(sizeof(char*) * cidOuPaisFoundSize);
+    for(int i = 0; i<cidOuPaisFoundSize; i++) {
+        (*cidOuPaisFound)[i] = NULL;
     }
 
-    int anoMax = filtra == POR_CIDADE ? dados->citiesAnoMax : dados->countriesAnoMax;
     int anoMin = filtra == POR_CIDADE ? dados->citiesAnoMin : dados->countriesAnoMin;
     int intervalo = 0;
 
-    //TODO por isto numa função, muito parecido com o menu 4
     //A lista a analisar deve ser a das cidades se for porCidade. Caso contrário deve ser a dos paises
     aux = filtra == POR_CIDADE ? dados->headCitiesFiltrada->next : dados->headCountriesFiltrada->next; //->next para a node a seguir à dummy node    
 
@@ -512,9 +511,9 @@ int CalculaSumMaxEMin(DADOS* dados, int filtra, char paisOuCidade[100], int peri
             (filtra == POR_CIDADE && strstr(aux->payload->cidade, paisOuCidade) != NULL))
         {
             if(filtra != GLOBAL) {
-                colocaPaisOuCidadeEmVetor(paisesOuCidadesEncontrados,
-                    &paisesOuCidadesEncontradosSize,
-                    &numeroCidadesOuPaisesEncontrados,
+                m2_colocaPaisOuCidadeEmVetor(cidOuPaisFound,
+                    &cidOuPaisFoundSize,
+                    &numoCidOuPaisFound,
                     filtra == POR_CIDADE ? aux->payload->cidade : aux->payload->pais);
             }
 
@@ -533,15 +532,16 @@ int CalculaSumMaxEMin(DADOS* dados, int filtra, char paisOuCidade[100], int peri
         aux = aux->next;
     }
 
-    return numeroCidadesOuPaisesEncontrados;
+    return numoCidOuPaisFound;
 }
 
 void historico_de_temperaturas(DADOS *dados, int filtra) {
     DADOS_HISTORICO *temps = NULL;
     int numIntervalos = 0;
 
-    int numeroCidadesOuPaisesEncontrados = 0;
-    char **paisesOuCidadesEncontrados = NULL;
+    //Vetor que tem os nomes das cidades ou paises encontrados
+    int numCidOuPaisFound = 0;
+    char **cidOuPaisFound = NULL;
     
     char paisOuCidade[100];
     int periodo = 0;
@@ -568,32 +568,32 @@ void historico_de_temperaturas(DADOS *dados, int filtra) {
 
         for(int i = 0; i<numIntervalos; i++) {
             //Inicializa cada intervalo
-            init_dados_historico(&temps[i]);
+            m2_init_dados_historico(&temps[i]);
         }
         
-        numeroCidadesOuPaisesEncontrados = CalculaSumMaxEMin(dados, filtra, paisOuCidade, periodo,
-            temps, &paisesOuCidadesEncontrados);
+        numCidOuPaisFound = m2_CalculaSumMaxEMin(dados, filtra, paisOuCidade, periodo,
+            temps, &cidOuPaisFound);
         
         if(filtra != GLOBAL) {
-            if(numeroCidadesOuPaisesEncontrados == 0) {
+            if(numCidOuPaisFound == 0) {
                 printf(filtra == POR_CIDADE ? "Não foi encontrada nenhuma cidade %s" : "Não foi encontrado nenhum pais %s",
                     paisOuCidade);
                 pedeDeNovo = true;
                 free(temps);
-                free(paisesOuCidadesEncontrados);
+                free(cidOuPaisFound);
                 continue; //Não imprime o historico
-            } else if(numeroCidadesOuPaisesEncontrados > 1) {
+            } else if(numCidOuPaisFound > 1) {
                 printf(filtra == POR_CIDADE ? "Foram encontradas as seguintes cidades\n" :
                         "Foram encontrados os seguintes paises\n");
 
-                for(int i = 0; i<numeroCidadesOuPaisesEncontrados; i++) {
-                    printf("%d %s\n", i+1, paisesOuCidadesEncontrados[i]);
+                for(int i = 0; i<numCidOuPaisFound; i++) {
+                    printf("%d %s\n", i+1, cidOuPaisFound[i]);
                 }
                 
                 char tecla = pergunta_tecla("\nQuer escolher outro nome? [s/n]", 's', 'n');
                 if(tecla == 's') {
                     pedeDeNovo = true;
-                    free(paisesOuCidadesEncontrados);
+                    free(cidOuPaisFound);
                     free(temps);
                     continue; //Não imprime o historico
                 } else {
@@ -602,10 +602,10 @@ void historico_de_temperaturas(DADOS *dados, int filtra) {
             }
         }
 
-        free(paisesOuCidadesEncontrados);
+        free(cidOuPaisFound);
 
-        calc_medias_de_intervalos(numIntervalos, temps);
-        imprime_intervalos(dados, numIntervalos, temps, periodo, filtra == POR_CIDADE);
+        m2_calc_medias_de_intervalos(numIntervalos, temps);
+        m2_imprime_intervalos(dados, numIntervalos, temps, periodo, filtra == POR_CIDADE);
         free(temps);
         
     } while(pedeDeNovo);
