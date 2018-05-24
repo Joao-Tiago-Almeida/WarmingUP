@@ -222,9 +222,11 @@ bool ModoGrafico(char *nomeFileCidades, DADOS *dados  )
 
         if(mostra_painel_informativo)
         {
+            zoomPosX = -1; //Se o painel informativo estiver ativo desativa o zoom
+            zoomCounter = 0;
             RenderInfo(renderer, AppleGaramond);
         }
-        if()
+        if(zoomCounter > 2000/DELAY)
         {
             RenderDetective(renderer, AppleGaramond);
         }
@@ -519,9 +521,7 @@ void RenderInfo(SDL_Renderer * renderer, TTF_Font *font){
 void RenderDetective(SDL_Renderer * renderer, TTF_Font *font){
     SDL_Color red = {255, 0, 0, 255 };
 
-
-    RenderText(540, 540, "Estás armado em detetive !??", font, &red, renderer);
-
+    RenderText(540, 300, "Estas armado em detetive !??", font, &red, renderer);
 }
 
 /**
