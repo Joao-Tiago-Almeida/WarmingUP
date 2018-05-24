@@ -76,6 +76,8 @@ bool ModoGrafico(char *nomeFileCidades, DADOS *dados  )
     int zoomPosX = -1, zoomPosY = -1;
     SDL_Rect windowRect = {0, 0, width, height};
 
+    bool mouse_down = false;
+
     if(dados->headCitiesOriginal == NULL)  read_file_cities (dados,nomeFileCidades);
 
     //Começa no menor ano
@@ -99,6 +101,7 @@ bool ModoGrafico(char *nomeFileCidades, DADOS *dados  )
             {
                 switch ( event.key.keysym.sym )
                 {
+                    // TODO fazer legenda das teclas
                     case SDLK_t:
                         stay = 0;
                         modo_texto = true;
@@ -133,7 +136,18 @@ bool ModoGrafico(char *nomeFileCidades, DADOS *dados  )
                     zoomPosX = -1;
                     zoomPosY = -1;
                 }
+                mouse_down = true;
+            } else if (event.type == SDL_MOUSEBUTTONUP)
+            {
+                mouse_down = false;
             }
+        }
+        //enquano o mouse está pressionado
+        if(mouse_down && zoomPosX != -1)
+        {
+            SDL_GetMouseState(&mouseX, &mouseY);
+            zoomPosX = mouseX;
+            zoomPosY = mouseY;
         }
 
         //Se não estiver na pausa avança o ano
@@ -149,7 +163,7 @@ bool ModoGrafico(char *nomeFileCidades, DADOS *dados  )
                 }
             }
         }
-        
+
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
         SDL_SetRenderTarget(renderer, renderTexture);
@@ -209,7 +223,7 @@ bool ModoGrafico(char *nomeFileCidades, DADOS *dados  )
 
 void RenderZoom(SDL_Renderer* renderer, SDL_Texture* renderTexture, int zoomPosX, int zoomPosY) {
     SDL_Rect zoomRectSrc, zoomRectDest;
-    
+
     zoomRectSrc.x = zoomPosX - ZOOM_SRC_RECT_SIZE/2;
     zoomRectSrc.y = zoomPosY - ZOOM_SRC_RECT_SIZE/2;
     zoomRectSrc.w = ZOOM_SRC_RECT_SIZE;
@@ -226,12 +240,12 @@ void RenderZoom(SDL_Renderer* renderer, SDL_Texture* renderTexture, int zoomPosX
 int GetSelectedCity(dados_temp* cidades, int vecCidadesSize, int zoomPosX, int zoomPosY) {
     int selectedCity = -1;
     int mouseX = 0, mouseY = 0;
-    
+
     SDL_GetMouseState(&mouseX, &mouseY);
 
     //Se estiver a fazer zoom
     if(zoomPosX != -1) {
-        
+
         int distX = mouseX-zoomPosX;
         int distY = mouseY-zoomPosY;
         //Se rato estiver dentro do quadrado do zoom
@@ -241,7 +255,7 @@ int GetSelectedCity(dados_temp* cidades, int vecCidadesSize, int zoomPosX, int z
             mouseY -= distY/2;
         }
     }
-    
+
     for(int i = 0; i<vecCidadesSize; i++) {
         int x = 0, y = 0;
         if(cidades[i].cidade[0] == '\0') {
@@ -434,7 +448,7 @@ void RenderMap( SDL_Surface *_img[], SDL_Renderer* _renderer , int width, int he
 void RenderStatus(SDL_Renderer *renderer, TTF_Font *font, int ano, int velocidade) {
     char buffer[BUFFER_SIZE];
     SDL_Color anoTextColor = { 255, 255, 255, 255 };
-    
+
     sprintf(buffer, "%d", ano);
     RenderText(50, 50, buffer, font, &anoTextColor, renderer);
 

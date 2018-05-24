@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
 
 
     dados_free(&dados);
-    
+
     printf("END OF THE PROGRAM!!\n");
     return EXIT_SUCCESS;
 }

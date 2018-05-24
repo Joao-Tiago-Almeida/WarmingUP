@@ -12,7 +12,7 @@
 #define NUM_INTERVALOS_POR_PAGINA 20
 #define JANEIRO 1
 #define DEZEMBRO 12
-#define MAX_M 100 //não sei , perguntar ao stor
+#define MAX_M 12 //não sei , perguntar ao stor
 #define MAX(a, b) (a > b) ? a : b
 #define MIN(a, b) (a > b) ? b : a
 #define MODO_ANALISE_MAIS_QUENTE 0
@@ -80,7 +80,7 @@ int perguntar_referencia_a_analisar(int _min, int _max, char *_comentario)
 char pergunta_tecla(char* comentario, char opcao1, char opcao2) {
     char buffer[BUFFER_SIZE];
     do {
-        printf(comentario);
+        printf("%s", comentario);
         fgets(buffer, BUFFER_SIZE, stdin);
         removeLastCharIfMatch(buffer, '\n');
     } while(strlen(buffer) > 1 || (buffer[0] != opcao1 && buffer[0] != opcao2));
@@ -460,7 +460,7 @@ void m2_colocaPaisOuCidadeEmVetor(char ***vect, int* vectSize, int* num, char* n
             (*num)++;
             return;
         }
-        
+
         if(strcmp((*vect)[i], nome) == 0) {
             //Se encontrou no vetor
             return;
@@ -490,7 +490,7 @@ int m2_CalculaSumMaxEMin(DADOS* dados, int filtra, char paisOuCidade[100], int p
     DADOS_HISTORICO *temps, char ***cidOuPaisFound)
 {
     list_node_t *aux = NULL;
-    
+
     //Vetor que tem a lista de cidades ou paises que coincidem com o nome pedido ao utilizador paisOuCidade
     int numoCidOuPaisFound = 0;
     int cidOuPaisFoundSize = 5;
@@ -503,7 +503,7 @@ int m2_CalculaSumMaxEMin(DADOS* dados, int filtra, char paisOuCidade[100], int p
     int intervalo = 0;
 
     //A lista a analisar deve ser a das cidades se for porCidade. Caso contrário deve ser a dos paises
-    aux = filtra == POR_CIDADE ? dados->headCitiesFiltrada->next : dados->headCountriesFiltrada->next; //->next para a node a seguir à dummy node    
+    aux = filtra == POR_CIDADE ? dados->headCitiesFiltrada->next : dados->headCountriesFiltrada->next; //->next para a node a seguir à dummy node
 
     while(aux != NULL) {
         if(filtra == GLOBAL ||
@@ -519,7 +519,7 @@ int m2_CalculaSumMaxEMin(DADOS* dados, int filtra, char paisOuCidade[100], int p
 
             //Conta este nó se não tiver a filtrar por cidade ou pais, ou se
             //  corresponder ao que se está a filtrar
-            
+
             intervalo = (aux->payload->dt.ano - anoMin) / periodo;
 
 
@@ -542,7 +542,7 @@ void historico_de_temperaturas(DADOS *dados, int filtra) {
     //Vetor que tem os nomes das cidades ou paises encontrados
     int numCidOuPaisFound = 0;
     char **cidOuPaisFound = NULL;
-    
+
     char paisOuCidade[100];
     int periodo = 0;
     char comentario[] = "Qual o periodo que pretende analisar?";
@@ -570,10 +570,10 @@ void historico_de_temperaturas(DADOS *dados, int filtra) {
             //Inicializa cada intervalo
             m2_init_dados_historico(&temps[i]);
         }
-        
+
         numCidOuPaisFound = m2_CalculaSumMaxEMin(dados, filtra, paisOuCidade, periodo,
             temps, &cidOuPaisFound);
-        
+
         if(filtra != GLOBAL) {
             if(numCidOuPaisFound == 0) {
                 printf(filtra == POR_CIDADE ? "Não foi encontrada nenhuma cidade %s" : "Não foi encontrado nenhum pais %s",
@@ -589,7 +589,7 @@ void historico_de_temperaturas(DADOS *dados, int filtra) {
                 for(int i = 0; i<numCidOuPaisFound; i++) {
                     printf("%d %s\n", i+1, cidOuPaisFound[i]);
                 }
-                
+
                 char tecla = pergunta_tecla("\nQuer escolher outro nome? [s/n]", 's', 'n');
                 if(tecla == 's') {
                     pedeDeNovo = true;
@@ -607,7 +607,7 @@ void historico_de_temperaturas(DADOS *dados, int filtra) {
         m2_calc_medias_de_intervalos(numIntervalos, temps);
         m2_imprime_intervalos(dados, numIntervalos, temps, periodo, filtra == POR_CIDADE);
         free(temps);
-        
+
     } while(pedeDeNovo);
 }
 
