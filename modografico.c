@@ -310,7 +310,7 @@ void RenderCities(SDL_Renderer *renderer, DADOS* dados, dados_temp* cidades, int
     }
 }
 
-/*+
+/*
 *distância entre dois pontos
 */
 int CalcDistance(int x1, int y1, int x2, int y2) {
@@ -487,6 +487,7 @@ void RenderInfo(SDL_Renderer * renderer, TTF_Font *font){
     SDL_RenderFillRect(renderer, &rect);
 
     RenderText(550, 200, "-----WarmingUp-----Modo Grafico---", font, &red, renderer);
+    RenderText(500, 260, "Pressione espaco para pausa", font, &red, renderer);
     RenderText(500, 300, "Pressione 't' para mudar para o modo Textual", font, &red, renderer);
     RenderText(500, 340, "Pressione 'q' para sair do programa", font, &red, renderer);
     RenderText(500, 380, "Pressione 'a' para:", font, &red, renderer);
@@ -531,9 +532,8 @@ void RenderYear(SDL_Renderer *renderer, TTF_Font *font, int ano) {
 *Desenha o simbolo da pausa no ecra
 */
 void RenderPausa(SDL_Renderer *renderer, int pausaCounter) {
-    SDL_Rect rect = { 10, 40, 10, 40 };
-    int a = abs(pausaCounter - MAX_PAUSA_COUNTER/2);
-    int alpha = 200 + 55 * a / MAX_PAUSA_COUNTER/2;
+    SDL_Rect rect = { 10, 25, 10, 40 };
+    int alpha = 100 + 155 * abs(pausaCounter - MAX_PAUSA_COUNTER/2) / (MAX_PAUSA_COUNTER/2);
     SDL_SetRenderDrawColor(renderer, 43, 168, 11, alpha);
     SDL_RenderFillRect(renderer, &rect);
     rect.x += 25;
@@ -544,7 +544,7 @@ void RenderPausa(SDL_Renderer *renderer, int pausaCounter) {
 *Escreve o nome do País e da cidade no imagem , que corresponde à posição onde o rato se encontra
 */
 void RenderSelectedCity(SDL_Renderer *renderer, TTF_Font *font, dados_temp *cidade) {
-    char buffer[BUFFER_SIZE];
+    char buffer[BUFFER_SIZE*2]; //BUFFER_SIZE*2 para tirar o warming do buffer talvez ser pequeno demais
     SDL_Color color = { 255, 255, 255, 255 };
 
     //nome do País e da Cidade
