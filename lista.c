@@ -67,27 +67,28 @@ void print_list(list_node_t *_head)
     printf("Size: %d", size);
 }
 
+/**
+* Remove node a node de uma lista começando na _head
+* freePayload distingue quando se faz free no apontador dos nodes da lista (freePayload == false)
+        da situação de limpar a memórica que toda a lista alocou ,
+        situação que acontece quando termina o programa (freePayload == true)
+*/
 int remove_nodes(list_node_t *_head, bool freePayload)
 {
     list_node_t *aux = NULL, *tmp = NULL;//, *tmp = NULL;
-
     aux = _head->next; // start with node after dummy node
-
     if (aux == NULL)
     {
         return -1;
     }
-
     while (aux != NULL)
     {
         tmp = aux->next;
-
         if (aux->next != NULL)
         {
             aux->next->prev = aux->prev;
         }
         aux->prev->next = aux->next;
-
         if(freePayload) {
             free(aux->payload);
         }

@@ -56,6 +56,7 @@ bool ModoGrafico(char *nomeFileCidades, DADOS *dados  )
     int width = WIDTH_WINDOW_SIZE;
     int height = HEIGHT_WINDOW_SIZE;
     bool modo_texto = false;
+    bool mostra_painel_informativo = false;
 
     //Ano que está a ser mostrado
     int anoAtual = 0;
@@ -108,6 +109,9 @@ bool ModoGrafico(char *nomeFileCidades, DADOS *dados  )
                         break;
                     case SDLK_q:
                         stay = false;
+                        break;
+                    case SDLK_i:
+                        mostra_painel_informativo = !mostra_painel_informativo;
                         break;
                     case SDLK_SPACE:
                         pausa = !pausa;
@@ -198,8 +202,13 @@ bool ModoGrafico(char *nomeFileCidades, DADOS *dados  )
 
         RenderLegenda(renderer, AppleGaramond, dados);
 
-        if(zoomPosX != -1) {
+        if(zoomPosX != -1 && !mostra_painel_informativo) {
             RenderZoom(renderer, renderTexture, zoomPosX, zoomPosY);
+        }
+
+        if(mostra_painel_informativo)
+        {
+            RenderInfo(renderer, AppleGaramond);
         }
 
         SDL_RenderPresent(renderer);
@@ -297,16 +306,21 @@ void RenderCities(SDL_Renderer *renderer, DADOS* dados, dados_temp* cidades, int
     }
 }
 
+/*+
+*distância entre dois pontos
+*/
 int CalcDistance(int x1, int y1, int x2, int y2) {
-    return sqrt((x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2));
+    return sqrt(pow((x1 - x2),2) + pow((y1 - y2),2));
 }
 
-//recebe dois argumentos e faz o calculo entre eles
-//true, se for latitude, false se longitude
-//a coord_local é inicialmente a coordenada antes da transformacao , ficheiro
-//cai guardar temporariamente o deslocamnetonum eixo  da coordenada (0,0) à cidade
-//e dps vai ter a coordenada exata do pais
-//bool:: calculo da latitude ? => true , longitude => false
+/*
+recebe dois argumentos e faz o calculo entre eles
+*true, se for latitude, false se longitude
+*a coord_local é inicialmente a coordenada antes da transformacao , ficheiro
+*  vai guardar temporariamente o deslocamnetonum eixo da coordenada (0,0) ate à cidade
+*  e dps vai ter a coordenada exata do pais
+*bool:: calculo da latitude ? => true , longitude => false
+*/
 int calculo_coordenada(float coord_local, int _direcao, int _width, int _height, bool latitude)
 {
     //TODO escrever melhor
@@ -331,10 +345,10 @@ int calculo_coordenada(float coord_local, int _direcao, int _width, int _height,
 
     return coord_local;
 }
-
-//calcula a cor em função da temperatura
-void RenderColor(int _temperatura, DADOS *dados, int* red, int* green, int* blue)
-{
+/**
+*calcula a cor em função da temperatura
+*/
+void RenderColor(int _temperatura, DADOS *dados, int* red, int* green, int* blue){
     int m = 0;  //declive da reta
     int b = 0;  // b vai ser a abcissa do ponto médio (temp_mas - temp_min), em que verde é máximo
     *red = 0;
@@ -355,12 +369,11 @@ void RenderColor(int _temperatura, DADOS *dados, int* red, int* green, int* blue
 
     //red
     *red = _temperatura > b ? (_temperatura  - b) * m : 0;
-
-
-
 }
 
-//calculo das coordenadas das cidades
+/**
+*calculo das coordenadas das cidades
+*/
 void RenderCity(SDL_Renderer * _renderer, int width, int height, dados_temp* cidade, DADOS *dados) {
     int red = 0, blue = 0, green = 0;
     int x = calculo_coordenada(cidade->longitude.angular,
@@ -445,7 +458,7 @@ void RenderLegenda(SDL_Renderer * _renderer, TTF_Font *_font, DADOS *dados){
 
     //escala cromática
     int amplitude = fabsf(dados->citiesTempMax) + fabsf(dados->citiesTempMin);
-    int tamanho = 340/amplitude;    //360 corresponde da legenda das temp min e max;
+    int tamanho = 360/amplitude;    //360 corresponde ao tamanho da legenda das temp min e max;
     SDL_Rect rect = { 40, 440, tamanho, 30 };
 
     for (int t = dados->citiesTempMin; t <= dados->citiesTempMax ; t++)
@@ -455,7 +468,29 @@ void RenderLegenda(SDL_Renderer * _renderer, TTF_Font *_font, DADOS *dados){
         SDL_RenderFillRect(_renderer, &rect);
         rect.x += tamanho;
     }
+    RenderText(50, 600,"Para mais informacoes pressione 'i'", _font, &white, _renderer);
+    RenderText(500, 630,"Pressione o rato para ampliar a imagem, e mova o rato (ZOOM em movimento)!!"
+        , _font, &white, _renderer);
+}
 
+/**
+*Desenha uma janela que dá informações ao utilizador sobre o funcionamento do programa
+*/
+void RenderInfo(SDL_Renderer * renderer, TTF_Font *font){
+    SDL_Color red = {255, 32, 122, 255 };
+    SDL_Rect rect = { 500, 200, 400, 370 };
+    SDL_SetRenderDrawColor(renderer, 93, 138, 168, 100);
+    SDL_RenderFillRect(renderer, &rect);
+
+    RenderText(550, 200, "-----WarmingUp-----Modo Grafico---", font, &red, renderer);
+    RenderText(500, 300, "Pressione 't' para mudar para o modo Textual", font, &red, renderer);
+    RenderText(500, 340, "Pressione 'q' para sair do programa", font, &red, renderer);
+    RenderText(500, 380, "Pressione 'a' para:", font, &red, renderer);
+    RenderText(520, 410, "aumentar a velocidade de mudanca de ano", font, &red, renderer);
+    RenderText(540, 440, "(max: Velocidade: 1 (2 anos))", font, &red, renderer);
+    RenderText(500, 480, "Pressione 's' para:", font, &red, renderer);
+    RenderText(520, 510, "diminuir a velocidade de mudanca de ano", font, &red, renderer);
+    RenderText(540, 540, "(min :Velocidade: 1/10)", font, &red, renderer);
 
 }
 
@@ -464,22 +499,17 @@ void RenderLegenda(SDL_Renderer * _renderer, TTF_Font *_font, DADOS *dados){
 */
 void RenderVelocityStatus(SDL_Renderer *renderer, TTF_Font *font, int velocidade) {
     char buffer[BUFFER_SIZE];
-    SDL_Color anoTextColor = { 255, 255, 255, 255 };
+    SDL_Color white = { 255, 255, 255, 255 };
 
     if(velocidade == 0) {
-        RenderText(50, 40, "Velocidade: 1 (2 anos)", font, &anoTextColor, renderer);
+        RenderText(50, 40, "Velocidade: 1 (2 anos)", font, &white, renderer);
     } else if(velocidade == 1) {
-        RenderText(50, 40, "Velocidade: 1", font, &anoTextColor, renderer);
+        RenderText(50, 40, "Velocidade: 1", font, &white, renderer);
     } else {
         sprintf(buffer, "Velocidade: 1/%d", velocidade);
-        RenderText(50, 40, buffer, font, &anoTextColor, renderer);
+        RenderText(50, 40, buffer, font, &white, renderer);
     }
-    RenderText(500, 640, "Pressione 'a' para:", font, &anoTextColor, renderer);
-    RenderText(520, 660, "aumentar a velocidade de mudanca de ano", font, &anoTextColor, renderer);
-    RenderText(540, 680, "(max: Velocidade: 1 (2 anos))", font, &anoTextColor, renderer);
-    RenderText(930, 640, "Pressione 's' para:", font, &anoTextColor, renderer);
-    RenderText(950, 660, "diminuir a velocidade de mudanca de ano", font, &anoTextColor, renderer);
-    RenderText(970, 680, "(min :Velocidade: 1/10)", font, &anoTextColor, renderer);
+
 }
 
 /**
@@ -497,7 +527,7 @@ void RenderYear(SDL_Renderer *renderer, TTF_Font *font, int ano) {
 *Desenha o simbolo da pausa no ecra
 */
 void RenderPausa(SDL_Renderer *renderer, int pausaCounter) {
-    SDL_Rect rect = { 10, 25, 10, 40 };
+    SDL_Rect rect = { 10, 40, 10, 40 };
     int alpha = 200 + 55 * abs(pausaCounter - MAX_PAUSA_COUNTER/2) / MAX_PAUSA_COUNTER/2;
     SDL_SetRenderDrawColor(renderer, 43, 168, 11, alpha);
     SDL_RenderFillRect(renderer, &rect);
@@ -666,7 +696,7 @@ void MudarAno(DADOS *dados, dados_temp **cidades, int *vecCidadesSize, int *ano)
     if(*ano > dados->citiesAnoMax) {
         *ano = dados->citiesAnoMin;
     }
-
+    //atualiza os valores das temperaturas no vetor das cidades
     AtualizaCidades(dados, cidades, vecCidadesSize, *ano);
 }
 
@@ -775,6 +805,13 @@ SDL_Renderer* CreateRenderer(int width, int height, SDL_Window *_window)
     return renderer;
 }
 
+/**
+ * CreateRenderer: Creates a renderer for the application
+ * \param width width in px of the window
+ * \param height height in px of the window
+ * \param _renderer renderer to handle all rendering in a window
+ * \return pointer to the texture
+ */
 SDL_Texture *CreateRenderTexture(SDL_Renderer* _renderer, int width, int height) {
     SDL_Texture *texture = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, width, height);
     if(texture == NULL)

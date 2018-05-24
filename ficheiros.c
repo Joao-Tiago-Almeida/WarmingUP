@@ -151,8 +151,6 @@ void readFileCitiesAtualizaMaxMin(DADOS* dados, dados_temp* novoValor) {
     {
         dados->citiesTempMax = novoValor->temp;
     }
-
-
 }
 
 //Coloca os dados de uma linha numa estrutura do tipo dados_temp
@@ -162,7 +160,7 @@ dados_temp *readFileLineToStruct(char* line, bool cidades) {
     char longitude[BUFFER_SIZE] = {'\0'};
     char latitude[BUFFER_SIZE] = {'\0'};
 
-    dados_temp *a = malloc(sizeof(dados_temp));
+    dados_temp *a = checkedMalloc(sizeof(dados_temp));
 
     if(cidades) {
         check = sscanf(line, "%d-%d-%d,%f,%f,%[^,],%[^,],%[^,],%[^,]",
@@ -175,10 +173,10 @@ dados_temp *readFileLineToStruct(char* line, bool cidades) {
             a->pais,
             latitude,
             longitude);
-        
+
         a->latitude.direcao = (latitude[strlen(latitude)-1] == 'N') ? NORTE : SUL;
         a->longitude.direcao = (longitude[strlen(longitude)-1] == 'W') ? OESTE : ESTE;
-        
+
         //Tira o carcater da direção da string
         latitude[strlen(latitude)-1] = '\0';
         longitude[strlen(longitude)-1] = '\0';
@@ -235,11 +233,8 @@ int readFileToList(char* fileName, DADOS* dados, bool cidades)
         {
             insert_node(list, a);
             cidades ? readFileCitiesAtualizaMaxMin(dados, a) : readFileCountriesAtualizaMaxMin(dados, a);
-            //readFileAtualizaMaxMin(dados, a);
             i++;
         }
-
-
 
         //A cada 100 linhas calcula a percentagem e atualiza o progresso de leitura
         if(i % 100) {
