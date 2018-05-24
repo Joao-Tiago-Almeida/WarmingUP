@@ -4,23 +4,27 @@
 #include "estruturas.h"
 #include "conjuntodados.h"
 
-bool menu_principal(DADOS* dados);
-void menu_filtragem_de_dados(DADOS* dados);
-void menu_historico_de_temperaturas(DADOS* dados);
-void menu_analise_da_temperatura_por_ano(DADOS* dados);
-void menu_analise_da_temperatura_global(DADOS* dados);
+int perguntar_menu_choice();
+void getstring(char* string, char _comentario[]);
+char pergunta_tecla(char* comentario, char opcao1, char opcao2);
 
-void opcao_limpa_criteritos(CRITERIOS_FILTRAGEM *criterios);
+bool menu_principal(DADOS* dados);
+void menu_1_filtragem_de_dados(DADOS* dados);
+void menu_2_historico_de_temperaturas(DADOS* dados);
+void menu_3_analise_da_temperatura_por_ano(DADOS* dados);
+void menu_4_analise_da_temperatura_global(DADOS* dados);
+
 void opcao_escolhe_intervalos_para_analise(CRITERIOS_FILTRAGEM *criterios, DADOS *dados);
 void opcao_escolhe_mes(CRITERIOS_FILTRAGEM *criterios);
 
+int m2_calculo_num_intervalos(int _periodo, DADOS *dados, bool porCidade);
 void m2_calc_medias_de_intervalos(int numIntervalos, DADOS_HISTORICO* temps);
 void m2_imprime_intervalos(DADOS* dados, int numIntervalos, DADOS_HISTORICO* temps, int periodo, bool porCidade);
 void m2_colocaPaisOuCidadeEmVetor(char ***vect, int* vectSize, int* num, char* nome);
 void m2_init_dados_historico(DADOS_HISTORICO* a);
 int m2_CalculaSumMaxEMin(DADOS* dados, int filtra, char paisOuCidade[100], int periodo,
     DADOS_HISTORICO *temps, char ***cidOuPaisFound);
-void historico_de_temperaturas(DADOS *dados, int filtra);
+void m2_historico_de_temperaturas(DADOS *dados, int filtra);
 
 void analise_por_pais_ou_cidade(DADOS* dados, bool porCidade);
 

@@ -69,7 +69,6 @@ void print_list(list_node_t *_head)
  * Apaga todas as nodes da lista (excepto a dummy node)
  * freePayload: faz free dos payloads
 **/
-//TODO tirar
 int remove_nodes(list_node_t *_head, bool freePayload)
 {
     list_node_t *aux = NULL, *tmp = NULL;
