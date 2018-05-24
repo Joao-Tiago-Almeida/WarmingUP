@@ -17,7 +17,6 @@ list_node_t *create_list();
 void insert_node(list_node_t *_head, dados_temp *_dados);
 void print_list(list_node_t *_head);
 int remove_nodes(list_node_t *_head, bool freePayload);
-void sortedInsert(list_node_t *_head, list_node_t **_tail, list_node_t *new_node);
 
 
 #endif

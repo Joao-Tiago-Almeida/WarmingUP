@@ -12,7 +12,7 @@
 #define BUFFER_SIZE 100
 #define MAX_STRING 500
 
-//Obtem o tamanho do ficheiro em bytes
+//Obtem o tamanho do ficheiro em bytes (para fazer o progresso)
 long getFileSize(FILE *file)
 {
     long size = 0;
@@ -36,20 +36,18 @@ FILE *checkedFopen(char* name, char* mode) {
     return f;
 }
 
-// Devolve true se a data a for maior que a data b
-bool dataMaiorQue(data* a, data* b) {
-    return (a->ano > b->ano
-        || (a->ano == b->ano && a->mes > b->mes)
-        || (a->ano == b->ano && a->mes == b->mes && a->dia > b->dia));
-}
-
-
+/**
+ *  Devolve true se a data a for menor que a data b
+**/
 bool dataMenorQue(data* a, data* b) {
     return (a->ano < b->ano
         || (a->ano == b->ano && a->mes < b->mes)
         || (a->ano == b->ano && a->mes == b->mes && a->dia < b->dia));
 }
 
+/**
+ * Lê o ficheiro dos paises e coloca a lista na estrutura dados
+**/
 void read_file_countries(DADOS *dados, char *_nomeFilePaises)
 {
     clock_t timeCounter = clock();
@@ -69,6 +67,9 @@ void read_file_countries(DADOS *dados, char *_nomeFilePaises)
     printf("\rProgresso: 100%% (%ld s)                 \n", timeCounter/CLOCKS_PER_SEC);
 }
 
+/**
+ * Lê o ficheiro dos paises e coloca a lista na estrutura dados
+**/
 void read_file_cities(DADOS *dados, char *_nomeFileCidades)
 {
     clock_t timeCounter = clock();
@@ -88,10 +89,10 @@ void read_file_cities(DADOS *dados, char *_nomeFileCidades)
     printf("\rProgresso: 100%% (%ld s)                 \n", timeCounter/CLOCKS_PER_SEC);
 }
 
+/**
+ * Ao ler uma linha do ficheiro dos paises atualiza os valores dos maximos e minimos
+**/
 void readFileCountriesAtualizaMaxMin(DADOS* dados, dados_temp* novoValor) {
-    //TODO calcula mal o mes min e maximo
-    //caso seja o ano min, determinar o menor mes
-
     if (novoValor->dt.ano == dados->countriesAnoMin &&
         novoValor->dt.mes < dados->countriesMesMin)
     {
@@ -116,10 +117,10 @@ void readFileCountriesAtualizaMaxMin(DADOS* dados, dados_temp* novoValor) {
     }
 }
 
+/**
+ * Ao ler uma linha do ficheiro das cidades atualiza os valores dos maximos e minimos
+**/
 void readFileCitiesAtualizaMaxMin(DADOS* dados, dados_temp* novoValor) {
-    //TODO calcula mal o mes min e maximo
-    //caso seja o ano min, determinar o menor mes
-
     if (novoValor->dt.ano == dados->citiesAnoMin &&
         novoValor->dt.mes < dados->citiesMesMin)
     {
@@ -151,8 +152,6 @@ void readFileCitiesAtualizaMaxMin(DADOS* dados, dados_temp* novoValor) {
     {
         dados->citiesTempMax = novoValor->temp;
     }
-
-
 }
 
 //Coloca os dados de uma linha numa estrutura do tipo dados_temp
@@ -258,10 +257,14 @@ int readFileToList(char* fileName, DADOS* dados, bool cidades)
     return i;
 }
 
+/**
+ * Ordena a lista por data atravez do merge sort
+**/
 void mergeSort(list_node_t* list, int listSize) {
     int n = 1;
     if(listSize < 2) {
-        //TODO Sair da funcao sem ordenar
+        //Sair da funcao sem ordenar
+        return;
     }
     int nMax = (listSize-1)/8 * 8;
 

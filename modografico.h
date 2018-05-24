@@ -29,7 +29,7 @@ void RenderZoom(SDL_Renderer* renderer, SDL_Texture* renderTexture, int zoomPosX
 
 void InitEmptyCidade(dados_temp *cidade);
 void ColocaNodeNoVetorCidades(list_node_t *node, dados_temp **cidades, int **cidadesNumDados, int *vecCidadesSize);
-void AtualizaCidades(DADOS *dados, dados_temp **cidades, int *vecCidadesSize, int ano);
-void MudarAno(DADOS *dados, dados_temp **cidades, int *vecCidadesSize, int *ano);
+void AtualizaCidades(DADOS *dados, list_node_t **aux, dados_temp **cidades, int *vecCidadesSize, int ano);
+void MudarAno(DADOS *dados, list_node_t **aux, dados_temp **cidades, int *vecCidadesSize, int *ano);
 
 #endif

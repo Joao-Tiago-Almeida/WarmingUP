@@ -7,6 +7,9 @@
 
 #define comando_mal 0
 
+/**
+ * main
+**/
 int main(int argc, char *argv[])
 {
     bool modo_grafico = false;
@@ -35,6 +38,9 @@ int main(int argc, char *argv[])
     return EXIT_SUCCESS;
 }
 
+/**
+ * Se o utilizador se enganar no comando para correr o programa 
+**/
 void display_usage(char *arg)
 {
     if(arg == comando_mal)
@@ -47,8 +53,9 @@ void display_usage(char *arg)
     }
 }
 
-//TODO esta função tem muitas linhas
-//TODO alterado
+/**
+ * Lê os argumentos do terminal 
+**/
 void ler_argumentos(int argc, char *argv[], bool *modoGrafico, char **nomeFilePaises, char **nomeFileCidades) {
     //Quando é lido -f1 ou -f2 esta variavel indica que
     // o argumento seguinte é o nome do ficheiro
@@ -75,8 +82,6 @@ void ler_argumentos(int argc, char *argv[], bool *modoGrafico, char **nomeFilePa
                 }
                 expectingFileName = false;
             } else {
-                //printf("tamanho:: %lu\n", strlen(argv[i]));
-                //printf("parametro:: %s\n", argv[i]);
                 if (strcmp(argv[i], "-g") == 0)
                 {
                     *modoGrafico = true;
@@ -111,7 +116,10 @@ void ler_argumentos(int argc, char *argv[], bool *modoGrafico, char **nomeFilePa
     }
 }
 
-// Devolve false se for para sair do programa ou true se for para mudar para o modo textual
+/**
+ * Inicia o programa ou muda para o modo textual
+ * Devolve false se for para sair do programa ou true se for para mudar para o modo textual
+**/
 bool ModoTextual(char *nomeFilePaises, char *nomeFileCidades, DADOS *dados )
 {
     if(dados->headCountriesOriginal == NULL)  read_file_countries (dados, nomeFilePaises);
