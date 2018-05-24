@@ -6,6 +6,9 @@
 
 #define DEZEMBRO 12
 
+/**
+ * Inicializa os dados do programa
+ */
 void dados_init(DADOS *dados)
 {
     limpar_criterios(&dados->criterios);
@@ -18,10 +21,12 @@ void dados_init(DADOS *dados)
     dados->citiesAnoMin = __INT32_MAX__;
     dados->citiesAnoMax = -__INT32_MAX__;
     dados->citiesTempMax = -FLOAT_MAX;
-    dados->citiesTempMin = FLOAT_MAX ;
-    printf("---DADOS INIT---\n");
+    dados->citiesTempMin = FLOAT_MAX;
 }
 
+/**
+ * Limpa os dados do programa (incluindo as listas)
+ */
 void dados_free(DADOS* dados) {
     bool apagaListaCountries = dados->headCountriesOriginal != NULL;
     bool apagaListaCities = dados->headCitiesOriginal != NULL;
