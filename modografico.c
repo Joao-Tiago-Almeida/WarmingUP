@@ -30,7 +30,7 @@
 #define MIN_RGB 0
 #define TEMP_REF 10
 #define VECT_CIDADES_INITIAL_SIZE 50
-#define BUFFER_SIZE 100
+#define BUFFER_SIZE 200
 #define VELOCIDADE_MAX 10
 #define DELAY 30
 #define MAX_PAUSA_COUNTER 20
@@ -42,8 +42,8 @@
 /**
  * main function: entry point of the program
  * only to invoke other functions !
+ * Devolve false se for para sair do programa ou true se for para mudar para o modo textual
  */
-// Devolve false se for para sair do programa ou true se for para mudar para o modo textual
 bool ModoGrafico(char *nomeFileCidades, DADOS *dados  )
 {
     SDL_Window *window = NULL;
@@ -186,7 +186,8 @@ bool ModoGrafico(char *nomeFileCidades, DADOS *dados  )
             RenderSelectedCity(renderer, AppleGaramond, &cidades[selectedCity]);
         }
 
-        RenderStatus(renderer, AppleGaramond, anoAtual, velocidade);
+        RenderVelocityStatus(renderer, AppleGaramond, velocidade);
+        RenderYear(renderer, AppleGaramond, anoAtual);
         if(pausa) {
             pausaCounter++;
             if(pausaCounter > MAX_PAUSA_COUNTER) {
@@ -195,7 +196,7 @@ bool ModoGrafico(char *nomeFileCidades, DADOS *dados  )
             RenderPausa(renderer, pausaCounter);
         }
 
-        RenderLegenda(renderer, AppleGaramond);
+        RenderLegenda(renderer, AppleGaramond, dados);
 
         if(zoomPosX != -1) {
             RenderZoom(renderer, renderTexture, zoomPosX, zoomPosY);
@@ -221,6 +222,9 @@ bool ModoGrafico(char *nomeFileCidades, DADOS *dados  )
     return modo_texto;
 }
 
+/**
+*Amplia imagem de modo que utilizador possa ver com mais detalhe parte da imagem
+*/
 void RenderZoom(SDL_Renderer* renderer, SDL_Texture* renderTexture, int zoomPosX, int zoomPosY) {
     SDL_Rect zoomRectSrc, zoomRectDest;
 
@@ -236,7 +240,9 @@ void RenderZoom(SDL_Renderer* renderer, SDL_Texture* renderTexture, int zoomPosX
     SDL_RenderCopy(renderer, renderTexture, &zoomRectSrc, &zoomRectDest);
 }
 
-//Devolve o indice da cidade selecionada
+/**
+*Devolve o indice da cidade selecionada
+*/
 int GetSelectedCity(dados_temp* cidades, int vecCidadesSize, int zoomPosX, int zoomPosY) {
     int selectedCity = -1;
     int mouseX = 0, mouseY = 0;
@@ -277,7 +283,9 @@ int GetSelectedCity(dados_temp* cidades, int vecCidadesSize, int zoomPosX, int z
     return selectedCity;
 }
 
-
+/**
+*Desenha as várias cidades
+*/
 void RenderCities(SDL_Renderer *renderer, DADOS* dados, dados_temp* cidades, int vecCidadesSize) {
     for(int i = 0; i<vecCidadesSize; i++) {
         if(cidades[i].cidade[0] == '\0') {
@@ -287,15 +295,6 @@ void RenderCities(SDL_Renderer *renderer, DADOS* dados, dados_temp* cidades, int
         }
         RenderCity(renderer, WIDTH_WINDOW_SIZE, HEIGHT_WINDOW_SIZE, &cidades[i], dados);
     }
-}
-
-void RenderSelectedCity(SDL_Renderer *renderer, TTF_Font *font, dados_temp *cidade) {
-    char buffer[BUFFER_SIZE];
-    SDL_Color color = { 255, 255, 255, 255 };
-
-    RenderText(WIDTH_WINDOW_SIZE-100, 0, cidade->cidade, font, &color, renderer);
-    sprintf(buffer, "%.2f C", cidade->temp);
-    RenderText(WIDTH_WINDOW_SIZE-100, 25, buffer, font, &color, renderer);
 }
 
 int CalcDistance(int x1, int y1, int x2, int y2) {
@@ -334,61 +333,45 @@ int calculo_coordenada(float coord_local, int _direcao, int _width, int _height,
 }
 
 //calcula a cor em função da temperatura
-//TODO falta adicionar a temperatura maxima e minima do ficheiro
-//TODO pode ser melhorado apenas com uma função
-void RenderColor(SDL_Renderer * _renderer, int _temperatura, int x, int y, DADOS *dados)
+void RenderColor(int _temperatura, DADOS *dados, int* red, int* green, int* blue)
 {
     int m = 0;  //declive da reta
     int b = 0;  // b vai ser a abcissa do ponto médio (temp_mas - temp_min), em que verde é máximo
-    int red, green, blue;
+    *red = 0;
+    *green = 0;
+    *blue = 0;
 
     float temp_min = dados->citiesTempMin;
     float temp_max = dados->citiesTempMax;
 
     m = ((MAX_RGB-MIN_RGB)/(temp_max-temp_min))*2;        //múltiplico por 2 pois o pico tem de ser a meio da reta
     b = temp_min + (fabsf(temp_min) + fabsf(temp_max))*0.5;
-    printf("\nb :;:; %d\n", b);
 
     //green
-    green = MAX_RGB - abs((_temperatura  - b) * m);
+    *green = MAX_RGB - abs((_temperatura  - b) * m);
 
     //blue
-    blue = _temperatura < b ? 255 - (-1)*(_temperatura  - b) * m : 0;
+    *blue = _temperatura < b ? 255 - (-1)*(_temperatura  - b) * m : 0;
 
     //red
-    red = _temperatura > b ? (_temperatura  - b) * m : 0;
-    printf("red :: %d\ngreen :: %d\nblue :: %d\n, temperatura:: %d\n", red, green, blue, _temperatura);
+    *red = _temperatura > b ? (_temperatura  - b) * m : 0;
 
 
-    filledCircleRGBA(_renderer, x, y, 5, red, green, blue);
+
 }
 
+//calculo das coordenadas das cidades
 void RenderCity(SDL_Renderer * _renderer, int width, int height, dados_temp* cidade, DADOS *dados) {
+    int red = 0, blue = 0, green = 0;
     int x = calculo_coordenada(cidade->longitude.angular,
         cidade->longitude.direcao, width, height, false);
     int y = calculo_coordenada(cidade->latitude.angular,
         cidade->latitude.direcao, width, height, true);
 
-    RenderColor(_renderer, cidade->temp, x, y, dados);
+    RenderColor(cidade->temp, dados, &red, &green, &blue);
+    filledCircleRGBA(_renderer, x, y, 5, red, green, blue);
 }
 
-//TODO a cor não percisa de ser ponteiro duplo
-void RenderLegenda(SDL_Renderer * _renderer, TTF_Font *_font)
-{
-    SDL_Color white = {255, 255, 255, 255 };
-
-    SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 255 );
-    SDL_Rect legenda = {50, 600, 100, 60};
-    SDL_RenderFillRect(_renderer, &legenda);
-    char frio[] = "frio";
-    char quente[] = "quente";
-    RenderText(80, 615, frio, _font, &white, _renderer);
-    RenderText(70, 630, quente, _font, &white, _renderer);
-    filledCircleRGBA(_renderer, 60, 625, 5, 0, 0, 255);
-    filledCircleRGBA(_renderer, 125, 625, 5, 0, 255, 255);
-    filledCircleRGBA(_renderer, 60, 640, 5, 255, 255, 0);
-    filledCircleRGBA(_renderer, 125, 640, 5, 255, 0, 0);
-}
 /**
  * filledCircleRGBA: renders a filled circle
  * \param _circleX x pos
@@ -422,7 +405,9 @@ void filledCircleRGBA(SDL_Renderer * _renderer, float _circleX, float _circleY, 
     }
 }
 
-//Draws the map
+/**
+*Draws the map
+*/
 void RenderMap( SDL_Surface *_img[], SDL_Renderer* _renderer , int width, int height)
 {
 
@@ -445,35 +430,106 @@ void RenderMap( SDL_Surface *_img[], SDL_Renderer* _renderer , int width, int he
     SDL_DestroyTexture(table_texture);
 }
 
-void RenderStatus(SDL_Renderer *renderer, TTF_Font *font, int ano, int velocidade) {
+/**
+*Informa o utilizador sobre como varia as cores em função das temperaturas
+*Informa ao utilizador das teclas necessárias para sair ou mudar para modo textual
+*/
+void RenderLegenda(SDL_Renderer * _renderer, TTF_Font *_font, DADOS *dados){
+    SDL_Color white = {255, 255, 255, 255 };
+    int red = 0, blue = 0, green = 0;
+    char buffer[BUFFER_SIZE];
+
+    //legenda com as temeraturas mínima  e máxima lidas
+    sprintf(buffer, "Temp. min:\t%.2f\t Temp. max:\t%.2f\t", dados->citiesTempMin, dados->citiesTempMax);
+    RenderText(50, 415, buffer, _font, &white, _renderer);
+
+    //escala cromática
+    int amplitude = fabsf(dados->citiesTempMax) + fabsf(dados->citiesTempMin);
+    int tamanho = 340/amplitude;    //360 corresponde da legenda das temp min e max;
+    SDL_Rect rect = { 40, 440, tamanho, 30 };
+
+    for (int t = dados->citiesTempMin; t <= dados->citiesTempMax ; t++)
+    {
+        RenderColor( t , dados, &red, &green, &blue);
+        SDL_SetRenderDrawColor(_renderer, red, green, blue, 255);
+        SDL_RenderFillRect(_renderer, &rect);
+        rect.x += tamanho;
+    }
+
+
+}
+
+/**
+*Informa o utilizador da velocidade em que as informações sobre os anos são mostrados ao utilizador
+*/
+void RenderVelocityStatus(SDL_Renderer *renderer, TTF_Font *font, int velocidade) {
+    char buffer[BUFFER_SIZE];
+    SDL_Color anoTextColor = { 255, 255, 255, 255 };
+
+    if(velocidade == 0) {
+        RenderText(50, 40, "Velocidade: 1 (2 anos)", font, &anoTextColor, renderer);
+    } else if(velocidade == 1) {
+        RenderText(50, 40, "Velocidade: 1", font, &anoTextColor, renderer);
+    } else {
+        sprintf(buffer, "Velocidade: 1/%d", velocidade);
+        RenderText(50, 40, buffer, font, &anoTextColor, renderer);
+    }
+    RenderText(500, 640, "Pressione 'a' para:", font, &anoTextColor, renderer);
+    RenderText(520, 660, "aumentar a velocidade de mudanca de ano", font, &anoTextColor, renderer);
+    RenderText(540, 680, "(max: Velocidade: 1 (2 anos))", font, &anoTextColor, renderer);
+    RenderText(930, 640, "Pressione 's' para:", font, &anoTextColor, renderer);
+    RenderText(950, 660, "diminuir a velocidade de mudanca de ano", font, &anoTextColor, renderer);
+    RenderText(970, 680, "(min :Velocidade: 1/10)", font, &anoTextColor, renderer);
+}
+
+/**
+*Informa o utilizador das temperaturas do ano que estão a ser analisadas
+*/
+void RenderYear(SDL_Renderer *renderer, TTF_Font *font, int ano) {
     char buffer[BUFFER_SIZE];
     SDL_Color anoTextColor = { 255, 255, 255, 255 };
 
     sprintf(buffer, "%d", ano);
-    RenderText(50, 50, buffer, font, &anoTextColor, renderer);
-
-    if(velocidade == 0) {
-        RenderText(50, 65, "Velocidade: 1 (2 anos)", font, &anoTextColor, renderer);
-    } else if(velocidade == 1) {
-        RenderText(50, 65, "Velocidade: 1", font, &anoTextColor, renderer);
-    } else {
-        sprintf(buffer, "Velocidade: 1/%d", velocidade);
-        RenderText(50, 65, buffer, font, &anoTextColor, renderer);
-    }
+    RenderText(50, 20, buffer, font, &anoTextColor, renderer);
 }
 
+/**
+*Desenha o simbolo da pausa no ecra
+*/
 void RenderPausa(SDL_Renderer *renderer, int pausaCounter) {
-    SDL_Rect rect = { 10, 10, 10, 40 };
+    SDL_Rect rect = { 10, 25, 10, 40 };
     int alpha = 200 + 55 * abs(pausaCounter - MAX_PAUSA_COUNTER/2) / MAX_PAUSA_COUNTER/2;
     SDL_SetRenderDrawColor(renderer, 43, 168, 11, alpha);
     SDL_RenderFillRect(renderer, &rect);
     rect.x += 25;
     SDL_RenderFillRect(renderer, &rect);
 }
+
+/**
+*Escreve o nome do País e da cidade no imagem , que corresponde à posição onde o rato se encontra
+*/
+void RenderSelectedCity(SDL_Renderer *renderer, TTF_Font *font, dados_temp *cidade) {
+    char buffer[BUFFER_SIZE];
+    SDL_Color color = { 255, 255, 255, 255 };
+
+    //nome do País e da Cidade
+    sprintf(buffer, "%s, %s", cidade->pais, cidade->cidade);
+    RenderText(WIDTH_WINDOW_SIZE-300, 0, buffer, font, &color, renderer);
+    //temperatura
+    sprintf(buffer, "%.2f C", cidade->temp);
+    RenderText(WIDTH_WINDOW_SIZE-270, 25, buffer, font, &color, renderer);
+}
+
+/**
+*Inicializa todas as entradas para cidades novas criadas no vetor
+*/
 void InitEmptyCidade(dados_temp *cidade) {
     cidade->cidade[0] = '\0';
 }
 
+/**
+*Acresenta uma cidade ao vetor das cidades caso estas ainda não esteja no vetor
+*/
 void ColocaNodeNoVetorCidades(list_node_t *node, dados_temp **cidades, int **cidadesNumDados, int *vecCidadesSize) {
     bool necessitaAumentarVetor = true;
 
@@ -511,7 +567,6 @@ void ColocaNodeNoVetorCidades(list_node_t *node, dados_temp **cidades, int **cid
         *cidades = (dados_temp*) checkedRealloc(*cidades, (*vecCidadesSize) * sizeof(dados_temp));
         *cidadesNumDados = (int*) checkedRealloc(*cidadesNumDados, (*vecCidadesSize) * sizeof(dados_temp));
 
-        //Inicializa todas as entradas para cidades novas criadas no vetor
         for(int i = sizeAnterior; i<(*vecCidadesSize); i++) {
             InitEmptyCidade(&(*cidades)[i]);
             (*cidadesNumDados)[i] = 0;
@@ -525,6 +580,9 @@ void ColocaNodeNoVetorCidades(list_node_t *node, dados_temp **cidades, int **cid
     }
 }
 
+/**
+*Atualiza o vetor das cidades com valores de novas temperaturas
+*/
 void AtualizaCidades(DADOS *dados, dados_temp **cidades, int *vecCidadesSize, int ano) {
     //Vetor que contem o numero de valores para cada cidade, para depois fazer a média
     //No cidades[i].temp vai ser guardada a soma de todas as temperaturas desse ano
@@ -598,6 +656,9 @@ void AtualizaCidades(DADOS *dados, dados_temp **cidades, int *vecCidadesSize, in
     free(cidadesNumDados);
 }
 
+/**
+*Incrementa o ano no vetor das cidades em uma unidade
+*/
 void MudarAno(DADOS *dados, dados_temp **cidades, int *vecCidadesSize, int *ano) {
     //Aumenta o ano
     //Se passar dos limites "dá a volta"
@@ -608,6 +669,7 @@ void MudarAno(DADOS *dados, dados_temp **cidades, int *vecCidadesSize, int *ano)
 
     AtualizaCidades(dados, cidades, vecCidadesSize, *ano);
 }
+
 /**
  * InitEverything: Initializes the SDL2 library and all graphical components: font, window, renderer
  * \param width width in px of the window
@@ -722,6 +784,7 @@ SDL_Texture *CreateRenderTexture(SDL_Renderer* _renderer, int width, int height)
     }
     return texture;
 }
+
 /**
  * RenderText function: Renders some text on a position inside the app window
  * \param x X coordinate of the text

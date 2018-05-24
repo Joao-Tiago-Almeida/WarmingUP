@@ -17,9 +17,10 @@ int calculo_coordenada( float coord_local, int _direcao, int _widht, int _height
 bool ModoGrafico(char *nomeFileCidades, DADOS *dados);
 int GetSelectedCity(dados_temp* cidades, int vecCidadesSize, int zoomPosX, int zoomPosY);
 void RenderCity(SDL_Renderer * _renderer, int width, int height, dados_temp* cidade, DADOS *dados);
-void RenderLegenda(SDL_Renderer * _renderer, TTF_Font *_font);
+void RenderLegenda(SDL_Renderer * _renderer, TTF_Font *_font, DADOS *dados);
 int RenderText(int, int, const char *, TTF_Font *, SDL_Color *, SDL_Renderer *);
-void RenderStatus(SDL_Renderer *renderer, TTF_Font *font, int ano, int velocidade);
+void RenderVelocityStatus(SDL_Renderer *renderer, TTF_Font *font, int velocidade);
+void RenderYear(SDL_Renderer *renderer, TTF_Font *font, int ano);
 void RenderPausa(SDL_Renderer *renderer, int pausaCounter);
 int CalcDistance(int x1, int y1, int x2, int y2);
 void RenderSelectedCity(SDL_Renderer *renderer, TTF_Font *font, dados_temp *cidade);
@@ -31,5 +32,6 @@ void InitEmptyCidade(dados_temp *cidade);
 void ColocaNodeNoVetorCidades(list_node_t *node, dados_temp **cidades, int **cidadesNumDados, int *vecCidadesSize);
 void AtualizaCidades(DADOS *dados, dados_temp **cidades, int *vecCidadesSize, int ano);
 void MudarAno(DADOS *dados, dados_temp **cidades, int *vecCidadesSize, int *ano);
+void RenderColor(int _temperatura, DADOS *dados, int* red, int* blue, int* green);
 
 #endif
