@@ -1,4 +1,4 @@
-#define _GNU_SOURCE
+#define _GNU_SOURCE  //Para usar o strcasestr
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -55,6 +55,7 @@ int perguntar_menu_choice()
 /**
  * Pede ao utilizador uma valor entre os parametros _min e _max,
  *      imprimindo a string _comentario
+ * Devolve o valor escolhido
 **/
 int perguntar_referencia_a_analisar(int _min, int _max, char *_comentario)
 {
@@ -64,7 +65,8 @@ int perguntar_referencia_a_analisar(int _min, int _max, char *_comentario)
 
     do
     {
-        if(!primeiraTentativa) {
+        if(!primeiraTentativa)
+        {
             printf("Tem de estar dentro dos limites!\n");
         }
         printf("%s [%d-%d]:\t", _comentario, _min, _max);
@@ -85,7 +87,8 @@ int perguntar_referencia_a_analisar(int _min, int _max, char *_comentario)
  *      válidos (tanto maiusculo como minusculo)
  * Devolve a tecla escolhida
 **/
-char pergunta_tecla(char* comentario, char opcao1, char opcao2) {
+char pergunta_tecla(char* comentario, char opcao1, char opcao2)
+{
     char buffer[BUFFER_SIZE];
     do {
         printf("%s", comentario);
@@ -97,7 +100,8 @@ char pergunta_tecla(char* comentario, char opcao1, char opcao2) {
 }
 
 /**
- * Copia a string inserida no terminal para a string 
+ * Imprime no terminal o comentário e
+ *      copia a string inserida no terminal para a string do parametro string 
  */
 void getstring(char* string, char _comentario[]) {
     char buffer[BUFFER_SIZE];
