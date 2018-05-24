@@ -134,7 +134,7 @@ bool menu_principal(DADOS* dados)
         printf("\n\n\tMenu Principal\n\nEscolha uma das opções seguintes:\n");
         printf("1. Filtragem de dados;\n2. Histórico de Temperaturas;\n");
         printf("3. Análise da temperatura por ano;\n4. Análise da temperatura global;\n");
-        printf("5. Modo sgráfico.\n");
+        printf("5. Modo gráfico.\n");
         printf("\n0 ou Enter. Sair do programa.\n");
 
         alinea = perguntar_menu_choice();
