@@ -79,6 +79,8 @@ bool ModoGrafico(char *nomeFileCidades, DADOS *dados  )
 
     bool mouse_down = false;
 
+    int zoomCounter = 0; //Conta o tempo(em ciclos) que o zoom está ativo
+
     list_node_t* aux = NULL;
 
     if(dados->headCitiesOriginal == NULL)  read_file_cities (dados,nomeFileCidades);
@@ -144,6 +146,7 @@ bool ModoGrafico(char *nomeFileCidades, DADOS *dados  )
                 } else {
                     zoomPosX = -1;
                     zoomPosY = -1;
+                    zoomCounter = 0;
                 }
                 mouse_down = true;
             } else if (event.type == SDL_MOUSEBUTTONUP)
@@ -151,12 +154,19 @@ bool ModoGrafico(char *nomeFileCidades, DADOS *dados  )
                 mouse_down = false;
             }
         }
-        //enquano o mouse está pressionado
-        if(mouse_down && zoomPosX != -1)
+        
+        if(zoomPosX != -1)
         {
-            SDL_GetMouseState(&mouseX, &mouseY);
-            zoomPosX = mouseX;
-            zoomPosY = mouseY;
+            //Enquanto o zoom está ativo
+            zoomCounter++;
+
+            if(mouse_down)
+            {
+                //Enquano o botão do rato está pressionado atualiza a posição do zoom
+                SDL_GetMouseState(&mouseX, &mouseY);
+                zoomPosX = mouseX;
+                zoomPosY = mouseY;
+            }
         }
 
         //Se não estiver na pausa avança o ano
