@@ -8,6 +8,7 @@
 #include "estruturas.h"
 #include "util.h"
 #include "modografico.h"
+#include "ficheiros.h"
 
 #define BUFFER_SIZE 100
 #define NUM_INTERVALOS_POR_PAGINA 20
@@ -35,6 +36,21 @@
 #define PAIS_NAO_ENCONTRADO "Não foi encontrado nenhum pais %s"
 #define LISTAR_CIDADES_ENCONTRADAS "Foram encontradas as seguintes cidades\n"
 #define LISTAR_PAISES_ENCONTRADOS "Foram encontrados os seguintes paises\n"
+
+/**
+ * Inicia o programa ou muda para o modo textual
+ * Devolve false se for para sair do programa ou true se for para mudar para o modo textual
+**/
+bool ModoTextual(char *nomeFilePaises, char *nomeFileCidades, DADOS *dados )
+{
+    if(dados->headCountriesOriginal == NULL)  read_file_countries (dados, nomeFilePaises);
+    if(dados->headCitiesOriginal == NULL)  read_file_cities (dados,nomeFileCidades);
+
+    //print_list(dados->headCountriesOriginal);
+    //print_list(dados->headCitiesOriginal);
+
+    return menu_principal(dados);
+}
 
 /**
  * Le a opção que o utilizador escolheu e devolve seu numero. Caso seja invalido devolve -1
@@ -101,7 +117,7 @@ char pergunta_tecla(char* comentario, char opcao1, char opcao2)
 
 /**
  * Imprime no terminal o comentário e
- *      copia a string inserida no terminal para a string do parametro string 
+ *      copia a string inserida no terminal para a string do parametro string
  */
 void getstring(char* string, char _comentario[]) {
     char buffer[BUFFER_SIZE];
@@ -376,7 +392,7 @@ void opcao_escolhe_mes(CRITERIOS_FILTRAGEM *criterios)
         removeLastCharIfMatch(buf, '\n');
 
         char *token = strtok(buf, delim);
-        
+
         if(token == NULL) {
             invalido = true;
             continue;
@@ -766,7 +782,7 @@ int m3_calculo_dados_por_pais_ou_cidade_num_ano(DADOS* dados, int ano, bool porC
 }
 
 /**
- * Devolve um vetor 
+ * Devolve um vetor
  */
 DADOS_ANALISE_POR_ANO **m3_calcula_topN(int n, DADOS_ANALISE_POR_ANO *dadosPorPais, int numEntries, int mode) {
     DADOS_ANALISE_POR_ANO **topN = (DADOS_ANALISE_POR_ANO **) checkedMalloc(n*sizeof(DADOS_ANALISE_POR_ANO*));

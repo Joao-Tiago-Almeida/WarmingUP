@@ -1,9 +1,20 @@
+//TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
 
-#include "data.h"
+#include "estruturas.h"
+#include "lista.h"
+#include "menus.h"
+#include "ficheiros.h"
+#include "conjuntodados.h"
+#include "modografico.h"
+
+void display_usage(char *arg);
+void ler_argumentos(int argc, char *argv[], bool *modoGrafico, char **nomeFilePaises, char **nomeFileCidades);
+
 
 #define comando_mal 0
 
@@ -111,19 +122,4 @@ void ler_argumentos(int argc, char *argv[], bool *modoGrafico, char **nomeFilePa
         display_usage(comando_mal);
         exit(EXIT_FAILURE);
     }
-}
-
-/**
- * Inicia o programa ou muda para o modo textual
- * Devolve false se for para sair do programa ou true se for para mudar para o modo textual
-**/
-bool ModoTextual(char *nomeFilePaises, char *nomeFileCidades, DADOS *dados )
-{
-    if(dados->headCountriesOriginal == NULL)  read_file_countries (dados, nomeFilePaises);
-    if(dados->headCitiesOriginal == NULL)  read_file_cities (dados,nomeFileCidades);
-
-    //print_list(dados->headCountriesOriginal);
-    //print_list(dados->headCitiesOriginal);
-
-    return menu_principal(dados);
 }
