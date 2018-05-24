@@ -133,6 +133,7 @@ bool menu_principal(DADOS* dados)
     printf(" |                                         |___/         |_|      |\n");
     printf(" |                                                                | \n");
     printf(" \\----------------------------------------------------------------/ \n");
+
     while (dentroDoMenu)
     {
         printf("\n\n\tMenu Principal\n\nEscolha uma das opções seguintes:\n");
@@ -297,6 +298,9 @@ void menu_1_filtragem_de_dados(DADOS* dados)
     }
 }
 
+/**
+ * Opção na filtragem de dados para escolher a partir de que ano e mês
+ */
 void opcao_escolhe_intervalos_para_analise(CRITERIOS_FILTRAGEM *criterios, DADOS *dados)
 {
     printf("\n\n\t---Escolhe intervalos para análise---\n\n");
@@ -344,6 +348,10 @@ void opcao_escolhe_intervalos_para_analise(CRITERIOS_FILTRAGEM *criterios, DADOS
     criterios->intervaloAnoMin = ano;
     criterios->intervaloMesMin = mes;
 }
+
+/**
+ * Opção para escolher meses para a filtragem de dados
+ */
 void opcao_escolhe_mes(CRITERIOS_FILTRAGEM *criterios)
 {
     printf("\n\n\t---Escolha mêses---\n\n");
@@ -660,7 +668,10 @@ void m2_historico_de_temperaturas(DADOS *dados, int filtra) {
     } while(pedeDeNovo);
 }
 
-void dados_analise_por_pais_init(DADOS_ANALISE_POR_ANO* dados) {
+/**
+ * Inicializa um DADOS_ANALISE_POR_ANO dos dados por ano
+ */
+void m3_dados_analise_por_pais_init(DADOS_ANALISE_POR_ANO* dados) {
     dados->paisOuCidade[0] = '\0';
     dados->tempMed = 0;
     dados->numDados = 0;
@@ -670,7 +681,7 @@ void dados_analise_por_pais_init(DADOS_ANALISE_POR_ANO* dados) {
 
 //Devolve um o numero de entradas do vetor dadosPorPais
 // aloca memória para o vetor, que deve ser libertada de seguida
-int calculo_dados_por_pais_ou_cidade_num_ano(DADOS* dados, int ano, bool porCidade, DADOS_ANALISE_POR_ANO **dadosPorPais) {
+int m3_calculo_dados_por_pais_ou_cidade_num_ano(DADOS* dados, int ano, bool porCidade, DADOS_ANALISE_POR_ANO **dadosPorPais) {
     int numEntries = 0;
     list_node_t *aux = NULL;
     int vecSize = 50;
@@ -679,7 +690,7 @@ int calculo_dados_por_pais_ou_cidade_num_ano(DADOS* dados, int ano, bool porCida
     //Inicializa o vetor colocando numDados a 0, para saber que essa
     // entrada do vetor não tem dados
     for(int i = 0; i<vecSize; i++) {
-        dados_analise_por_pais_init(&(*dadosPorPais)[i]);
+        m3_dados_analise_por_pais_init(&(*dadosPorPais)[i]);
     }
 
     aux = porCidade ? dados->headCitiesFiltrada->next : dados->headCountriesFiltrada->next; //->next para a node a seguir à dummy node
@@ -727,7 +738,7 @@ int calculo_dados_por_pais_ou_cidade_num_ano(DADOS* dados, int ano, bool porCida
             }
 
             for(int i = sizeAnterior; i<vecSize; i++) {
-                dados_analise_por_pais_init(&(*dadosPorPais)[i]);
+                m3_dados_analise_por_pais_init(&(*dadosPorPais)[i]);
             }
 
             strcpy((*dadosPorPais)[sizeAnterior].paisOuCidade,
@@ -757,7 +768,7 @@ int calculo_dados_por_pais_ou_cidade_num_ano(DADOS* dados, int ano, bool porCida
 /**
  * Devolve um vetor 
  */
-DADOS_ANALISE_POR_ANO **calcula_topN(int n, DADOS_ANALISE_POR_ANO *dadosPorPais, int numEntries, int mode) {
+DADOS_ANALISE_POR_ANO **m3_calcula_topN(int n, DADOS_ANALISE_POR_ANO *dadosPorPais, int numEntries, int mode) {
     DADOS_ANALISE_POR_ANO **topN = (DADOS_ANALISE_POR_ANO **) checkedMalloc(n*sizeof(DADOS_ANALISE_POR_ANO*));
 
     for(int i = 0; i<n; i++) {
@@ -815,15 +826,15 @@ void m3_analise_por_pais_ou_cidade(DADOS* dados, bool porCidade)
     n = perguntar_referencia_a_analisar(1, 20, comentario2);
 
 
-    numEntries = calculo_dados_por_pais_ou_cidade_num_ano(dados, ano, porCidade, &dadosPorPais);
+    numEntries = m3_calculo_dados_por_pais_ou_cidade_num_ano(dados, ano, porCidade, &dadosPorPais);
 
     //Vectores de apontadores para os dados que estão no dadosPorPais
     // para não estar a fazer cópias das estruturas
-    DADOS_ANALISE_POR_ANO **topNMaisQuentes = calcula_topN(n,
+    DADOS_ANALISE_POR_ANO **topNMaisQuentes = m3_calcula_topN(n,
         dadosPorPais, numEntries, MODO_ANALISE_MAIS_QUENTE);
-    DADOS_ANALISE_POR_ANO **topNMaisFrios = calcula_topN(n,
+    DADOS_ANALISE_POR_ANO **topNMaisFrios = m3_calcula_topN(n,
         dadosPorPais, numEntries, MODO_ANALISE_MAIS_FRIO);
-    DADOS_ANALISE_POR_ANO **topNExtremos = calcula_topN(n,
+    DADOS_ANALISE_POR_ANO **topNExtremos = m3_calcula_topN(n,
         dadosPorPais, numEntries, MODO_ANALISE_EXTREMOS);
 
 
