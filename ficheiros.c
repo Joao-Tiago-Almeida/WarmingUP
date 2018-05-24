@@ -285,7 +285,6 @@ void mergeSort(list_node_t* list, int listSize) {
                     break;
                 }
             }
-            //Se o sortJ == NULL, então se considera "metade" TODO MUDAR
 
             for(int k = 0; k<(n*2); k++)
             {

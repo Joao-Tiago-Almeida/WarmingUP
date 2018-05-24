@@ -26,11 +26,11 @@ int m2_CalculaSumMaxEMin(DADOS* dados, int filtra, char paisOuCidade[100], int p
     DADOS_HISTORICO *temps, char ***cidOuPaisFound);
 void m2_historico_de_temperaturas(DADOS *dados, int filtra);
 
-void analise_por_pais_ou_cidade(DADOS* dados, bool porCidade);
+void m3_analise_por_pais_ou_cidade(DADOS* dados, bool porCidade);
 
-void m4_calculo_MA(int M, DADOS *dados, bool porPais, bool porCidade);
+void m4_calculo_MA(int M, DADOS *dados, int filtra);
 float M4_CalculoAumentoTemp(DADOS *dados, float *vect, int ano, bool porCidade);
-float M4_MediaAno(int ano_a_analisar, bool porPais, bool porCidade, char paisOuCidade[100], int M, list_node_t *aux);
+float M4_MediaAno(int ano_a_analisar, int filtra, char paisOuCidade[100], int M, list_node_t *aux);
 float m4_moving_average(int M, float* vect_temp, bool* vect_mes_tem_dados);
 
 #endif
