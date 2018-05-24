@@ -88,7 +88,7 @@ bool ModoGrafico(char *nomeFileCidades, DADOS *dados  )
 
     //Começa no menor ano
     //TODO porquw -1, ?? pq quando chama a função incrementa???
-    anoAtual = dados->citiesAnoMin-1;    
+    anoAtual = dados->citiesAnoMin-1;
 
     // initialize graphics
     InitEverything(width, height, &AppleGaramond, imgs, &window, &renderer);
@@ -213,6 +213,10 @@ bool ModoGrafico(char *nomeFileCidades, DADOS *dados  )
         if(mostra_painel_informativo)
         {
             RenderInfo(renderer, AppleGaramond);
+        }
+        if()
+        {
+            RenderDetective(renderer, AppleGaramond);
         }
 
         SDL_RenderPresent(renderer);
@@ -481,21 +485,32 @@ void RenderLegenda(SDL_Renderer * _renderer, TTF_Font *_font, DADOS *dados){
 *Desenha uma janela que dá informações ao utilizador sobre o funcionamento do programa
 */
 void RenderInfo(SDL_Renderer * renderer, TTF_Font *font){
-    SDL_Color red = {255, 32, 122, 255 };
+    SDL_Color pink = {255, 32, 122, 255 };
     SDL_Rect rect = { 500, 200, 400, 370 };
     SDL_SetRenderDrawColor(renderer, 93, 138, 168, 100);
     SDL_RenderFillRect(renderer, &rect);
 
-    RenderText(550, 200, "-----WarmingUp-----Modo Grafico---", font, &red, renderer);
-    RenderText(500, 260, "Pressione espaco para pausa", font, &red, renderer);
-    RenderText(500, 300, "Pressione 't' para mudar para o modo Textual", font, &red, renderer);
-    RenderText(500, 340, "Pressione 'q' para sair do programa", font, &red, renderer);
-    RenderText(500, 380, "Pressione 'a' para:", font, &red, renderer);
-    RenderText(520, 410, "aumentar a velocidade de mudanca de ano", font, &red, renderer);
-    RenderText(540, 440, "(max: Velocidade: 1 (2 anos))", font, &red, renderer);
-    RenderText(500, 480, "Pressione 's' para:", font, &red, renderer);
-    RenderText(520, 510, "diminuir a velocidade de mudanca de ano", font, &red, renderer);
-    RenderText(540, 540, "(min :Velocidade: 1/10)", font, &red, renderer);
+    RenderText(550, 200, "-----WarmingUp-----Modo Grafico---", font, &pink, renderer);
+    RenderText(500, 260, "Pressione espaco para pausa", font, &pink, renderer);
+    RenderText(500, 300, "Pressione 't' para mudar para o modo Textual", font, &pink, renderer);
+    RenderText(500, 340, "Pressione 'q' para sair do programa", font, &pink, renderer);
+    RenderText(500, 380, "Pressione 'a' para:", font, &pink, renderer);
+    RenderText(520, 410, "aumentar a velocidade de mudanca de ano", font, &pink, renderer);
+    RenderText(540, 440, "(max: Velocidade: 1 (2 anos))", font, &pink, renderer);
+    RenderText(500, 480, "Pressione 's' para:", font, &pink, renderer);
+    RenderText(520, 510, "diminuir a velocidade de mudanca de ano", font, &pink, renderer);
+    RenderText(540, 540, "(min :Velocidade: 1/10)", font, &pink, renderer);
+
+}
+
+/**
+*Informa o utilizador que está a usar ZOOM à algum tempo
+*/
+void RenderDetective(SDL_Renderer * renderer, TTF_Font *font){
+    SDL_Color red = {255, 0, 0, 255 };
+
+
+    RenderText(540, 540, "Estás armado em detetive !??", font, &red, renderer);
 
 }
 
@@ -647,7 +662,7 @@ void AtualizaCidades(DADOS *dados, list_node_t **aux, dados_temp **cidades, int 
         (*cidades)[i].tempAnterior = (*cidades)[i].temp;
     }
 
-    
+
 
     //Avança o aux até ao ano que se quer
     while(*aux != NULL && (*aux)->payload->dt.ano < ano) {

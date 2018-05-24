@@ -33,5 +33,6 @@ void RenderColor(int _temperatura, DADOS *dados, int* red, int* blue, int* green
 void RenderInfo(SDL_Renderer * _renderer, TTF_Font *_font);
 void AtualizaCidades(DADOS *dados, list_node_t **aux, dados_temp **cidades, int *vecCidadesSize, int ano);
 void MudarAno(DADOS *dados, list_node_t **aux, dados_temp **cidades, int *vecCidadesSize, int *ano);
+void RenderDetective(SDL_Renderer * renderer, TTF_Font *font);
 
 #endif
