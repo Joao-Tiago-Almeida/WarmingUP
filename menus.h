@@ -27,6 +27,9 @@ int m2_CalculaSumMaxEMin(DADOS* dados, int filtra, char paisOuCidade[100], int p
 void m2_historico_de_temperaturas(DADOS *dados, int filtra);
 
 void m3_analise_por_pais_ou_cidade(DADOS* dados, bool porCidade);
+void m3_dados_analise_por_pais_init(DADOS_ANALISE_POR_ANO* dados);
+int m3_calculo_dados_por_pais_ou_cidade_num_ano(DADOS* dados, int ano, bool porCidade, DADOS_ANALISE_POR_ANO **dadosPorPais);
+DADOS_ANALISE_POR_ANO **m3_calcula_topN(int n, DADOS_ANALISE_POR_ANO *dadosPorPais, int numEntries, int mode);
 
 void m4_calculo_MA(int M, DADOS *dados, int filtra);
 float M4_CalculoAumentoTemp(DADOS *dados, float *vect, int ano, bool porCidade);
