@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -30,29 +31,31 @@
 #define POR_PAIS 1
 #define POR_CIDADE 2
 
-//TODO
-//#define LIMITE_ANOS_STRING
-//#define DOUBLECAT(a,b,c) a##0-2018##c
+#define CIDADE_NAO_ENCONTRADA "Não foi encontrada nenhuma cidade %s"
+#define PAIS_NAO_ENCONTRADO "Não foi encontrado nenhum pais %s"
+#define LISTAR_CIDADES_ENCONTRADAS "Foram encontradas as seguintes cidades\n"
+#define LISTAR_PAISES_ENCONTRADOS "Foram encontrados os seguintes paises\n"
 
-//Le o que o utilizador escreveu e devolve o numero da alinea. Caso seja invalido devolve -1
-//TODO qual é o xxxh destas funções?
+/**
+ * Le a opção que o utilizador escolheu e devolve seu numero. Caso seja invalido devolve -1
+**/
 int perguntar_menu_choice()
 {
     int alinea = 0;
     char buf[BUFFER_SIZE];
 
     fgets(buf, BUFFER_SIZE, stdin);
-    if (sscanf(buf, "%d", &alinea) == 0)
+    if (sscanf(buf, "%d", &alinea) != 1)
     {
-        //TODO veriricar se o utilizador escrever algo do genero de "2 5" (isto deveria dar invalido)
         alinea = -1;
     }
     return alinea;
 }
 
-//esta função permite selecionar um ano a analisar
-//um ano apartir do qual se vai analisar
-//ou um numero de meses a analisar
+/**
+ * Pede ao utilizador uma valor entre os parametros _min e _max,
+ *      imprimindo a string _comentario
+**/
 int perguntar_referencia_a_analisar(int _min, int _max, char *_comentario)
 {
     char buf[BUFFER_SIZE];
@@ -77,52 +80,55 @@ int perguntar_referencia_a_analisar(int _min, int _max, char *_comentario)
     return _ano;
 }
 
+/**
+ * Pede ao utilizador que presione um tecla. Apenas o caracter opcao1 e o opcao2 são
+ *      válidos (tanto maiusculo como minusculo)
+ * Devolve a tecla escolhida
+**/
 char pergunta_tecla(char* comentario, char opcao1, char opcao2) {
     char buffer[BUFFER_SIZE];
     do {
         printf("%s", comentario);
         fgets(buffer, BUFFER_SIZE, stdin);
         removeLastCharIfMatch(buffer, '\n');
-    } while(strlen(buffer) > 1 || (buffer[0] != opcao1 && buffer[0] != opcao2));
+    } while(strlen(buffer) > 1 || (tolower(buffer[0]) != tolower(opcao1) && tolower(buffer[0]) != tolower(opcao2)));
 
-    return buffer[0];
+    return tolower(buffer[0]);
 }
 
-void getstring(char* pais, char _comentario[]) {
+/**
+ * Copia a string inserida no terminal para a string 
+ */
+void getstring(char* string, char _comentario[]) {
     char buffer[BUFFER_SIZE];
 
     printf("%s ", _comentario);
 
     fgets(buffer, BUFFER_SIZE, stdin);
     removeLastCharIfMatch(buffer, '\n');
-    strcpy(pais, buffer);
+    strcpy(string, buffer);
 }
 
-// Devolve o numero de intervalos quando se separa os dados em intervalos(com um certo periodo)
-int calculo_num_intervalos(int _periodo, DADOS *dados, bool porCidade)
-{
-    //TODO isto apenas considera os min e max dos countries
-    int intervalos = 0;
-    if(porCidade) {
-        intervalos = (dados->citiesAnoMax - dados->citiesAnoMin + 1)/_periodo;
-    } else {
-        intervalos = (dados->countriesAnoMax - dados->countriesAnoMin + 1)/_periodo;
-    }
-
-    if((porCidade && (dados->citiesAnoMax - dados->citiesAnoMin + 1) % _periodo > 0) ||
-        (!porCidade && (dados->countriesAnoMax - dados->countriesAnoMin + 1) % _periodo > 0)) {
-        //Caso os intervalor não dividam exatamente os anos, vai haver mais um intervalo com menos anos que o periodo
-        intervalos++;
-    }
-    return intervalos;
-}
-
-// Devolve false se for para sair do programa ou true se for para mudar para o modo textual
+/**
+ * Função do menu principal
+ * Devolve false se for para sair do programa ou true se for para mudar para o modo textual
+ */
 bool menu_principal(DADOS* dados)
 {
     bool dentroDoMenu = true;
     int alinea = -1;
 
+    printf(" /----------------------------------------------------------------\\\n");
+    printf(" | __          __                  _               _    _         |\n");
+    printf(" | \\ \\        / /                 (_)             | |  | |        |\n");
+    printf(" |  \\ \\  /\\  / /_ _ _ __ _ __ ___  _ _ __   __ _  | |  | |_ __    |\n");
+    printf(" |   \\ \\/  \\/ / _` | '__| '_ ` _ \\| | '_ \\ / _` | | |  | | '_ \\   |\n");
+    printf(" |    \\  /\\  / (_| | |  | | | | | | | | | | (_| | | |__| | |_) |  |\n");
+    printf(" |     \\/  \\/ \\__,_|_|  |_| |_| |_|_|_| |_|\\__, |  \\____/| .__/   |\n");
+    printf(" |                                          __/ |        | |      |\n");
+    printf(" |                                         |___/         |_|      |\n");
+    printf(" |                                                                | \n");
+    printf(" \\----------------------------------------------------------------/ \n");
     while (dentroDoMenu)
     {
         printf("\n\n\tMenu Principal\n\nEscolha uma das opções seguintes:\n");
@@ -136,16 +142,16 @@ bool menu_principal(DADOS* dados)
         switch (alinea)
         {
         case 1:
-            menu_filtragem_de_dados(dados);
+            menu_1_filtragem_de_dados(dados);
             break;
         case 2:
-            menu_historico_de_temperaturas(dados);
+            menu_2_historico_de_temperaturas(dados);
             break;
         case 3:
-            menu_analise_da_temperatura_por_ano(dados);
+            menu_3_analise_da_temperatura_por_ano(dados);
             break;
         case 4:
-            menu_analise_da_temperatura_global(dados);
+            menu_4_analise_da_temperatura_global(dados);
             break;
         case 5:
             return true; // devolve true se for para mudar para o modo textual
@@ -159,10 +165,10 @@ bool menu_principal(DADOS* dados)
             break;
         }
     }
-    return false; // devolve false se for para sair do programa
+    return false; // devolve false se for para sair do programaM4_CalculoAumentoTemp
 }
 
-void menu_historico_de_temperaturas(DADOS* dados)
+void menu_2_historico_de_temperaturas(DADOS* dados)
 {
     bool dentroDoMenu = false;
     int alinea = -1;
@@ -184,15 +190,15 @@ void menu_historico_de_temperaturas(DADOS* dados)
         {
         case 1:
             printf("\n\n\t---Histórico de Temperaturas global---\n\n");
-            historico_de_temperaturas(dados, GLOBAL);
+            m2_historico_de_temperaturas(dados, GLOBAL);
             break;
         case 2:
             printf("\n\n\t---Histórico de Temperaturas por País---\n\n");
-            historico_de_temperaturas(dados, POR_PAIS);
+            m2_historico_de_temperaturas(dados, POR_PAIS);
             break;
         case 3:
             printf("\n\n\t---Histórico de Temperaturas por Cidade---\n\n");
-            historico_de_temperaturas(dados, POR_CIDADE);
+            m2_historico_de_temperaturas(dados, POR_CIDADE);
             break;
         case 0:
             break;
@@ -203,7 +209,8 @@ void menu_historico_de_temperaturas(DADOS* dados)
         }
     } while (dentroDoMenu);
 }
-void menu_analise_da_temperatura_por_ano(DADOS* dados)
+
+void menu_3_analise_da_temperatura_por_ano(DADOS* dados)
 {
     bool dentroDoMenu = true;
     int alinea = -1;
@@ -220,11 +227,11 @@ void menu_analise_da_temperatura_por_ano(DADOS* dados)
         switch (alinea)
         {
         case 1:
-            analise_por_pais_ou_cidade(dados, false);
+            m3_analise_por_pais_ou_cidade(dados, false);
             dentroDoMenu = false;
             break;
         case 2:
-            analise_por_pais_ou_cidade(dados, true);
+            m3_analise_por_pais_ou_cidade(dados, true);
             dentroDoMenu = false;
             break;
         case 0:
@@ -237,8 +244,7 @@ void menu_analise_da_temperatura_por_ano(DADOS* dados)
     }
 }
 
-//MENU Filtragem de dados
-void menu_filtragem_de_dados(DADOS* dados)
+void menu_1_filtragem_de_dados(DADOS* dados)
 {
     bool dentroDoMenu = true;
     int alinea = -1;
@@ -258,7 +264,8 @@ void menu_filtragem_de_dados(DADOS* dados)
         switch (alinea)
         {
         case 1:
-            opcao_limpa_criteritos(&novosCriterios);
+            limpar_criterios(&novosCriterios);
+            printf("Critérios Limpos");
             alterouCriterios = true;
             break;
         case 2:
@@ -285,10 +292,7 @@ void menu_filtragem_de_dados(DADOS* dados)
         printf("Concluído\n");
     }
 }
-void opcao_limpa_criteritos(CRITERIOS_FILTRAGEM *criterios)
-{
-    limpar_criterios(criterios);
-}
+
 void opcao_escolhe_intervalos_para_analise(CRITERIOS_FILTRAGEM *criterios, DADOS *dados)
 {
     printf("\n\n\t---Escolhe intervalos para análise---\n\n");
@@ -325,7 +329,6 @@ void opcao_escolhe_intervalos_para_analise(CRITERIOS_FILTRAGEM *criterios, DADOS
         }
 
         primeiraTentativa = false;
-        //printf("%d < %d || %d < %d || %d\n", criterios->intervaloMesMin, JANEIRO_NUM, DEZEMBRO_NUM,  criterios->intervaloMesMin, !intervalo_valido);
 
         //Volta a pedir valores ao utilizador caso sejam inseridos valores de
         // meses invalidos, ou, caso seja o menor ano, o mes escolhido
@@ -361,6 +364,11 @@ void opcao_escolhe_mes(CRITERIOS_FILTRAGEM *criterios)
         removeLastCharIfMatch(buf, '\n');
 
         char *token = strtok(buf, delim);
+        
+        if(token == NULL) {
+            invalido = true;
+            continue;
+        }
 
         while(token != NULL) {
             int mes = atoi(token);
@@ -373,15 +381,35 @@ void opcao_escolhe_mes(CRITERIOS_FILTRAGEM *criterios)
             }
             token = strtok(NULL, delim);
         }
-        //TODO pode haver intervalos de 1 mês??
     } while (invalido);
 
     criterios->filtraPorMeses = true;
-
 }
 
+/**
+ * Devolve o numero de intervalos quando se separa os dados em intervalos(com um certo periodo)
+ */
+int m2_calculo_num_intervalos(int _periodo, DADOS *dados, bool porCidade)
+{
+    int intervalos = 0;
+    if(porCidade) {
+        intervalos = (dados->citiesAnoMax - dados->citiesAnoMin + 1)/_periodo;
+    } else {
+        intervalos = (dados->countriesAnoMax - dados->countriesAnoMin + 1)/_periodo;
+    }
+
+    if((porCidade && (dados->citiesAnoMax - dados->citiesAnoMin + 1) % _periodo > 0) ||
+        (!porCidade && (dados->countriesAnoMax - dados->countriesAnoMin + 1) % _periodo > 0)) {
+        //Caso os intervalor não dividam exatamente os anos, vai haver mais um intervalo com menos anos que o periodo
+        intervalos++;
+    }
+    return intervalos;
+}
+
+/**
+ * Calcula as médias dos intervalos do histórico
+ */
 void m2_calc_medias_de_intervalos(int numIntervalos, DADOS_HISTORICO* temps) {
-    //Calcula as médias
     for(int i = 0; i<numIntervalos; i++) {
         if(temps[i].numDados > 0) {
             temps[i].tempMed = temps[i].tempMed/temps[i].numDados;
@@ -389,7 +417,9 @@ void m2_calc_medias_de_intervalos(int numIntervalos, DADOS_HISTORICO* temps) {
     }
 }
 
-//TODO esta funcao tem demasiados parametros
+/**
+ * Imprime os intervalos do historico de temperaturas
+ */
 void m2_imprime_intervalos(DADOS* dados, int numIntervalos, DADOS_HISTORICO* temps, int periodo, bool porCidade)
 {
     int numPaginas = ((numIntervalos-1) / NUM_INTERVALOS_POR_PAGINA) + 1;
@@ -399,6 +429,7 @@ void m2_imprime_intervalos(DADOS* dados, int numIntervalos, DADOS_HISTORICO* tem
     int anoMax = porCidade ? dados->citiesAnoMax : dados->countriesAnoMax;
     int anoMin = porCidade ? dados->citiesAnoMin : dados->countriesAnoMin;
 
+    //Loop para mostrar as várias páginas
     while(dentroDoLoop) {
         printf("A mostar página %d de %d\n", pagina+1, numPaginas);
         //Imprime os intervalos
@@ -435,9 +466,11 @@ void m2_imprime_intervalos(DADOS* dados, int numIntervalos, DADOS_HISTORICO* tem
 
 
         if(numPaginas == 1) {
+            //Se só houver uma página de dados não permite navegar entre páginas
             return;
         }
-        char tecla = pergunta_tecla("a para avançar, q para sair\n", 'a', 'q');
+
+        char tecla = pergunta_tecla("A para avançar, Q para sair\n", 'a', 'q');
         if(tecla == 'a') {
             if(pagina >= numPaginas-1) {
                 pagina = 0;
@@ -450,7 +483,7 @@ void m2_imprime_intervalos(DADOS* dados, int numIntervalos, DADOS_HISTORICO* tem
     }
 }
 
-//Procura um nome num vetor de string. Se não encontrar coloca-o e aumenta o num
+//Procura um nome num vetor de strings. Se não encontrar coloca-o e aumenta o num
 //Se o vetor não for grande o suficiente faz realloc
 void m2_colocaPaisOuCidadeEmVetor(char ***vect, int* vectSize, int* num, char* nome) {
     int prevVectSize = *vectSize;
@@ -478,6 +511,9 @@ void m2_colocaPaisOuCidadeEmVetor(char ***vect, int* vectSize, int* num, char* n
     (*num)++;
 }
 
+/**
+ * Inicializa uma entrada do vetor dos dados do historico
+ */
 void m2_init_dados_historico(DADOS_HISTORICO* a) {
     a->tempMax = -__FLT_MAX__;
     a->tempMin = __FLT_MAX__;
@@ -485,7 +521,10 @@ void m2_init_dados_historico(DADOS_HISTORICO* a) {
     a->numDados = 0;
 }
 
-//Devolve o numero de paises encontrados
+/**
+ * Calcula os dados para fazer o histórico
+ * Develove o numero de paises ou cidades encontradas que correspondem ao que o utilizador inseriu
+ */
 int m2_CalculaSumMaxEMin(DADOS* dados, int filtra, char paisOuCidade[100], int periodo,
     DADOS_HISTORICO *temps, char ***cidOuPaisFound)
 {
@@ -507,8 +546,8 @@ int m2_CalculaSumMaxEMin(DADOS* dados, int filtra, char paisOuCidade[100], int p
 
     while(aux != NULL) {
         if(filtra == GLOBAL ||
-            (filtra == POR_PAIS && strstr(aux->payload->pais, paisOuCidade) != NULL) ||
-            (filtra == POR_CIDADE && strstr(aux->payload->cidade, paisOuCidade) != NULL))
+            (filtra == POR_PAIS && strcasestr(aux->payload->pais, paisOuCidade) != NULL) ||
+            (filtra == POR_CIDADE && strcasestr(aux->payload->cidade, paisOuCidade) != NULL))
         {
             if(filtra != GLOBAL) {
                 m2_colocaPaisOuCidadeEmVetor(cidOuPaisFound,
@@ -535,7 +574,12 @@ int m2_CalculaSumMaxEMin(DADOS* dados, int filtra, char paisOuCidade[100], int p
     return numoCidOuPaisFound;
 }
 
-void historico_de_temperaturas(DADOS *dados, int filtra) {
+/**
+ * Faz o historico das temperaturas
+ * O parametro filtra destingue o historico global (GLOBAL),
+ *      por país (POR_PAIS) ou por cidade (POR_CIDADE)
+ */
+void m2_historico_de_temperaturas(DADOS *dados, int filtra) {
     DADOS_HISTORICO *temps = NULL;
     int numIntervalos = 0;
 
@@ -545,14 +589,13 @@ void historico_de_temperaturas(DADOS *dados, int filtra) {
 
     char paisOuCidade[100];
     int periodo = 0;
-    char comentario[] = "Qual o periodo que pretende analisar?";
 
     bool pedeDeNovo = false;
 
     int anoMax = filtra == POR_CIDADE ? dados->citiesAnoMax : dados->countriesAnoMax;
     int anoMin = filtra == POR_CIDADE ? dados->citiesAnoMin : dados->countriesAnoMin;
 
-    periodo = perguntar_referencia_a_analisar(1, anoMax - anoMin, comentario);
+    periodo = perguntar_referencia_a_analisar(1, anoMax - anoMin, "Qual o periodo que pretende analisar?");
 
     do {
         pedeDeNovo = false;
@@ -561,7 +604,7 @@ void historico_de_temperaturas(DADOS *dados, int filtra) {
             getstring(paisOuCidade, filtra == POR_PAIS ? "País a analisar: " : "Cidade a analisar: ");
         }
 
-        numIntervalos = calculo_num_intervalos(periodo, dados, filtra == POR_CIDADE);
+        numIntervalos = m2_calculo_num_intervalos(periodo, dados, filtra == POR_CIDADE);
 
         //Cria vetores com o numero de intervalos
         temps = (DADOS_HISTORICO*) checkedMalloc(sizeof(DADOS_HISTORICO) * numIntervalos);
@@ -571,26 +614,28 @@ void historico_de_temperaturas(DADOS *dados, int filtra) {
             m2_init_dados_historico(&temps[i]);
         }
 
+        //Calcula os dados para fazer o histórico e develove o numero de paises ou cidades encontradas
+        // que correspondem ao que o utilizador inseriu
         numCidOuPaisFound = m2_CalculaSumMaxEMin(dados, filtra, paisOuCidade, periodo,
             temps, &cidOuPaisFound);
 
         if(filtra != GLOBAL) {
             if(numCidOuPaisFound == 0) {
-                printf(filtra == POR_CIDADE ? "Não foi encontrada nenhuma cidade %s" : "Não foi encontrado nenhum pais %s",
+                printf(filtra == POR_CIDADE ? CIDADE_NAO_ENCONTRADA : PAIS_NAO_ENCONTRADO,
                     paisOuCidade);
                 pedeDeNovo = true;
                 free(temps);
                 free(cidOuPaisFound);
                 continue; //Não imprime o historico
             } else if(numCidOuPaisFound > 1) {
-                printf(filtra == POR_CIDADE ? "Foram encontradas as seguintes cidades\n" :
-                        "Foram encontrados os seguintes paises\n");
+                printf(filtra == POR_CIDADE ? LISTAR_CIDADES_ENCONTRADAS :
+                        LISTAR_PAISES_ENCONTRADOS);
 
                 for(int i = 0; i<numCidOuPaisFound; i++) {
                     printf("%d %s\n", i+1, cidOuPaisFound[i]);
                 }
 
-                char tecla = pergunta_tecla("\nQuer escolher outro nome? [s/n]", 's', 'n');
+                char tecla = pergunta_tecla("\nQuer escolher outro nome? [S/N]", 's', 'n');
                 if(tecla == 's') {
                     pedeDeNovo = true;
                     free(cidOuPaisFound);
@@ -705,7 +750,9 @@ int calculo_dados_por_pais_ou_cidade_num_ano(DADOS* dados, int ano, bool porCida
     return numEntries;
 }
 
-//
+/**
+ * Devolve um vetor 
+ */
 DADOS_ANALISE_POR_ANO **calcula_topN(int n, DADOS_ANALISE_POR_ANO *dadosPorPais, int numEntries, int mode) {
     DADOS_ANALISE_POR_ANO **topN = (DADOS_ANALISE_POR_ANO **) checkedMalloc(n*sizeof(DADOS_ANALISE_POR_ANO*));
 
@@ -735,7 +782,12 @@ DADOS_ANALISE_POR_ANO **calcula_topN(int n, DADOS_ANALISE_POR_ANO *dadosPorPais,
     return topN;
 }
 
-void analise_por_pais_ou_cidade(DADOS* dados, bool porCidade)
+/**
+ * Menu da analise das tempeaturas por ano
+ * O parametro porCidade define se a análise vai ser
+ *      das TOP N cidades ou TOP N países
+ */
+void m3_analise_por_pais_ou_cidade(DADOS* dados, bool porCidade)
 {
     int n = 0;
     int numEntries = 0;
@@ -805,18 +857,18 @@ void analise_por_pais_ou_cidade(DADOS* dados, bool porCidade)
     free(dadosPorPais);
 }
 
-
-//TODO não usada
-//usar para procurar os strings nos ficheiro
+/**
+ * Devolve true se houver um país ou cidade na lista que corresponda ao parametro string
+ */
 bool fgetstring(list_node_t * aux, bool porPais, char string [BUFFER_SIZE])
 {
     while(aux != NULL)
     {
-        if(porPais && (strstr(aux->payload->pais, string) != NULL))
+        if(porPais && (strcasestr(aux->payload->pais, string) != NULL))
         {
             return true;
         }
-        else if(strstr(aux->payload->cidade,string) != NULL)
+        else if(strcasestr(aux->payload->cidade,string) != NULL)
         {
             return true;
         }
@@ -825,8 +877,29 @@ bool fgetstring(list_node_t * aux, bool porPais, char string [BUFFER_SIZE])
     return false;
 }
 
-//função estrutural do cálculo do miving average
-void m4_calculo_MA(int M, DADOS *dados, bool porPais, bool porCidade)
+void menu_4_analise_da_temperatura_global(DADOS *dados)
+{
+    int M = 0;
+    char comentario[] = "Quantos meses pretende utilizar no cálculo da MA (moving average)?";
+
+    printf("\n\n\t---Análise da temperuta Global---\n\n");
+
+    M = perguntar_referencia_a_analisar(1 ,MAX_M, comentario);
+
+    // cálculo do aumento de temperatura global
+    m4_calculo_MA(M, dados, GLOBAL);
+    // cálculo do aumento de temperatura por país
+    m4_calculo_MA(M, dados, POR_PAIS);
+    // cálculo do aumento de temperatura por cidade
+    m4_calculo_MA(M, dados, POR_CIDADE);
+}
+
+/**
+ * Menu da moving average
+ * O parametro filtra destingue o se é global (GLOBAL),
+ *      por país (POR_PAIS) ou por cidade (POR_CIDADE)
+ */
+void m4_calculo_MA(int M, DADOS *dados, int filtra)
 {
     int anos_a_estudar[NR_DE_ANOS_A_ESTUDAR] = {ANO_A_ESTUDAR_1860, ANO_A_ESTUDAR_1910, ANO_A_ESTUDAR_1960, ANO_A_ESTUDAR_1990, ANO_A_ESTUDAR_2013};
     float *vectMA_anos = NULL;
@@ -834,34 +907,36 @@ void m4_calculo_MA(int M, DADOS *dados, bool porPais, bool porCidade)
     char cidade_a_analisar[] = "Qual a Cidade que quer analisar?";
     char paisOuCidade[100];
 
-    int anoMax = porCidade ? dados->citiesAnoMax : dados->countriesAnoMax;
-    int anoMin = porCidade ? dados->citiesAnoMin : dados->countriesAnoMin;
+    int anoMax = filtra == POR_CIDADE ? dados->citiesAnoMax : dados->countriesAnoMax;
+    int anoMin = filtra == POR_CIDADE ? dados->citiesAnoMin : dados->countriesAnoMin;
 
     list_node_t *aux = NULL;
-    if(porPais || porCidade)
+    if(filtra != GLOBAL)
     {
-        aux = porCidade ? dados->headCitiesOriginal->next : dados->headCountriesOriginal->next; //->next para a node a seguir à dummy node
+        aux = filtra == POR_CIDADE ? dados->headCitiesFiltrada->next : dados->headCountriesFiltrada->next; //->next para a node a seguir à dummy node
     }
     else
     {
-        aux = dados->headCountriesOriginal->next;
+        aux = dados->headCountriesFiltrada->next;
     }
 
      vectMA_anos = (float*) checkedMalloc(sizeof(float) * (anoMax - anoMin + 1));
 
-     if(porPais || porCidade) getstring(paisOuCidade, porPais ? pais_a_analisar : cidade_a_analisar);
+    if(filtra != GLOBAL) {
+        getstring(paisOuCidade, filtra == POR_PAIS ? pais_a_analisar : cidade_a_analisar);
+    }
 
 
     int ano_a_analisar = anoMin;
     int pos_no_vetor = 0;
     while (ano_a_analisar <= anoMax )
     {
-        vectMA_anos[pos_no_vetor] = M4_MediaAno (ano_a_analisar, porPais, porCidade, paisOuCidade, M, aux);
+        vectMA_anos[pos_no_vetor] = M4_MediaAno (ano_a_analisar, filtra, paisOuCidade, M, aux);
         ano_a_analisar ++;
         pos_no_vetor ++;
     }
 
-    if(fgetstring(aux, porPais, paisOuCidade) || (!porPais && !porCidade))
+    if(filtra == GLOBAL || fgetstring(aux, filtra == POR_PAIS, paisOuCidade))
     {
         for (int g = 0; g < NR_DE_ANOS_A_ESTUDAR; g++)
        {
@@ -869,21 +944,21 @@ void m4_calculo_MA(int M, DADOS *dados, bool porPais, bool porCidade)
             {
                 printf("Não há dados para %d\n", anos_a_estudar[g]);
             }
-            else if(!porPais && !porCidade)
+            else if(filtra == GLOBAL)
             {
-                printf("Em %d, o aumento da temperatura global foi == %f graus\n", anos_a_estudar[g],
-                M4_CalculoAumentoTemp(dados, vectMA_anos, anos_a_estudar[g], porCidade));
+                printf("Em %d, o aumento da temperatura global foi == %.2f graus\n", anos_a_estudar[g],
+                M4_CalculoAumentoTemp(dados, vectMA_anos, anos_a_estudar[g], filtra == POR_CIDADE));
             }
             else
             {
-                printf("Em %d, o aumento da temperatura em %s foi == %f graus\n", anos_a_estudar[g], paisOuCidade,
-                M4_CalculoAumentoTemp(dados, vectMA_anos, anos_a_estudar[g], porCidade));
+                printf("Em %d, o aumento da temperatura em %s foi == %.2f graus\n", anos_a_estudar[g], paisOuCidade,
+                M4_CalculoAumentoTemp(dados, vectMA_anos, anos_a_estudar[g], filtra == POR_CIDADE));
             }
        }
     }
     else
     {
-        if(porPais)
+        if(filtra == POR_PAIS)
         {
             printf("%s não é um país ou está mal escrito!\n", paisOuCidade);
         }
@@ -897,10 +972,9 @@ void m4_calculo_MA(int M, DADOS *dados, bool porPais, bool porCidade)
     free(vectMA_anos);
 }
 
-//TODO mudar nome
 //calcula a media da temperatura de cada mês ao longo de um ano
 //chama a função moving average
-float M4_MediaAno (int ano_a_analisar, bool porPais, bool porCidade, char paisOuCidade[100], int M, list_node_t *aux)
+float M4_MediaAno (int ano_a_analisar, int filtra, char paisOuCidade[100], int M, list_node_t *aux)
 {
     float soma_temperatura_mes = 0;
     int mes_a_analisar = 1;
@@ -918,9 +992,9 @@ float M4_MediaAno (int ano_a_analisar, bool porPais, bool porCidade, char paisOu
     int nr_dados = 0;
     while( aux->next != NULL)
     {
-        if((!porPais && !porCidade) ||
-            (porPais && strstr(aux->payload->pais, paisOuCidade) != NULL) ||
-            (porCidade && strstr(aux->payload->cidade, paisOuCidade) != NULL))
+        if(filtra == GLOBAL ||
+            (filtra == POR_PAIS && strcasestr(aux->payload->pais, paisOuCidade) != NULL) ||
+            (filtra == POR_CIDADE && strcasestr(aux->payload->cidade, paisOuCidade) != NULL))
         {
             //otimizar programa
             if(aux->payload->dt.ano > ano_a_analisar)   break;
@@ -967,8 +1041,8 @@ float M4_MediaAno (int ano_a_analisar, bool porPais, bool porCidade, char paisOu
     free(vect_temp);
     free(vect_mes_tem_dados);
     return media_anual;
-
 }
+
 // calcula um moving average ao longo de uma ano
 // e a média desse ano
 float m4_moving_average(int M, float* vect_temp, bool* vect_mes_tem_dados)
@@ -1026,24 +1100,4 @@ float M4_CalculoAumentoTemp(DADOS *dados, float *vect, int ano, bool porCidade)
     }
     ATG = max - min;
     return ATG;
-}
-
-void menu_analise_da_temperatura_global(DADOS *dados)
-{
-    int M = 0;
-    char comentario[] = "Quantos meses pretende utilizar no cálculo da MA (moving average)?";
-
-    printf("\n\n\t---Análise da temperuta Global---\n\n");
-
-    M = perguntar_referencia_a_analisar(1 ,MAX_M, comentario);
-
-    // cálculo do aumento de temperatura global
-    m4_calculo_MA(M, dados, false, false);
-    // cálculo do aumento de temperatura por país
-    m4_calculo_MA(M, dados, true, false);
-    // cálculo do aumento de temperatura por cidade
-    m4_calculo_MA(M, dados, false, true);
-
-
-
 }

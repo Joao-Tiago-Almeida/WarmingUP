@@ -79,11 +79,16 @@ bool ModoGrafico(char *nomeFileCidades, DADOS *dados  )
 
     bool mouse_down = false;
 
+    list_node_t* aux = NULL;
+
     if(dados->headCitiesOriginal == NULL)  read_file_cities (dados,nomeFileCidades);
+
+    vecCidadesSize = VECT_CIDADES_INITIAL_SIZE;
+    cidades = (dados_temp*) checkedMalloc(vecCidadesSize * sizeof(dados_temp));
 
     //Começa no menor ano
     //TODO porquw -1, ?? pq quando chama a função incrementa???
-    anoAtual = dados->citiesAnoMin-1;
+    anoAtual = dados->citiesAnoMin-1;    
 
     // initialize graphics
     InitEverything(width, height, &AppleGaramond, imgs, &window, &renderer);
@@ -157,13 +162,13 @@ bool ModoGrafico(char *nomeFileCidades, DADOS *dados  )
         //Se não estiver na pausa avança o ano
         if(!pausa) {
             if(velocidade == 0) { //Velocidade 0 significa andar de 2 em dois anos
-                MudarAno(dados, &cidades, &vecCidadesSize, &anoAtual);
-                MudarAno(dados, &cidades, &vecCidadesSize, &anoAtual);
+                MudarAno(dados, &aux, &cidades, &vecCidadesSize, &anoAtual);
+                MudarAno(dados, &aux, &cidades, &vecCidadesSize, &anoAtual);
             } else {
                 velocidadeCounter++;
                 if(velocidadeCounter >= velocidade) {
                     velocidadeCounter = 0;
-                    MudarAno(dados, &cidades, &vecCidadesSize, &anoAtual);
+                    MudarAno(dados, &aux, &cidades, &vecCidadesSize, &anoAtual);
                 }
             }
         }
@@ -175,7 +180,6 @@ bool ModoGrafico(char *nomeFileCidades, DADOS *dados  )
         //Desenha o mapa e as cidades na renderTexture
         RenderMap( imgs, renderer, width, height);
         RenderCities(renderer, dados, cidades, vecCidadesSize);
-        SDL_RenderPresent(renderer);
 
 
         //Desenha na janela
@@ -528,7 +532,8 @@ void RenderYear(SDL_Renderer *renderer, TTF_Font *font, int ano) {
 */
 void RenderPausa(SDL_Renderer *renderer, int pausaCounter) {
     SDL_Rect rect = { 10, 40, 10, 40 };
-    int alpha = 200 + 55 * abs(pausaCounter - MAX_PAUSA_COUNTER/2) / MAX_PAUSA_COUNTER/2;
+    int a = abs(pausaCounter - MAX_PAUSA_COUNTER/2);
+    int alpha = 200 + 55 * a / MAX_PAUSA_COUNTER/2;
     SDL_SetRenderDrawColor(renderer, 43, 168, 11, alpha);
     SDL_RenderFillRect(renderer, &rect);
     rect.x += 25;
@@ -613,7 +618,7 @@ void ColocaNodeNoVetorCidades(list_node_t *node, dados_temp **cidades, int **cid
 /**
 *Atualiza o vetor das cidades com valores de novas temperaturas
 */
-void AtualizaCidades(DADOS *dados, dados_temp **cidades, int *vecCidadesSize, int ano) {
+void AtualizaCidades(DADOS *dados, list_node_t **aux, dados_temp **cidades, int *vecCidadesSize, int ano) {
     //Vetor que contem o numero de valores para cada cidade, para depois fazer a média
     //No cidades[i].temp vai ser guardada a soma de todas as temperaturas desse ano
     // e depois a temperatura final vai ser calculada dividindo pelo numero de dados
@@ -625,17 +630,11 @@ void AtualizaCidades(DADOS *dados, dados_temp **cidades, int *vecCidadesSize, in
     {
         //Caso seja o primeiro ano inicializa o vetor
 
-        //Se passar do ultimo ano de volta para o primeiro tem de apagar o vetor
-        if(*cidades != NULL) {
-            free(*cidades);
-            *cidades = NULL;
-        }
-
-        *vecCidadesSize = VECT_CIDADES_INITIAL_SIZE;
-        *cidades = (dados_temp*) checkedMalloc((*vecCidadesSize) * sizeof(dados_temp));
+        //Se passar do ultimo ano de volta para o primeiro apaga os dados no vetor
         for(int i = 0; i<(*vecCidadesSize); i++) {
             InitEmptyCidade(&(*cidades)[i]);
         }
+        *aux = dados->headCitiesOriginal->next;
     }
 
     //Fazer com que o vetor tenha o mesmo tamanho que o das cidades
@@ -648,18 +647,18 @@ void AtualizaCidades(DADOS *dados, dados_temp **cidades, int *vecCidadesSize, in
         (*cidades)[i].tempAnterior = (*cidades)[i].temp;
     }
 
-    list_node_t *aux = dados->headCitiesOriginal->next;
+    
 
     //Avança o aux até ao ano que se quer
-    while(aux != NULL && aux->payload->dt.ano < ano) {
-        aux = aux->next;
+    while(*aux != NULL && (*aux)->payload->dt.ano < ano) {
+        *aux = (*aux)->next;
     }
 
     //Começando com o aux a apontar para o primeiro elemento da lista com dt.ano == ano
-    while(aux != NULL && aux->payload->dt.ano == ano) {
-        ColocaNodeNoVetorCidades(aux, cidades, &cidadesNumDados, vecCidadesSize);
+    while(*aux != NULL && (*aux)->payload->dt.ano == ano) {
+        ColocaNodeNoVetorCidades(*aux, cidades, &cidadesNumDados, vecCidadesSize);
 
-        aux = aux->next;
+        *aux = (*aux)->next;
     }
 
     //Calcula as médias
@@ -689,7 +688,7 @@ void AtualizaCidades(DADOS *dados, dados_temp **cidades, int *vecCidadesSize, in
 /**
 *Incrementa o ano no vetor das cidades em uma unidade
 */
-void MudarAno(DADOS *dados, dados_temp **cidades, int *vecCidadesSize, int *ano) {
+void MudarAno(DADOS *dados, list_node_t **aux, dados_temp **cidades, int *vecCidadesSize, int *ano) {
     //Aumenta o ano
     //Se passar dos limites "dá a volta"
     (*ano)++;
@@ -697,7 +696,7 @@ void MudarAno(DADOS *dados, dados_temp **cidades, int *vecCidadesSize, int *ano)
         *ano = dados->citiesAnoMin;
     }
     //atualiza os valores das temperaturas no vetor das cidades
-    AtualizaCidades(dados, cidades, vecCidadesSize, *ano);
+    AtualizaCidades(dados, aux, cidades, vecCidadesSize, *ano);
 }
 
 /**

@@ -29,9 +29,9 @@ void RenderCities(SDL_Renderer *renderer, DADOS* dados, dados_temp* cidades, int
 void RenderZoom(SDL_Renderer* renderer, SDL_Texture* renderTexture, int zoomPosX, int zoomPosY);
 void InitEmptyCidade(dados_temp *cidade);
 void ColocaNodeNoVetorCidades(list_node_t *node, dados_temp **cidades, int **cidadesNumDados, int *vecCidadesSize);
-void AtualizaCidades(DADOS *dados, dados_temp **cidades, int *vecCidadesSize, int ano);
-void MudarAno(DADOS *dados, dados_temp **cidades, int *vecCidadesSize, int *ano);
 void RenderColor(int _temperatura, DADOS *dados, int* red, int* blue, int* green);
 void RenderInfo(SDL_Renderer * _renderer, TTF_Font *_font);
+void AtualizaCidades(DADOS *dados, list_node_t **aux, dados_temp **cidades, int *vecCidadesSize, int ano);
+void MudarAno(DADOS *dados, list_node_t **aux, dados_temp **cidades, int *vecCidadesSize, int *ano);
 
 #endif
