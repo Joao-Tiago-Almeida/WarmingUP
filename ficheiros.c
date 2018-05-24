@@ -247,7 +247,6 @@ int readFileToList(char* fileName, DADOS* dados, bool cidades)
                 lastPercentage = percentage;
             }
         }
-
     }
 
     fclose(fileInput);

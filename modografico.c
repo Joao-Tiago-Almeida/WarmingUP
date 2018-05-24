@@ -15,15 +15,10 @@
 #include "math.h"
 
 #define M_PI 3.14159265358979323846264338327950288
-#define STRING_SIZE 100       // max size for some strings
 #define HEIGHT_WINDOW_SIZE 850
 #define WIDTH_WINDOW_SIZE 1390
 #define WINDOW_POSX 0       // initial position of the window: x
-#define WINDOW_POSY 0       // initial position of the window: y         n sei oq e
-#define NORTE 0
-#define SUL 1
-#define ESTE 3
-#define OESTE 2
+#define WINDOW_POSY 0       // initial position of the window: y
 #define LATITUDE_MAX 90
 #define LONGITUDE_MAX 180
 #define MAX_RGB 255
@@ -154,7 +149,7 @@ bool ModoGrafico(char *nomeFileCidades, DADOS *dados  )
                 mouse_down = false;
             }
         }
-        
+
         if(zoomPosX != -1)
         {
             //Enquanto o zoom está ativo
@@ -352,6 +347,8 @@ int calculo_coordenada(float coord_local, int _direcao, int _width, int _height,
 
     //permite defenir quando se adiciona ou se subtrai
 
+    //quando é numero par a orientação ou é norte ou oeste
+    //quando é numero ímpar a orientação ou é sul ou este
     int indice = _direcao % 2 == 0 ? -1 : 1;
 
     if(latitude)
@@ -473,8 +470,8 @@ void RenderLegenda(SDL_Renderer * _renderer, TTF_Font *_font, DADOS *dados){
     char buffer[BUFFER_SIZE];
 
     //legenda com as temeraturas mínima  e máxima lidas
-    sprintf(buffer, "Temp. min:\t%.2f\t Temp. max:\t%.2f\t", dados->citiesTempMin, dados->citiesTempMax);
-    RenderText(50, 415, buffer, _font, &white, _renderer);
+    sprintf(buffer, "%.2f\tTemp. min:\t||\t Temp. max:\t%.2f\t", dados->citiesTempMin, dados->citiesTempMax);
+    RenderText(35, 415, buffer, _font, &white, _renderer);
 
     //escala cromática
     int amplitude = fabsf(dados->citiesTempMax) + fabsf(dados->citiesTempMin);

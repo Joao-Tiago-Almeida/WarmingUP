@@ -39,22 +39,22 @@ int main(int argc, char *argv[])
 }
 
 /**
- * Se o utilizador se enganar no comando para correr o programa 
+ * Se o utilizador se enganar no comando para correr o programa
 **/
 void display_usage(char *arg)
 {
     if(arg == comando_mal)
     {
-        printf("Código errado!\n\tExemplo: ./WarmingUp –g -f1 tempcountries.csv -f2 tempcities.csv\n\n");
+        printf("Código errado!\n\tExemplo: ./WarmingUp -g -f1 tempcountries.csv -f2 tempcities.csv\n\n");
     }
     else
     {
-        printf("Argumento %s inválido!\n\tExemplo: ./WarmingUp –g -f1 tempcountries.csv -f2 tempcities.csv\n\n", arg);
+        printf("Argumento %s inválido!\n\tExemplo: ./WarmingUp -g -f1 tempcountries.csv -f2 tempcities.csv\n\n", arg);
     }
 }
 
 /**
- * Lê os argumentos do terminal 
+ * Lê os argumentos do terminal
 **/
 void ler_argumentos(int argc, char *argv[], bool *modoGrafico, char **nomeFilePaises, char **nomeFileCidades) {
     //Quando é lido -f1 ou -f2 esta variavel indica que
@@ -97,7 +97,6 @@ void ler_argumentos(int argc, char *argv[], bool *modoGrafico, char **nomeFilePa
                 }
                 else
                 {
-                    printf("argumento:: %d\n", i+1);
                     display_usage(argv[i]);
                     exit(EXIT_FAILURE);
                 }
@@ -108,9 +107,7 @@ void ler_argumentos(int argc, char *argv[], bool *modoGrafico, char **nomeFilePa
 
     //Caso o acabe em -fx sem nome do ficheiro ou não seja colocado o nome de um dos ficheiros
     if(expectingProgramType || *nomeFilePaises == NULL || *nomeFileCidades == NULL)
-    //if( expectingFileName || expectingProgramType || *nomeFilePaises == NULL || *nomeFileCidades == NULL)
     {
-        printf("argumento:: %d\n", argc);
         display_usage(comando_mal);
         exit(EXIT_FAILURE);
     }

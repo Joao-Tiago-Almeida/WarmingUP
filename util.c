@@ -12,7 +12,6 @@ void *checkedMalloc(size_t size) {
         printf("Out of memory!\n");
         exit(EXIT_FAILURE);
     }
-
     return mem;
 }
 
@@ -26,10 +25,11 @@ void *checkedRealloc(void *ptr, size_t size) {
         printf("Out of memory!\n");
         exit(EXIT_FAILURE);
     }
-
     return mem;
 }
-
+/**
+* Elimina o carater do parâmetro de entrada 2, se este estiver na penúltima posição da string
+*/
 void removeLastCharIfMatch(char* str, char c) {
     if(str[strlen(str)-1] == c)
     {
