@@ -1,4 +1,22 @@
-//TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+/**
+*Este projeto foi realizado no âmbito da cadeira de programação de 1ºano , referente ao curso MEEC 2ºsemestre 2017-2018.
+*Autores do projeto: Miguel de Sousa Fazenda 90146 João Tiago Almeida 90119 MEEC.
+*Data de realização: de 1.maio.2018 até 25.maio.2018.
+*O projeto consiste na elaboração de um jogo que permite ao utilizador ter informação sobre a temperatura dos países e cidades ao
+    ao longo dos anos
+*O projeto a pares tem como objetivo a aprendizagem por parte dos alunos da linguagem básica de programação #C, e um desenvolvimento de
+    espírito de grupo.
+
+*O projeto consiste no tratamento de dados relativo às temperaturas registadas em cidades de todo o mundo. Estes dados estão
+    contidos em ficheiros '.csv' . Neste projeto podemos estudar a evolução da temperatura global, por cidade ou país.
+    Assim, é possível analisar as temperaturas (mín , max, méd), bem como os top N países em cada parâmetro.
+
+
+//  CÓDIGO PARA COMPILAR NO TERMINAL
+//  gcc *.c -g -I/usr/local/include -Wall -pedantic -std=c99 -L/usr/local/lib -lm -lSDL2 -lSDL2_ttf -lSDL2_image -o WarmingUp
+//  EXECUTÁVEL
+//  ./WarmingUp -f1 tempcountries.csv -f2 tempcities.csv -t
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,6 +29,7 @@
 #include "ficheiros.h"
 #include "conjuntodados.h"
 #include "modografico.h"
+#include "util.h"
 
 void display_usage(char *arg);
 void ler_argumentos(int argc, char *argv[], bool *modoGrafico, char **nomeFilePaises, char **nomeFileCidades);

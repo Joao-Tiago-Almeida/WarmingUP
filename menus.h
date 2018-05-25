@@ -4,10 +4,6 @@
 #include "estruturas.h"
 #include "conjuntodados.h"
 
-int perguntar_menu_choice();
-void getstring(char* string, char _comentario[]);
-char pergunta_tecla(char* comentario, char opcao1, char opcao2);
-bool ModoTextual(char *nomeFilePaises, char *nomeFileCidades, DADOS *dados);
 bool menu_principal(DADOS* dados);
 void menu_1_filtragem_de_dados(DADOS* dados);
 void menu_2_historico_de_temperaturas(DADOS* dados);
