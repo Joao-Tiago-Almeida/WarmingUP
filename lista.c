@@ -94,3 +94,17 @@ int remove_nodes(list_node_t *_head, bool freePayload)
     }
     return 0;
 }
+
+//Esta função cria uma nova node que tem como payload uma copia do parametro dados
+//  e insere-a depois da tail, devolvendo um apontador para essa nova node, que vai ser
+//  a nova tail
+list_node_t *insert_node_by_tail(list_node_t *_tail, dados_temp *_dados)
+{
+    list_node_t *new_node = create_node(_dados);
+
+    new_node->prev = _tail;
+    new_node->next = NULL;
+    _tail->next = new_node;
+
+    return new_node;
+}

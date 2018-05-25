@@ -14,8 +14,10 @@ void dados_init(DADOS *dados)
     limpar_criterios(&dados->criterios);
     dados->headCountriesOriginal = NULL;
     dados->headCountriesFiltrada = NULL;
+    dados->tailCountriesFiltrada = NULL;
     dados->headCitiesOriginal = NULL;
     dados->headCitiesFiltrada = NULL;
+    dados->tailCitiesFiltrada = NULL;
     dados->countriesAnoMin = __INT32_MAX__;
     dados->countriesAnoMax = -__INT32_MAX__;
     dados->citiesAnoMin = __INT32_MAX__;
@@ -66,13 +68,16 @@ void dados_apaga_listaFiltrada(DADOS* dados) {
         remove_nodes(dados->headCountriesFiltrada, false);
         free(dados->headCountriesFiltrada); //Free da dummy node
         dados->headCountriesFiltrada = dados->headCountriesOriginal;
+        dados->tailCountriesFiltrada = NULL;
     }
-    else if (dados->headCitiesFiltrada != dados->headCitiesOriginal)
+    
+    if (dados->headCitiesFiltrada != dados->headCitiesOriginal)
     {
         //Caso exista lista filtrada (a lista filtrada não aponta para a original)
         remove_nodes(dados->headCitiesFiltrada, false);
         free(dados->headCitiesFiltrada); //Free da dummy node
         dados->headCitiesFiltrada = dados->headCitiesOriginal;
+        dados->tailCitiesFiltrada = NULL;
     }
 }
 
@@ -112,10 +117,12 @@ void criacao_lista_filtrada(DADOS * dados, bool lista_paises, CRITERIOS_FILTRAGE
     if(lista_paises)
     {
         dados->headCountriesFiltrada = create_list();
+        dados->tailCountriesFiltrada = dados->headCountriesFiltrada;
     }
     else
     {
         dados->headCitiesFiltrada = create_list();
+        dados->tailCitiesFiltrada = dados->headCitiesFiltrada;
     }
 
     aux = lista_paises ? dados->headCountriesOriginal->next : dados->headCitiesOriginal->next;
@@ -124,7 +131,15 @@ void criacao_lista_filtrada(DADOS * dados, bool lista_paises, CRITERIOS_FILTRAGE
         //Caso cumpra os criterios copia para a lista filtrada
         if (cumpre_criterios(aux->payload, novos_criterios))
         {
-            insert_node(lista_paises ? dados->headCountriesFiltrada : dados->headCitiesFiltrada, aux->payload);
+            list_node_t *new_tail = insert_node_by_tail(lista_paises ? dados->tailCountriesFiltrada : dados->tailCitiesFiltrada, aux->payload);
+            if(lista_paises)
+            {
+                dados->tailCountriesFiltrada = new_tail;
+            }
+            else
+            {
+                dados->tailCitiesFiltrada = new_tail;
+            }
         }
         aux = aux->next;
     }

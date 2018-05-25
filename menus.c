@@ -951,7 +951,7 @@ void m4_calculo_MA(int M, DADOS *dados, int filtra)
         aux = dados->headCountriesFiltrada->next;
     }
 
-     vectMA_anos = (float*) checkedMalloc(sizeof(float) * (anoMax - anoMin + 1));
+    vectMA_anos = (float*) checkedMalloc(sizeof(float) * (anoMax - anoMin + 1));
 
     if(filtra != GLOBAL) {
         getstring(paisOuCidade, filtra == POR_PAIS ? pais_a_analisar : cidade_a_analisar);
@@ -978,12 +978,12 @@ void m4_calculo_MA(int M, DADOS *dados, int filtra)
             else if(filtra == GLOBAL)
             {
                 printf("Em %d, o aumento da temperatura global foi == %.2f graus\n", anos_a_estudar[g],
-                M4_CalculoAumentoTemp(dados, vectMA_anos, anos_a_estudar[g], filtra == POR_CIDADE));
+                    M4_CalculoAumentoTemp(dados, vectMA_anos, anos_a_estudar[g], filtra == POR_CIDADE));
             }
             else
             {
                 printf("Em %d, o aumento da temperatura em %s foi == %.2f graus\n", anos_a_estudar[g], paisOuCidade,
-                M4_CalculoAumentoTemp(dados, vectMA_anos, anos_a_estudar[g], filtra == POR_CIDADE));
+                    M4_CalculoAumentoTemp(dados, vectMA_anos, anos_a_estudar[g], filtra == POR_CIDADE));
             }
        }
     }
