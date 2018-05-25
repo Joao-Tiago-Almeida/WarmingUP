@@ -156,7 +156,7 @@ bool menu_principal(DADOS* dados)
         printf("1. Filtragem de dados;\n2. Histórico de Temperaturas;\n");
         printf("3. Análise da temperatura por ano;\n4. Análise da temperatura global;\n");
         printf("5. Modo gráfico.\n");
-        printf("\n0 ou Enter. Sair do programa.\n");
+        printf("\n0. Sair do programa.\n");
 
         alinea = perguntar_menu_choice();
 
@@ -203,7 +203,7 @@ void menu_2_historico_de_temperaturas(DADOS* dados)
 
         printf("\n\nEscolha uma das opções seguintes:\n");
         printf("1. Global: aplica-se a todos os países;\n2. Por País: aplica-se a um único país;\n");
-        printf("3. Por Cidade: aplica-se a uma única cidade.\n\n0 ou Enter. Volta ao Menu Principal.\n");
+        printf("3. Por Cidade: aplica-se a uma única cidade.\n\n0. Volta ao Menu Principal.\n");
 
         alinea = perguntar_menu_choice();
 
@@ -241,7 +241,7 @@ void menu_3_analise_da_temperatura_por_ano(DADOS* dados)
     {
         printf("\n\nEscolha uma das opções seguintes:\n");
         printf("1. Análise por País;\n2. Análise por cidade.\n");
-        printf("\n0 ou Enter. Volta ao Menu Principal.\n");
+        printf("\n0. Volta ao Menu Principal.\n");
 
         alinea = perguntar_menu_choice();
 
@@ -278,7 +278,7 @@ void menu_1_filtragem_de_dados(DADOS* dados)
     {
         printf("\n\tMenu Filtragem de Dados\n\nEscolha uma das opções seguintes:\n");
         printf("1. Limpa critéritos;\n2. Escolhe intervalos para analise;\n");
-        printf("3. Escolhe um mês.\n\n0 ou Enter. Volta ao Menu Principal.\n");
+        printf("3. Escolhe um mês.\n\n0. Volta ao Menu Principal.\n");
 
         alinea = perguntar_menu_choice();
 

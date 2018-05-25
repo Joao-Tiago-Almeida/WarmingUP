@@ -494,7 +494,7 @@ void RenderLegenda(SDL_Renderer * _renderer, TTF_Font *_font, DADOS *dados){
 */
 void RenderInfo(SDL_Renderer * renderer, TTF_Font *font){
     SDL_Color pink = {255, 32, 122, 255 };
-    SDL_Rect rect = { 500, 200, 400, 370 };
+    SDL_Rect rect = { 490, 200, 400, 370 };
     SDL_SetRenderDrawColor(renderer, 93, 138, 168, 100);
     SDL_RenderFillRect(renderer, &rect);
 
